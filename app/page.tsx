@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function Home() {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<string[][]>([]);
 
     useEffect(() => {
         fetch("/api/data")
@@ -13,8 +13,8 @@ export default function Home() {
             .then((csv) => {
                 const columnSeparator = ";"
                 const [headerLine, ...lines] = csv.trim().split("\n");
-                const headers: string[] = headerLine.split(columnSeparator);
-                const rows: string[][] = lines.map((line) => line.split(columnSeparator));
+                const headers = headerLine.split(columnSeparator);
+                const rows = lines.map((line) => line.split(columnSeparator));
                 setData([headers, ...rows]);
             });
     }, []);
