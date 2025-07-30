@@ -31,7 +31,7 @@ export default function Home() {
     if (data.length === 0) return <div className="p-4">Loading...</div>;
 
     const headers = getHeaders(data)
-
+        .filter((header) => colsIncluded.includes(header.key));
     const groupMap: Record<string, number> = {};
     headers.forEach((h) => {
         groupMap[h.group] = (groupMap[h.group] || 0) + 1;
@@ -55,14 +55,16 @@ export default function Home() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((row, ri) => (
-                        <TableRow key={ri}>
-                            {headers.map((h, hi) => {
-                                const value = h.key === "ticker" ? row.ticker : getNestedValue(row, h.group, h.key);
-                                return <TableCell key={hi}>{value ?? ""}</TableCell>;
-                            })}
-                        </TableRow>
-                    ))}
+                    {data
+                        .filter(row => rowsIncluded.includes(row.ticker))
+                        .map((row, ri) => (
+                            <TableRow key={ri}>
+                                {headers.map((h, hi) => {
+                                    const value = h.key === "ticker" ? row.ticker : getNestedValue(row, h.group, h.key);
+                                    return <TableCell key={hi}>{value ?? ""}</TableCell>;
+                                })}
+                            </TableRow>
+                        ))}
                 </TableBody>
             </Table>
         </Card>
@@ -99,12 +101,12 @@ function getHeaders(data: TickerRow[]) {
     });
 
     return Object.entries(headerGroups).flatMap(([group, keys]) =>
-        Array.from(keys).map((key) => ({ group, key }))
+        Array.from(keys).map((key) => ({group, key}))
     );
 }
 
 const colsIncluded = [
-    "TICKER",
+    "ticker",
     "LIQUIDEZ MEDIA DIARIA",
     "P/L",
     "P/VP",
@@ -116,6 +118,14 @@ const colsIncluded = [
     "LIQ CORRENTE",
     "CAGR LUCROS 5 ANOS",
     "DY",
+    "strong_buy",
+    "buy",
+    "hold",
+    "underperform",
+    "sell",
+    "min",
+    "avg",
+    "max",
 ]
 
 const rowsIncluded = [
