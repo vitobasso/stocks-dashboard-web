@@ -3,21 +3,7 @@
 import {useEffect, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-
-//TODO share with route.ts
-type Fundaments = { [key: string]: string | number };
-type Overview = { value: number; future: number; past: number; health: number; dividends: number };
-type AnalystRating = { strongBuy: number; buy: number; hold: number; underperform: number; sell: number };
-type PriceForecast = { min: number; avg: number; max: number };
-type Price = { current: number; day: number; month: number; year: number };
-type TickerRow = {
-    ticker: string;
-    fundaments?: Fundaments;
-    overview?: Overview;
-    analystRating?: AnalystRating;
-    priceForecast?: PriceForecast;
-    price?: Price;
-};
+import {TickerRow} from "@/shared/types";
 
 export default function Home() {
     const [data, setData] = useState<TickerRow[]>([]);

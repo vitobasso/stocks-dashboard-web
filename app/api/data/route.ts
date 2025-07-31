@@ -1,12 +1,7 @@
 import {NextResponse} from 'next/server';
 import fs from 'fs';
 import path from 'path';
-
-// TODO share with page.tsx
-type Fundaments = { [key: string]: string | number };
-type Overview = { value: number; future: number; past: number; health: number; dividends: number };
-type AnalystRating = { strongBuy: number; buy: number; hold: number; underperform: number; sell: number };
-type PriceForecast = { min: number; avg: number; max: number };
+import {Fundaments, AnalystRating, PriceForecast} from "@/shared/types";
 
 const rootDir = "../ai-scraper/output/20250701";
 
