@@ -29,7 +29,8 @@ function fundamentals(): Record<string, Fundamentals> {
 
 function parseFundaments(csv: string): Record<string, Fundamentals> {
     const [headerLine, ...lines] = csv.trim().split("\n");
-    const headers = headerLine.split(";").map(line => line.trim());
+    const headers = headerLine.split(";").map(header => header.trim())
+        .map(header => headerMap[header] ?? header);
     const entries = lines.map(line => {
         const values = line.split(";");
         const [ticker, ...rest] = values;
@@ -55,4 +56,12 @@ function analysis(): Record<string, { analyst_rating: AnalystRating, price_forec
         return [ticker, data];
     });
     return Object.fromEntries(entries);
+}
+
+const headerMap: Record<string, string> = {
+    "LIQUIDEZ MEDIA DIARIA": "liquidezMediaDiaria",
+    "MARG. LIQUIDA": "margem",
+    "DIV. LIQ. / PATRI.": "divida",
+    "LIQ. CORRENTE": "liquidezCorrente",
+    "CAGR LUCROS 5 ANOS": "lucro",
 }
