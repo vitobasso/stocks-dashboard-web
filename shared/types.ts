@@ -1,9 +1,9 @@
-export type Fundaments = { [key: string]: string | number };
+export type Fundamentals = { [key: string]: string | number };
 export type Overview = { value: number; future: number; past: number; health: number; dividends: number };
 export type AnalystRating = { strongBuy: number; buy: number; hold: number; underperform: number; sell: number };
 export type PriceForecast = { min: number; avg: number; max: number };
 export type ScrapedEntry = {
-    fundaments?: Fundaments;
+    fundamentals?: Fundamentals;
     overview?: Overview;
     analystRating?: AnalystRating;
     priceForecast?: PriceForecast;

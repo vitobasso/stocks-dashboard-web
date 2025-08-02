@@ -24,36 +24,29 @@ export default function Home() {
 
     if (Object.keys(data).length === 0) return <div className="p-4">Loading...</div>;
 
-    const headers = getHeaders(Object.values(data))
-        .filter((header) => cols.includes(header.key));
-    const groupSizes: Record<string, number> = {};
-    headers.forEach((h) => {
-        groupSizes[h.group] = (groupSizes[h.group] || 0) + 1;
-    });
-
     return (
         <Card className="m-4 p-4 overflow-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        {Object.entries(groupSizes).map(([group, size], i) => (
-                            <TableHead key={i} colSpan={size} className="text-center font-bold">
-                                {group || "Ticker"}
+                        {headers.map(([group, cols], i) => (
+                            <TableHead key={i} colSpan={cols.length} className="text-center font-bold">
+                                {group}
                             </TableHead>
                         ))}
                     </TableRow>
                     <TableRow>
-                        {headers.map((h, i) => (
-                            <TableHead key={i}>{h.key}</TableHead>
+                        {headers.flatMap(([_, keys]) => keys).map((k, i) => (
+                            <TableHead key={i}>{k}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {rows.map((ticker, ri) => (
                         <TableRow key={ri}>
-                            {headers.map((h, hi) => {
-                                const value = h.group === "Ticker" ? ticker : getValue(data[ticker], h.group, h.key);
-                                const color = getColor(value, h.key);
+                            {headers.flatMap(([group, keys]) => keys.map(k => [group, k])).map(([group, key], hi) => {
+                                const value = key === "Ticker" ? ticker : getValue(data[ticker], group, key);
+                                const color = getColor(value, key);
                                 return <TableCell style={{backgroundColor: color}} key={hi}>
                                     {value ?? ""}
                                 </TableCell>;
@@ -66,14 +59,14 @@ export default function Home() {
     );
 }
 
-type Header = {group: string, key: string};
+type Header = [group: string, keys: string[]];
 type MergedEntry = ScrapedEntry & {Quotes: IntervalQuotes};
 type MergedData = Record<string, MergedEntry>;
 type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
 
 function getValue(row: MergedEntry, group: string, key: string) {
     const map: Record<string, any> = {
-        Fundaments: row.fundaments,
+        Fundamentals: row.fundamentals,
         "Analyst Rating": row.analystRating,
         "Price Forecast": row.priceForecast,
         Overview: row.overview,
@@ -88,28 +81,6 @@ function renderChart(data: QuoteSeries) {
     return <Sparklines data={data} width={100} height={40}>
         <SparklinesLine color="black" style={{ fill: "none", strokeWidth: 2 }}/>
     </Sparklines>
-}
-
-function getHeaders(data: ScrapedEntry[]): Header[] {
-    const headerGroups: Record<string, Set<string>> = {
-        "Ticker": new Set(["ticker"]),
-        Fundaments: new Set(),
-        "Analyst Rating": new Set(),
-        "Price Forecast": new Set(),
-        Overview: new Set(),
-        Quotes: new Set(["1d", "1mo", "1y", "5y"]),
-    };
-
-    data.forEach((row) => {
-        Object.keys(row.fundaments || {}).forEach((k) => headerGroups.Fundaments.add(k));
-        Object.keys(row.analystRating || {}).forEach((k) => headerGroups["Analyst Rating"].add(k));
-        Object.keys(row.priceForecast || {}).forEach((k) => headerGroups["Price Forecast"].add(k));
-        Object.keys(row.overview || {}).forEach((k) => headerGroups.Overview.add(k));
-    });
-
-    return Object.entries(headerGroups).flatMap(([group, keys]) =>
-        Array.from(keys).map((key) => ({group, key}))
-    );
 }
 
 function mergeData(scraped: ScrapedData, quotes: QuoteData): MergedData {
@@ -128,35 +99,35 @@ function getColor(value: number, key: string): string {
     return scale(value).hex();
 }
 
-const cols = [
-    "ticker",
-
-    // quotes
-    "1y", //TODO display chart
-
-    // fundaments
-    "LIQUIDEZ MEDIA DIARIA", //TODO x / 1.000.000
-    "P/L",
-    "P/VP",
-    "EV/EBIT", //TODO convert to EY: 1 / x
-    "ROE",
-    "ROIC",
-    "MARG. LIQUIDA",
-    "DIV. LIQ. / PATRI.",
-    "LIQ. CORRENTE",
-    "CAGR LUCROS 5 ANOS", //TODO shorten col, allow for short label + long hint
-    "DY",
-
-    // analyst
-    "strong_buy",
-    "buy",
-    "hold",
-    "underperform",
-    "sell",
-    "min", //TODO relative to current price:
-    "avg", //TODO   (x - price) / price
-    "max", //TODO
-]
+const headers: Header[] = [
+    ["", ["Ticker"]],
+    ["Quotes", ["1d", "1mo", "1y"]],
+    ["Fundamentals", [
+        "LIQUIDEZ MEDIA DIARIA", //TODO x / 1.000.000
+        "P/L",
+        "P/VP",
+        "EV/EBIT", //TODO convert to EY: 1 / x
+        "ROE",
+        "ROIC",
+        "MARG. LIQUIDA",
+        "DIV. LIQ. / PATRI.",
+        "LIQ. CORRENTE",
+        "CAGR LUCROS 5 ANOS", //TODO shorten col, allow for short label + long hint
+        "DY",
+    ]],
+    ["Analyst Rating", [
+        "strong_buy",
+        "buy",
+        "hold",
+        "underperform",
+        "sell",
+    ]],
+    ["Price Forecast", [
+        "min", //TODO relative to current price:
+        "avg", //TODO   (x - price) / price
+        "max", //TODO
+    ]],
+];
 
 const types: Record<string, "chart" | "number" | "string"> = {
     "1y": "chart",

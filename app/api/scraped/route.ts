@@ -1,33 +1,33 @@
 import {NextResponse} from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import {ScrapedData, AnalystRating, Fundaments, PriceForecast} from "@/shared/types";
+import {ScrapedData, AnalystRating, Fundamentals, PriceForecast} from "@/shared/types";
 
 const rootDir = "../ai-scraper/output/20250701";
 
 export async function GET() {
-    const funds = fundaments();
+    const funds = fundamentals();
     const ratings = analysis()
     const tickers = new Set([...Object.keys(funds), ...Object.keys(ratings)]);
     const rows = Array.from(tickers).reduce((acc, ticker) => {
         acc[ticker] = {
             analystRating: ratings[ticker]?.analyst_rating,
             priceForecast: ratings[ticker]?.price_forecast,
-            fundaments: funds[ticker],
+            fundamentals: funds[ticker],
         };
         return acc;
     }, {} as ScrapedData);
     return NextResponse.json(rows);
 }
 
-function fundaments(): Record<string, Fundaments> {
+function fundamentals(): Record<string, Fundamentals> {
     const file = rootDir + "/statusinvest/data/ready/20250701T140910.csv"
     const filePath = path.join(process.cwd(), file)
     const csv = fs.readFileSync(filePath, 'utf8');
     return parseFundaments(csv)
 }
 
-function parseFundaments(csv: string): Record<string, Fundaments> {
+function parseFundaments(csv: string): Record<string, Fundamentals> {
     const [headerLine, ...lines] = csv.trim().split("\n");
     const headers = headerLine.split(";").map(line => line.trim());
     const entries = lines.map(line => {
