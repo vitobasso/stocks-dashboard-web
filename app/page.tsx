@@ -99,8 +99,8 @@ function getHeaders(data: TickerRow[]): Header[] {
 
 function getColor(value: number, key: string): string {
     let rule = coloring[key];
-    if (!rule) return "white";
-    const scale = chroma.scale(["white", "red"]).domain([rule.min, rule.max]);
+    if (!rule || !value) return "white";
+    const scale = chroma.scale([rule.minColor, rule.maxColor]).domain([rule.min, rule.max]);
     return scale(value).hex();
 }
 
@@ -109,26 +109,44 @@ const colsIncluded = [
     "LIQUIDEZ MEDIA DIARIA",
     "P/L",
     "P/VP",
-    "EV/EBIT",
+    "EV/EBIT", //TODO convert to EY: 1 / x
     "ROE",
     "ROIC",
-    "MARG LIQUIDA",
-    "DIV LIQ / PATRI",
-    "LIQ CORRENTE",
-    "CAGR LUCROS 5 ANOS",
+    "MARG LIQUIDA", //TODO not showing
+    "DIV LIQ / PATRI", //TODO not showing
+    "LIQ CORRENTE", //TODO not showing
+    "CAGR LUCROS 5 ANOS", //TODO shorten col, allow for short label + long hint
     "DY",
     "strong_buy",
     "buy",
     "hold",
     "underperform",
     "sell",
-    "min",
-    "avg",
-    "max",
+    "min", //TODO relative to current price:
+    "avg", //TODO   (x - price) / price
+    "max", //TODO
 ]
 
 const coloring: { [key: string]: ColorRule } = {
-    "P/VP": {min: 2, minColor: "white", max: 5, maxColor: "red"},
+    "LIQUIDEZ MEDIA DIARIA": {min: 4, max: 6, minColor: "red", maxColor: "white"},
+    "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
+    "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
+    "EV/EBIT": {min: 10, max: 50, minColor: "white", maxColor: "red"},
+    "ROE": {min: 2, max: 15, minColor: "red", maxColor: "white"},
+    "ROIC": {min: 0, max: 10, minColor: "red", maxColor: "white"},
+    "MARG LIQUIDA": {min: 0, max: 10, minColor: "red", maxColor: "white"},
+    "DIV LIQ / PATRI": {min: 1, max: 2, minColor: "white", maxColor: "red"},
+    "LIQ CORRENTE": {min: 0.5, max: 1, minColor: "red", maxColor: "white"},
+    "CAGR LUCROS 5 ANOS": {min: 8, max: 50, minColor: "white", maxColor: "green"}, //TODO red 0 -> 8 white
+    "DY": {min: 7, max: 20, minColor: "white", maxColor: "green"},
+    "strong_buy": {min: 0, max: 10, minColor: "white", maxColor: "green"},
+    "buy": {min: 0, max: 20, minColor: "white", maxColor: "green"},
+    "hold": {min: 4, max: 15, minColor: "white", maxColor: "red"},
+    "underperform": {min: 0, max: 3, minColor: "white", maxColor: "red"},
+    "sell": {min: 0, max: 1, minColor: "white", maxColor: "red"},
+    "min": {min: 0, max: 30, minColor: "white", maxColor: "green"}, //TODO red -5% -> 0% white
+    "avg": {min: 10, max: 80, minColor: "white", maxColor: "green"}, //TODO red 0% -> 10% white
+    "max": {min: 50, max: 100, minColor: "white", maxColor: "green"}, //TODO red 15% -> 50% white
 }
 
 const rowsIncluded = [
