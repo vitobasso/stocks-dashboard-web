@@ -29,7 +29,7 @@ function fundaments(): Record<string, Fundaments> {
 
 function parseFundaments(csv: string): Record<string, Fundaments> {
     const [headerLine, ...lines] = csv.trim().split("\n");
-    const headers = headerLine.split(";");
+    const headers = headerLine.split(";").map(line => line.trim());
     const entries = lines.map(line => {
         const values = line.split(";");
         const [ticker, ...rest] = values;

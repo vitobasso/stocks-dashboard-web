@@ -123,15 +123,15 @@ const colsIncluded = [
     "1y", //TODO display chart
 
     // fundaments
-    "LIQUIDEZ MEDIA DIARIA", //TODO not showing, rm space: " LIQUIDEZ MEDIA DIARIA"
+    "LIQUIDEZ MEDIA DIARIA",
     "P/L",
     "P/VP",
     "EV/EBIT", //TODO convert to EY: 1 / x
     "ROE",
     "ROIC",
-    "MARG LIQUIDA", //TODO not showing
-    "DIV LIQ / PATRI", //TODO not showing
-    "LIQ CORRENTE", //TODO not showing
+    "MARG. LIQUIDA",
+    "DIV. LIQ. / PATRI.",
+    "LIQ. CORRENTE",
     "CAGR LUCROS 5 ANOS", //TODO shorten col, allow for short label + long hint
     "DY",
 
