@@ -3,12 +3,12 @@
 import {useEffect, useState, useMemo} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {TickerData, TickerEntry, QuoteData, QuoteSeries} from "@/shared/types";
+import {ScrapedData, ScrapedEntry, QuoteData, QuoteSeries, IntervalQuotes} from "@/shared/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
 export default function Home() {
-    const [scraped, setScraped] = useState<TickerData>({});
+    const [scraped, setScraped] = useState<ScrapedData>({});
     const [quotes, setQuotes] = useState<QuoteData>({});
 
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function Home() {
     if (Object.keys(data).length === 0) return <div className="p-4">Loading...</div>;
 
     const headers = getHeaders(Object.values(data))
-        .filter((header) => colsIncluded.includes(header.key));
+        .filter((header) => cols.includes(header.key));
     const groupSizes: Record<string, number> = {};
     headers.forEach((h) => {
         groupSizes[h.group] = (groupSizes[h.group] || 0) + 1;
@@ -49,16 +49,17 @@ export default function Home() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {rowsIncluded
-                        .map((ticker, ri) => (
-                            <TableRow key={ri}>
-                                {headers.map((h, hi) => {
-                                    const value = h.group === "Ticker" ? ticker : getValue(data[ticker], h.group, h.key);
-                                    const color = getColor(value, h.key);
-                                    return <TableCell /*className="p-0"*/ style={{ backgroundColor: color }} key={hi}>{value ?? ""}</TableCell>;
-                                })}
-                            </TableRow>
-                        ))}
+                    {rows.map((ticker, ri) => (
+                        <TableRow key={ri}>
+                            {headers.map((h, hi) => {
+                                const value = h.group === "Ticker" ? ticker : getValue(data[ticker], h.group, h.key);
+                                const color = getColor(value, h.key);
+                                return <TableCell style={{backgroundColor: color}} key={hi}>
+                                    {value ?? ""}
+                                </TableCell>;
+                            })}
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
         </Card>
@@ -66,9 +67,11 @@ export default function Home() {
 }
 
 type Header = {group: string, key: string};
+type MergedEntry = ScrapedEntry & {Quotes: IntervalQuotes};
+type MergedData = Record<string, MergedEntry>;
 type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
 
-function getValue(row: TickerEntry, group: string, key: string) {
+function getValue(row: MergedEntry, group: string, key: string) {
     const map: Record<string, any> = {
         Fundaments: row.fundaments,
         "Analyst Rating": row.analystRating,
@@ -77,7 +80,7 @@ function getValue(row: TickerEntry, group: string, key: string) {
         Quotes: row.Quotes,
     };
     const value = map[group]?.[key];
-    if (typing[key] == "chart") return renderChart(value)
+    if (types[key] == "chart") return renderChart(value)
     return value;
 }
 
@@ -87,7 +90,7 @@ function renderChart(data: QuoteSeries) {
     </Sparklines>
 }
 
-function getHeaders(data: TickerEntry[]): Header[] {
+function getHeaders(data: ScrapedEntry[]): Header[] {
     const headerGroups: Record<string, Set<string>> = {
         "Ticker": new Set(["ticker"]),
         Fundaments: new Set(),
@@ -109,7 +112,7 @@ function getHeaders(data: TickerEntry[]): Header[] {
     );
 }
 
-function mergeData(scraped: TickerData, quotes: QuoteData) {
+function mergeData(scraped: ScrapedData, quotes: QuoteData): MergedData {
     return Object.fromEntries(
         Object.keys({ ...scraped, ...quotes }).map(key => [
             key,
@@ -119,20 +122,20 @@ function mergeData(scraped: TickerData, quotes: QuoteData) {
 }
 
 function getColor(value: number, key: string): string {
-    let rule = coloring[key];
+    let rule = colors[key];
     if (!rule || !value) return "white";
     const scale = chroma.scale([rule.minColor, rule.maxColor]).domain([rule.min, rule.max]);
     return scale(value).hex();
 }
 
-const colsIncluded = [
+const cols = [
     "ticker",
 
     // quotes
     "1y", //TODO display chart
 
     // fundaments
-    "LIQUIDEZ MEDIA DIARIA",
+    "LIQUIDEZ MEDIA DIARIA", //TODO x / 1.000.000
     "P/L",
     "P/VP",
     "EV/EBIT", //TODO convert to EY: 1 / x
@@ -155,11 +158,11 @@ const colsIncluded = [
     "max", //TODO
 ]
 
-const typing: Record<string, "chart" | "number" | "string"> = {
+const types: Record<string, "chart" | "number" | "string"> = {
     "1y": "chart",
 }
 
-const coloring: Record<string, ColorRule> = {
+const colors: Record<string, ColorRule> = {
     "LIQUIDEZ MEDIA DIARIA": {min: 4, max: 6, minColor: "red", maxColor: "white"},
     "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
     "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
@@ -181,7 +184,7 @@ const coloring: Record<string, ColorRule> = {
     "max": {min: 50, max: 100, minColor: "white", maxColor: "green"}, //TODO red 15% -> 50% white
 }
 
-const rowsIncluded = [
+const rows = [
     "ABCB4",
     "BBAS3",
     "BBSE3",

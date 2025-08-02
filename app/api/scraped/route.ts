@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import {Fundaments, AnalystRating, PriceForecast, TickerData} from "@/shared/types";
+import {ScrapedData, AnalystRating, Fundaments, PriceForecast} from "@/shared/types";
 
 const rootDir = "../ai-scraper/output/20250701";
 
@@ -16,7 +16,7 @@ export async function GET() {
             fundaments: funds[ticker],
         };
         return acc;
-    }, {} as TickerData);
+    }, {} as ScrapedData);
     return NextResponse.json(rows);
 }
 
@@ -43,7 +43,7 @@ function parseFundaments(csv: string): Record<string, Fundaments> {
 }
 
 function tryConvertNumber(value: string): number | string {
-    let converted = Number(value.replace(",", "."));
+    let converted = Number(value.replaceAll(".", "").replace(",", "."));
     return isNaN(converted) ? value : converted;
 }
 
