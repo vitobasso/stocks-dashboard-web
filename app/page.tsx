@@ -19,9 +19,9 @@ export default function Home() {
 
     const headers = getHeaders(data)
         .filter((header) => colsIncluded.includes(header.key));
-    const groupMap: Record<string, number> = {};
+    const groupSizes: Record<string, number> = {};
     headers.forEach((h) => {
-        groupMap[h.group] = (groupMap[h.group] || 0) + 1;
+        groupSizes[h.group] = (groupSizes[h.group] || 0) + 1;
     });
 
     return (
@@ -29,8 +29,8 @@ export default function Home() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        {Object.entries(groupMap).map(([group, span], i) => (
-                            <TableHead key={i} colSpan={span} className="text-center font-bold">
+                        {Object.entries(groupSizes).map(([group, size], i) => (
+                            <TableHead key={i} colSpan={size} className="text-center font-bold">
                                 {group || "Ticker"}
                             </TableHead>
                         ))}
@@ -47,7 +47,7 @@ export default function Home() {
                         .map((row, ri) => (
                             <TableRow key={ri}>
                                 {headers.map((h, hi) => {
-                                    const value = h.key === "ticker" ? row.ticker : getNestedValue(row, h.group, h.key);
+                                    const value = getValue(row, h.group, h.key);
                                     const color = getColor(value, h.key);
                                     return <TableCell style={{ backgroundColor: color }} key={hi}>{value ?? ""}</TableCell>;
                                 })}
@@ -59,7 +59,11 @@ export default function Home() {
     );
 }
 
-function getNestedValue(row: TickerRow, group: string, key: string) {
+type Header = {group: string, key: string};
+type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
+
+function getValue(row: TickerRow, group: string, key: string) {
+    if (key === "ticker") return row.ticker;
     const map: Record<string, any> = {
         Fundaments: row.fundaments,
         "Analyst Rating": row.analystRating,
@@ -70,7 +74,7 @@ function getNestedValue(row: TickerRow, group: string, key: string) {
     return map[group]?.[key];
 }
 
-function getHeaders(data: TickerRow[]) {
+function getHeaders(data: TickerRow[]): Header[] {
     const headerGroups: Record<string, Set<string>> = {
         "": new Set(["ticker"]),
         Fundaments: new Set(),
@@ -92,8 +96,6 @@ function getHeaders(data: TickerRow[]) {
         Array.from(keys).map((key) => ({group, key}))
     );
 }
-
-type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
 
 function getColor(value: number, key: string): string {
     let rule = coloring[key];
