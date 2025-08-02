@@ -36,9 +36,11 @@ export default function Home() {
                         ))}
                     </TableRow>
                     <TableRow>
-                        {headers.flatMap(([_, keys]) => keys).map((k, i) => (
-                            <TableHead key={i}>{k}</TableHead>
-                        ))}
+                        {headers.flatMap(([_, keys]) => keys).map((k, i) => {
+                            const label = labels[k]?.[0] ?? k;
+                            const hint = labels[k]?.[1] ?? "";
+                            return <TableHead title={hint} key={i}>{label}</TableHead>
+                        })}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -103,16 +105,16 @@ const headers: Header[] = [
     ["", ["Ticker"]],
     ["Quotes", ["1d", "1mo", "1y"]],
     ["Fundamentals", [
-        "LIQUIDEZ MEDIA DIARIA", //TODO x / 1.000.000
+        "liquidezMediaDiaria", //TODO x / 1.000.000
         "P/L",
         "P/VP",
         "EV/EBIT", //TODO convert to EY: 1 / x
         "ROE",
         "ROIC",
-        "MARG. LIQUIDA",
-        "DIV. LIQ. / PATRI.",
-        "LIQ. CORRENTE",
-        "CAGR LUCROS 5 ANOS", //TODO shorten col, allow for short label + long hint
+        "margem",
+        "divida",
+        "liquidezCorrente",
+        "lucro",
         "DY",
     ]],
     ["Analyst Rating", [
@@ -133,17 +135,33 @@ const types: Record<string, "chart" | "number" | "string"> = {
     "1y": "chart",
 }
 
+const labels: Record<string, string[]> = {
+    "liquidezMediaDiaria": ["Liq", "Liquidez Média Diária"],
+    "margem": ["Margem", "Margem Líquida"],
+    "divida": ["Dívida", "Dívida Líquida / Patrimônio"],
+    "liquidezCorrente": ["L.Cor.", "Liquidez Corrente"],
+    "lucro": ["Lucro", "CAGR Lucros 5 Anos"],
+    "strong_buy": ["SBuy", "Strong Buy"],
+    "buy": ["Buy"],
+    "hold": ["Hold"],
+    "underperform": ["Und", "Underperform"],
+    "sell": ["Sell"],
+    "min": ["Min"],
+    "avg": ["Avg"],
+    "max": ["Max"],
+}
+
 const colors: Record<string, ColorRule> = {
-    "LIQUIDEZ MEDIA DIARIA": {min: 4, max: 6, minColor: "red", maxColor: "white"},
+    "liquidezMediaDiaria": {min: 4, max: 6, minColor: "red", maxColor: "white"},
     "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
     "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
     "EV/EBIT": {min: 10, max: 50, minColor: "white", maxColor: "red"},
     "ROE": {min: 2, max: 15, minColor: "red", maxColor: "white"},
     "ROIC": {min: 0, max: 10, minColor: "red", maxColor: "white"},
-    "MARG LIQUIDA": {min: 0, max: 10, minColor: "red", maxColor: "white"},
-    "DIV LIQ / PATRI": {min: 1, max: 2, minColor: "white", maxColor: "red"},
-    "LIQ CORRENTE": {min: 0.5, max: 1, minColor: "red", maxColor: "white"},
-    "CAGR LUCROS 5 ANOS": {min: 8, max: 50, minColor: "white", maxColor: "green"}, //TODO red 0 -> 8 white
+    "margem": {min: 0, max: 10, minColor: "red", maxColor: "white"},
+    "divida": {min: 1, max: 2, minColor: "white", maxColor: "red"},
+    "liquidezCorrente": {min: 0.5, max: 1, minColor: "red", maxColor: "white"},
+    "lucro": {min: 8, max: 50, minColor: "white", maxColor: "green"}, //TODO red 0 -> 8 white
     "DY": {min: 7, max: 20, minColor: "white", maxColor: "green"},
     "strong_buy": {min: 0, max: 10, minColor: "white", maxColor: "green"},
     "buy": {min: 0, max: 20, minColor: "white", maxColor: "green"},
