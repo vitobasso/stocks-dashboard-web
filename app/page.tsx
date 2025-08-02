@@ -80,9 +80,14 @@ function getValue(row: MergedEntry, group: string, key: string) {
 }
 
 function renderChart(data: QuoteSeries) {
-    return <Sparklines data={data} width={100} height={40}>
-        <SparklinesLine color="black" style={{ fill: "none", strokeWidth: 2 }}/>
-    </Sparklines>
+    return <div style={{position: "relative"}}>
+        <span style={{ opacity: 0.5 }}>{"42%"}</span>
+        <div style={{ position: "absolute", inset: -10 }}>
+            <Sparklines data={data} width={40} height={30} >
+                <SparklinesLine color="black" style={{fill: "none"}}/>
+            </Sparklines>
+        </div>
+    </div>
 }
 
 function mergeData(scraped: ScrapedData, quotes: QuoteData): MergedData {
