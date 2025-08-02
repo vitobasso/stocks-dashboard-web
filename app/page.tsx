@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {TickerRow} from "@/shared/types";
+import chroma from "chroma-js";
 
 export default function Home() {
     const [data, setData] = useState<TickerRow[]>([]);
@@ -47,7 +48,8 @@ export default function Home() {
                             <TableRow key={ri}>
                                 {headers.map((h, hi) => {
                                     const value = h.key === "ticker" ? row.ticker : getNestedValue(row, h.group, h.key);
-                                    return <TableCell key={hi}>{value ?? ""}</TableCell>;
+                                    const color = getColor(value, h.key);
+                                    return <TableCell style={{ backgroundColor: color }} key={hi}>{value ?? ""}</TableCell>;
                                 })}
                             </TableRow>
                         ))}
@@ -91,6 +93,15 @@ function getHeaders(data: TickerRow[]) {
     );
 }
 
+type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
+
+function getColor(value: number, key: string): string {
+    let rule = coloring[key];
+    if (!rule) return "white";
+    const scale = chroma.scale(["white", "red"]).domain([rule.min, rule.max]);
+    return scale(value).hex();
+}
+
 const colsIncluded = [
     "ticker",
     "LIQUIDEZ MEDIA DIARIA",
@@ -113,6 +124,10 @@ const colsIncluded = [
     "avg",
     "max",
 ]
+
+const coloring: { [key: string]: ColorRule } = {
+    "P/VP": {min: 2, minColor: "white", max: 5, maxColor: "red"},
+}
 
 const rowsIncluded = [
     "ABCB4",
@@ -138,4 +153,3 @@ const rowsIncluded = [
     "VALE3",
     "WEGE3",
 ]
-
