@@ -1,23 +1,29 @@
 "use client"
 
-import {useEffect, useState} from "react";
+import {useEffect, useState, useMemo} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {TickerRow} from "@/shared/types";
+import {TickerData, TickerEntry, QuoteData} from "@/shared/types";
 import chroma from "chroma-js";
 
 export default function Home() {
-    const [data, setData] = useState<TickerRow[]>([]);
+    const [scraped, setScraped] = useState<TickerData>({});
+    const [quotes, setQuotes] = useState<QuoteData>({});
 
     useEffect(() => {
-        fetch("/api/data")
+        fetch("/api/scraped")
             .then(res => res.json())
-            .then(json => setData(json));
+            .then(json => setScraped(json));
+        fetch("/api/quotes")
+            .then(res => res.json())
+            .then(json => setQuotes(json));
     }, []);
 
-    if (data.length === 0) return <div className="p-4">Loading...</div>;
+    const data = useMemo(() => mergeData(scraped, quotes), [scraped, quotes]);
 
-    const headers = getHeaders(data)
+    if (Object.keys(data).length === 0) return <div className="p-4">Loading...</div>;
+
+    const headers = getHeaders(Object.values(data))
         .filter((header) => colsIncluded.includes(header.key));
     const groupSizes: Record<string, number> = {};
     headers.forEach((h) => {
@@ -42,12 +48,11 @@ export default function Home() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data
-                        .filter(row => rowsIncluded.includes(row.ticker))
-                        .map((row, ri) => (
+                    {rowsIncluded
+                        .map((ticker, ri) => (
                             <TableRow key={ri}>
                                 {headers.map((h, hi) => {
-                                    const value = getValue(row, h.group, h.key);
+                                    const value = h.group === "Ticker" ? ticker : getValue(data[ticker], h.group, h.key);
                                     const color = getColor(value, h.key);
                                     return <TableCell style={{ backgroundColor: color }} key={hi}>{value ?? ""}</TableCell>;
                                 })}
@@ -62,26 +67,25 @@ export default function Home() {
 type Header = {group: string, key: string};
 type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
 
-function getValue(row: TickerRow, group: string, key: string) {
-    if (key === "ticker") return row.ticker;
+function getValue(row: TickerEntry, group: string, key: string) {
     const map: Record<string, any> = {
         Fundaments: row.fundaments,
         "Analyst Rating": row.analystRating,
         "Price Forecast": row.priceForecast,
         Overview: row.overview,
-        Price: row.price,
+        Quotes: row.Quotes,
     };
     return map[group]?.[key];
 }
 
-function getHeaders(data: TickerRow[]): Header[] {
+function getHeaders(data: TickerEntry[]): Header[] {
     const headerGroups: Record<string, Set<string>> = {
-        "": new Set(["ticker"]),
+        "Ticker": new Set(["ticker"]),
         Fundaments: new Set(),
         "Analyst Rating": new Set(),
         "Price Forecast": new Set(),
         Overview: new Set(),
-        Price: new Set(),
+        Quotes: new Set(["1d", "1mo", "1y", "5y"]),
     };
 
     data.forEach((row) => {
@@ -89,11 +93,19 @@ function getHeaders(data: TickerRow[]): Header[] {
         Object.keys(row.analystRating || {}).forEach((k) => headerGroups["Analyst Rating"].add(k));
         Object.keys(row.priceForecast || {}).forEach((k) => headerGroups["Price Forecast"].add(k));
         Object.keys(row.overview || {}).forEach((k) => headerGroups.Overview.add(k));
-        Object.keys(row.price || {}).forEach((k) => headerGroups.Price.add(k));
     });
 
     return Object.entries(headerGroups).flatMap(([group, keys]) =>
         Array.from(keys).map((key) => ({group, key}))
+    );
+}
+
+function mergeData(scraped, quotes) {
+    return Object.fromEntries(
+        Object.keys({ ...scraped, ...quotes }).map(key => [
+            key,
+            { ...scraped[key], Quotes: { ...quotes[key] } }
+        ])
     );
 }
 
@@ -106,7 +118,12 @@ function getColor(value: number, key: string): string {
 
 const colsIncluded = [
     "ticker",
-    "LIQUIDEZ MEDIA DIARIA",
+
+    // quotes
+    "1y", //TODO display chart
+
+    // fundaments
+    "LIQUIDEZ MEDIA DIARIA", //TODO not showing, rm space: " LIQUIDEZ MEDIA DIARIA"
     "P/L",
     "P/VP",
     "EV/EBIT", //TODO convert to EY: 1 / x
@@ -117,6 +134,8 @@ const colsIncluded = [
     "LIQ CORRENTE", //TODO not showing
     "CAGR LUCROS 5 ANOS", //TODO shorten col, allow for short label + long hint
     "DY",
+
+    // analyst
     "strong_buy",
     "buy",
     "hold",

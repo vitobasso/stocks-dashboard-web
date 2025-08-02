@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import {Fundaments, AnalystRating, PriceForecast} from "@/shared/types";
+import {Fundaments, AnalystRating, PriceForecast, TickerData} from "@/shared/types";
 
 const rootDir = "../ai-scraper/output/20250701";
 
@@ -9,12 +9,14 @@ export async function GET() {
     const funds = fundaments();
     const ratings = analysis()
     const tickers = new Set([...Object.keys(funds), ...Object.keys(ratings)]);
-    const rows = Array.from(tickers).map(ticker => ({
-        ticker,
-        analystRating: ratings[ticker]?.analyst_rating,
-        priceForecast: ratings[ticker]?.price_forecast,
-        fundaments: funds[ticker],
-    }));
+    const rows = Array.from(tickers).reduce((acc, ticker) => {
+        acc[ticker] = {
+            analystRating: ratings[ticker]?.analyst_rating,
+            priceForecast: ratings[ticker]?.price_forecast,
+            fundaments: funds[ticker],
+        };
+        return acc;
+    }, {} as TickerData);
     return NextResponse.json(rows);
 }
 
