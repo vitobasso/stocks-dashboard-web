@@ -10,7 +10,7 @@ export type TickerEntry = {
 };
 export type TickerData = Record<string, TickerEntry>;
 
-export type PriceSeries = number[];
-export type TimeInterval = '1d' | '5d' | '1mo' | '3mo' | '6mo' | '1y' | '2y' | '5y' | '10y' | 'ytd';
-export type IntervalQuotes = Record<TimeInterval, PriceSeries>;
+export type QuoteSeries = number[];
+export type TimeInterval = "1d" | "5d" | "1mo" | "3mo" | "6mo" | "1y" | "2y" | "5y" | "10y" | "ytd";
+export type IntervalQuotes = Record<TimeInterval, QuoteSeries>;
 export type QuoteData = Record<string, IntervalQuotes>;

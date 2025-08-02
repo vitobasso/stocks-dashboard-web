@@ -3,8 +3,9 @@
 import {useEffect, useState, useMemo} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {TickerData, TickerEntry, QuoteData} from "@/shared/types";
+import {TickerData, TickerEntry, QuoteData, QuoteSeries} from "@/shared/types";
 import chroma from "chroma-js";
+import {Sparklines, SparklinesLine} from 'react-sparklines';
 
 export default function Home() {
     const [scraped, setScraped] = useState<TickerData>({});
@@ -54,7 +55,7 @@ export default function Home() {
                                 {headers.map((h, hi) => {
                                     const value = h.group === "Ticker" ? ticker : getValue(data[ticker], h.group, h.key);
                                     const color = getColor(value, h.key);
-                                    return <TableCell style={{ backgroundColor: color }} key={hi}>{value ?? ""}</TableCell>;
+                                    return <TableCell /*className="p-0"*/ style={{ backgroundColor: color }} key={hi}>{value ?? ""}</TableCell>;
                                 })}
                             </TableRow>
                         ))}
@@ -75,7 +76,15 @@ function getValue(row: TickerEntry, group: string, key: string) {
         Overview: row.overview,
         Quotes: row.Quotes,
     };
-    return map[group]?.[key];
+    const value = map[group]?.[key];
+    if (typing[key] == "chart") return renderChart(value)
+    return value;
+}
+
+function renderChart(data: QuoteSeries) {
+    return <Sparklines data={data} width={100} height={40}>
+        <SparklinesLine color="black" style={{ fill: "none", strokeWidth: 2 }}/>
+    </Sparklines>
 }
 
 function getHeaders(data: TickerEntry[]): Header[] {
@@ -100,7 +109,7 @@ function getHeaders(data: TickerEntry[]): Header[] {
     );
 }
 
-function mergeData(scraped, quotes) {
+function mergeData(scraped: TickerData, quotes: QuoteData) {
     return Object.fromEntries(
         Object.keys({ ...scraped, ...quotes }).map(key => [
             key,
@@ -146,7 +155,11 @@ const colsIncluded = [
     "max", //TODO
 ]
 
-const coloring: { [key: string]: ColorRule } = {
+const typing: Record<string, "chart" | "number" | "string"> = {
+    "1y": "chart",
+}
+
+const coloring: Record<string, ColorRule> = {
     "LIQUIDEZ MEDIA DIARIA": {min: 4, max: 6, minColor: "red", maxColor: "white"},
     "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
     "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
