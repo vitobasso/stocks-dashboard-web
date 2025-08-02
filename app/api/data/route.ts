@@ -33,12 +33,16 @@ function parseFundaments(csv: string): Record<string, Fundaments> {
         const [ticker, ...rest] = values;
         const data: Record<string, string | number> = {};
         headers.slice(1).forEach((header, i) => {
-            const value = rest[i];
-            data[header] = isNaN(Number(value)) ? value : Number(value);
+            data[header] = tryConvertNumber(rest[i])
         });
         return [ticker, data];
     });
     return Object.fromEntries(entries);
+}
+
+function tryConvertNumber(value: string): number | string {
+    let converted = Number(value.replace(",", "."));
+    return isNaN(converted) ? value : converted;
 }
 
 function analysis(): Record<string, { analyst_rating: AnalystRating, price_forecast: PriceForecast }> {
