@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import yahooFinance from "yahoo-finance2";
-import {QuoteData} from "@/shared/types";
+import {QuoteData} from "@/lib/types";
 import { DateTime } from "luxon";
 
 
