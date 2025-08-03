@@ -19,11 +19,15 @@ export async function GET() {
         period1: DateTime.now().minus({years:5}).startOf('day').toUnixInteger(),
         interval: "3mo",
     });
+    let extractedMonth = extractClose(month);
     const quotes: QuoteData = {
         [ticker]: {
-            "1mo": extractClose(month),
-            "1y": extractClose(year),
-            "5y": extractClose(year5),
+            quotes: {
+                "1mo": extractedMonth,
+                "1y": extractClose(year),
+                "5y": extractClose(year5),
+                "latest": extractedMonth[extractedMonth.length - 1],
+            }
         }
     }
     return NextResponse.json(quotes);
