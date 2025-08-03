@@ -81,13 +81,19 @@ function getValue(row: MergedEntry, group: string, key: string) {
 
 function renderChart(data: QuoteSeries) {
     return <div style={{position: "relative"}}>
-        <span style={{ opacity: 0.5 }}>{"42%"}</span>
+        {data && <span style={{opacity: 0.5}}>{`${quoteChange(data)}%`}</span>}
         <div style={{ position: "absolute", inset: -10 }}>
             <Sparklines data={data} width={40} height={30} >
                 <SparklinesLine color="black" style={{fill: "none"}}/>
             </Sparklines>
         </div>
     </div>
+}
+
+function quoteChange(data: QuoteSeries) {
+    const latest = data[data.length - 1];
+    const first = data[0];
+    return Math.floor((latest - first) / first * 100);
 }
 
 function mergeData(scraped: ScrapedData, quotes: QuoteData): MergedData {
