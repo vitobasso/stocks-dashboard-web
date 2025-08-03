@@ -119,18 +119,9 @@ const headers: Header[] = [
         "lucro",
         "DY",
     ]],
-    ["analystRating", [
-        "strong_buy",
-        "buy",
-        "hold",
-        "underperform",
-        "sell",
-    ]],
-    ["priceForecast", [
-        "min_pct",
-        "avg_pct",
-        "max_pct",
-    ]],
+    ["overview", [ "value", "future", "past", "health", "dividend" ]],
+    ["analystRating", [ "strong_buy", "buy", "hold", "underperform", "sell" ]],
+    ["priceForecast", [ "min_pct", "avg_pct", "max_pct" ]],
 ];
 
 const derivations: Record<string, Derivation> = {
@@ -172,7 +163,7 @@ const labels: Record<string, string[]> = {
     "fundamentals": ["Fundamentals"],
     "analystRating": ["Analyst Rating"],
     "priceForecast": ["Price Forecast"],
-    "overview": ["Overview"], //TODO
+    "overview": ["Overview"],
     "quotes": ["Quotes"],
     "liqmd_millions": ["Liq", "Liquidez Média Diária"],
     "margem": ["Margem", "Margem Líquida"],
@@ -194,6 +185,7 @@ const colors: Record<string, ColorRule> = {
     "1y": {domain: [-5, 8.5, 35], scale: ["red", "white", "green"]},
     "5y": {domain: [0, 30, 100], scale: ["red", "white", "green"]},
     "liquidezMediaDiaria": {domain: [4, 6], scale: ["red", "white"]},
+
     "P/L": {domain: [-1000, 0, 12, 20], scale: ["red", "white", "white", "red"]},
     "P/VP": {domain: [2, 5], scale: ["white", "red"]},
     "EY": {domain: [0, 10], scale: ["red", "white"]},
@@ -204,11 +196,19 @@ const colors: Record<string, ColorRule> = {
     "liquidezCorrente": {domain: [0.5, 1], scale: ["red", "white"]},
     "lucro": {domain: [0, 8, 50], scale: ["red", "white", "green"]},
     "DY": {domain: [7, 20], scale: ["white", "green"]},
+
+    "value": {domain: [0, 2.5, 5], scale: ["red", "red", "white", "green"]},
+    "future": {domain: [0, 2.5, 5], scale: ["red", "white", "green"]},
+    "past": {domain: [0, 2.5, 5], scale: ["red", "white", "green"]},
+    "health": {domain: [0, 2.5, 5], scale: ["red", "white", "green"]},
+    "dividend": {domain: [3, 6], scale: ["white", "green"]},
+
     "strong_buy": {domain: [0, 10], scale: ["white", "green"]},
     "buy": {domain: [0, 20], scale: ["white", "green"]},
     "hold": {domain: [4, 15], scale: ["white", "red"]},
     "underperform": {domain: [0, 3], scale: ["white", "red"]},
     "sell": {domain: [0, 1], scale: ["white", "red"]},
+
     "min_pct": {domain: [-5, 0, 30], scale: ["red", "white", "green"]},
     "avg_pct": {domain: [0, 10, 80], scale: ["red", "white", "green"]},
     "max_pct": {domain: [15, 50, 100], scale: ["red", "white", "green"]},
