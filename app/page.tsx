@@ -96,7 +96,18 @@ function calcChangePct(start: number, end: number) {
     if (!isNaN(result)) return result;
 }
 
-function mergeData<A, B>(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
+function mergeData<A extends Record<string, any>, B extends Record<string, any>>
+(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
+    let entries = Object.keys({ ...data1, ...data2 }).map(key => {
+        let value = mergeEntries(data1[key], data2[key]);
+        return [key, value]
+    });
+    return Object.fromEntries(entries);
+}
+
+function mergeEntries(data1: Record<string, any>, data2: Record<string, any>): Record<string, any> {
+    if (!data1) return data2;
+    if (!data2) return data1;
     let entries = Object.keys({ ...data1, ...data2 }).map(key => {
         let value = { ...data1[key], ...data2[key] };
         return [key, value]
@@ -155,7 +166,7 @@ const headers: Header[] = [
     ["", ["ticker"]],
     ["quotes", ["latest", "1mo", "1y", "5y"]],
     ["fundamentals", [
-        "liquidezMediaDiaria", //TODO x / 1.000.000
+        "liqmd_millions",
         "P/L",
         "P/VP",
         "EV/EBIT", //TODO convert to EY: 1 / x
@@ -175,9 +186,9 @@ const headers: Header[] = [
         "sell",
     ]],
     ["priceForecast", [
-        "min_pct", //TODO relative to current price:
-        "avg_pct", //TODO   (x - price) / price
-        "max_pct", //TODO
+        "min_pct",
+        "avg_pct",
+        "max_pct",
     ]],
 ];
 
@@ -193,6 +204,10 @@ const derivations: Record<string, Derivation> = {
     "priceForecast.max_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
         arguments: ["priceForecast.max", "quotes.latest"],
+    },
+    "fundamentals.liqmd_millions": {
+        function: (args) => args[0] / 1000000,
+        arguments: ["fundamentals.liquidezMediaDiaria"],
     },
 }
 
@@ -210,7 +225,7 @@ const labels: Record<string, string[]> = {
     "priceForecast": ["Price Forecast"],
     "overview": ["Overview"],
     "quotes": ["Quotes"],
-    "liquidezMediaDiaria": ["Liq", "Liquidez Média Diária"],
+    "liqmd_millions": ["Liq", "Liquidez Média Diária"],
     "margem": ["Margem", "Margem Líquida"],
     "divida": ["Dívida", "Dívida Líquida / Patrimônio"],
     "liquidezCorrente": ["L.Cor.", "Liquidez Corrente"],
