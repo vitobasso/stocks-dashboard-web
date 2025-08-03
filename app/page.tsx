@@ -62,12 +62,12 @@ export default function Home() {
 }
 
 type Header = [group: string, keys: string[]];
-type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
+type ColorRule = {domain: number[], scale: string[]}
 
 function getValueColor(value: number, key: string): string {
     let rule = colors[key];
     if (!rule || !value) return "white";
-    const scale = chroma.scale([rule.minColor, rule.maxColor]).domain([rule.min, rule.max]);
+    const scale = chroma.scale(rule.scale).domain(rule.domain);
     return scale(value).hex();
 }
 
@@ -190,28 +190,28 @@ const labels: Record<string, string[]> = {
 }
 
 const colors: Record<string, ColorRule> = {
-    "1mo": {min: 0, max: 10, minColor: "white", maxColor: "green"}, //TODO red 10% -> 0% white
-    "1y": {min: 8.5, max: 35, minColor: "white", maxColor: "green"}, //TODO red -5% -> 8.5% white
-    "5y": {min: 30, max: 100, minColor: "white", maxColor: "green"}, //TODO red 0% -> 0.3% white
-    "liquidezMediaDiaria": {min: 4, max: 6, minColor: "red", maxColor: "white"},
-    "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
-    "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
-    "EY": {min: 0, max: 10, minColor: "red", maxColor: "white"},
-    "ROE": {min: 2, max: 15, minColor: "red", maxColor: "white"},
-    "ROIC": {min: 0, max: 10, minColor: "red", maxColor: "white"},
-    "margem": {min: 0, max: 10, minColor: "red", maxColor: "white"},
-    "divida": {min: 1, max: 2, minColor: "white", maxColor: "red"},
-    "liquidezCorrente": {min: 0.5, max: 1, minColor: "red", maxColor: "white"},
-    "lucro": {min: 8, max: 50, minColor: "white", maxColor: "green"}, //TODO red 0 -> 8 white
-    "DY": {min: 7, max: 20, minColor: "white", maxColor: "green"},
-    "strong_buy": {min: 0, max: 10, minColor: "white", maxColor: "green"},
-    "buy": {min: 0, max: 20, minColor: "white", maxColor: "green"},
-    "hold": {min: 4, max: 15, minColor: "white", maxColor: "red"},
-    "underperform": {min: 0, max: 3, minColor: "white", maxColor: "red"},
-    "sell": {min: 0, max: 1, minColor: "white", maxColor: "red"},
-    "min_pct": {min: 0, max: 30, minColor: "white", maxColor: "green"}, //TODO red -5% -> 0% white
-    "avg_pct": {min: 10, max: 80, minColor: "white", maxColor: "green"}, //TODO red 0% -> 10% white
-    "max_pct": {min: 50, max: 100, minColor: "white", maxColor: "green"}, //TODO red 15% -> 50% white
+    "1mo": {domain: [-10, 0, 10], scale: ["red", "white", "green"]},
+    "1y": {domain: [-5, 8.5, 35], scale: ["red", "white", "green"]},
+    "5y": {domain: [0, 30, 100], scale: ["red", "white", "green"]},
+    "liquidezMediaDiaria": {domain: [4, 6], scale: ["red", "white"]},
+    "P/L": {domain: [-1000, 0, 12, 20], scale: ["red", "white", "white", "red"]},
+    "P/VP": {domain: [2, 5], scale: ["white", "red"]},
+    "EY": {domain: [0, 10], scale: ["red", "white"]},
+    "ROE": {domain: [2, 15], scale: ["red", "white"]},
+    "ROIC": {domain: [0, 10], scale: ["red", "white"]},
+    "margem": {domain: [0, 10], scale: ["red", "white"]},
+    "divida": {domain: [1, 2], scale: ["white", "red"]},
+    "liquidezCorrente": {domain: [0.5, 1], scale: ["red", "white"]},
+    "lucro": {domain: [0, 8, 50], scale: ["red", "white", "green"]},
+    "DY": {domain: [7, 20], scale: ["white", "green"]},
+    "strong_buy": {domain: [0, 10], scale: ["white", "green"]},
+    "buy": {domain: [0, 20], scale: ["white", "green"]},
+    "hold": {domain: [4, 15], scale: ["white", "red"]},
+    "underperform": {domain: [0, 3], scale: ["white", "red"]},
+    "sell": {domain: [0, 1], scale: ["white", "red"]},
+    "min_pct": {domain: [-5, 0, 30], scale: ["red", "white", "green"]},
+    "avg_pct": {domain: [0, 10, 80], scale: ["red", "white", "green"]},
+    "max_pct": {domain: [15, 50, 100], scale: ["red", "white", "green"]},
 }
 
 const rows = [
