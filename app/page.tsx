@@ -45,13 +45,15 @@ export default function Home() {
                 <TableBody>
                     {rows.filter(ticker => data[ticker]).map((ticker, ri) =>
                         <TableRow key={ri}>
-                            {headers.flatMap(([group, keys]) => keys.map(k => [group, k])).map(([group, key], hi) => {
-                                const value = key === "ticker" ? ticker : renderValue(data[ticker], group, key);
-                                const color = getColor(value, key);
-                                return <TableCell style={{backgroundColor: color}} key={hi}>
-                                    {value ?? ""}
-                                </TableCell>;
-                            })}
+                            {headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
+                                .map(([group, key], hi) => {
+                                    let rawValue = getValue(data[ticker], group, key);
+                                    let color = getColor(rawValue, key);
+                                    let renderedValue = key === "ticker" ? ticker : renderValue(rawValue, key);
+                                    return <TableCell style={{backgroundColor: color}} key={hi}>
+                                        {renderedValue ?? ""}
+                                    </TableCell>;
+                                })}
                         </TableRow>)}
                 </TableBody>
             </Table>
@@ -69,16 +71,24 @@ type Derivation = {function: (...args: any[]) => any, arguments: string[]};
 function getValue(row: FinalEntry, group: string, key: string) {
     return (row as any)[group]?.[key];
 }
-function renderValue(row: FinalEntry, group: string, key: string) {
-    const value = getValue(row, group, key);
-    if (types[key] == "chart") return renderChart(value);
+
+function getColor(value: number, key: string): string {
+    let rule = colors[key];
+    if (!rule || !value) return "white";
+    const scale = chroma.scale([rule.minColor, rule.maxColor]).domain([rule.min, rule.max]);
+    return scale(value).hex();
+}
+
+function renderValue(value: any, key: string) {
+    if (formats[key] == "chart") return renderChart(value);
+    if (formats[key] == "percent" && value) return value + "%";
     if (typeof value == "number") return Math.round(value * 10) / 10;
     return value;
 }
 
 function renderChart(data: QuoteSeries) {
     return <div style={{position: "relative"}}>
-        {data && <span style={{opacity: 0.5}}>{`${quoteChange(data)}%`}</span>}
+        {data && <span style={{opacity: 0.5}}>{quoteChange(data) + "%"}</span>}
         <div style={{ position: "absolute", inset: -10 }}>
             <Sparklines data={data} width={40} height={30} >
                 <SparklinesLine color="black" style={{fill: "none"}}/>
@@ -155,13 +165,6 @@ function consolidateData(scraped: ScrapedData, quotes: QuoteData): FinalData {
     return mergeData(merged, derived);
 }
 
-function getColor(value: number, key: string): string {
-    let rule = colors[key];
-    if (!rule || !value) return "white";
-    const scale = chroma.scale([rule.minColor, rule.maxColor]).domain([rule.min, rule.max]);
-    return scale(value).hex();
-}
-
 const headers: Header[] = [
     ["", ["ticker"]],
     ["quotes", ["latest", "1mo", "1y", "5y"]],
@@ -169,7 +172,7 @@ const headers: Header[] = [
         "liqmd_millions",
         "P/L",
         "P/VP",
-        "EV/EBIT", //TODO convert to EY: 1 / x
+        "EY",
         "ROE",
         "ROIC",
         "margem",
@@ -209,12 +212,20 @@ const derivations: Record<string, Derivation> = {
         function: (args) => args[0] / 1000000,
         arguments: ["fundamentals.liquidezMediaDiaria"],
     },
+    "fundamentals.EY": {
+        function: (args) => Math.round(100 / args[0]),
+        arguments: ["fundamentals.EV/EBIT"],
+    },
 }
 
-const types: Record<string, "chart" | "number" | "string"> = {
+const formats: Record<string, "chart" | "percent"> = {
     "1mo": "chart",
     "1y": "chart",
     "5y": "chart",
+    "EY": "percent",
+    "min_pct": "percent",
+    "avg_pct": "percent",
+    "max_pct": "percent",
 }
 
 const labels: Record<string, string[]> = {
@@ -244,7 +255,7 @@ const colors: Record<string, ColorRule> = {
     "liquidezMediaDiaria": {min: 4, max: 6, minColor: "red", maxColor: "white"},
     "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
     "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
-    "EV/EBIT": {min: 10, max: 50, minColor: "white", maxColor: "red"},
+    "EY": {min: 0, max: 10, minColor: "red", maxColor: "white"},
     "ROE": {min: 2, max: 15, minColor: "red", maxColor: "white"},
     "ROIC": {min: 0, max: 10, minColor: "red", maxColor: "white"},
     "margem": {min: 0, max: 10, minColor: "red", maxColor: "white"},
