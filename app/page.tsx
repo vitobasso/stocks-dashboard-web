@@ -108,7 +108,7 @@ function getColor(value: number, key: string): string {
 
 const headers: Header[] = [
     ["", ["Ticker"]],
-    ["Quotes", ["1d", "1mo", "1y"]],
+    ["Quotes", ["1d", "1mo", "1y", "5y"]],
     ["Fundamentals", [
         "liquidezMediaDiaria", //TODO x / 1.000.000
         "P/L",
@@ -137,7 +137,9 @@ const headers: Header[] = [
 ];
 
 const types: Record<string, "chart" | "number" | "string"> = {
+    "1mo": "chart",
     "1y": "chart",
+    "5y": "chart",
 }
 
 const labels: Record<string, string[]> = {

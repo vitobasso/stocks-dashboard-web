@@ -11,6 +11,6 @@ export type ScrapedEntry = {
 export type ScrapedData = Record<string, ScrapedEntry>;
 
 export type QuoteSeries = number[];
-export type TimeInterval = "1d" | "5d" | "1mo" | "3mo" | "6mo" | "1y" | "2y" | "5y" | "10y" | "ytd";
+export type TimeInterval = "1d" | "5d" | "1wk" | "1mo" | "3mo" | "6mo" | "1y" | "2y" | "5y" | "10y" | "ytd";
 export type IntervalQuotes = Partial<Record<TimeInterval, QuoteSeries>>;
 export type QuoteData = Record<string, IntervalQuotes>;
