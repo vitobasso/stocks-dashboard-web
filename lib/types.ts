@@ -1,5 +1,5 @@
 export type Fundamentals = { [key: string]: string | number };
-export type Overview = { value: number; future: number; past: number; health: number; dividends: number };
+export type Overview = { value: number; future: number; past: number; health: number; dividend: number };
 export type AnalystRating = { strongBuy: number; buy: number; hold: number; underperform: number; sell: number };
 export type PriceForecast = { min: number; avg: number; max: number };
 type ScrapedEntry = {
