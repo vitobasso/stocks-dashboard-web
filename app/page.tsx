@@ -1,9 +1,9 @@
 "use client"
 
-import {useEffect, useState, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {ScrapedData, ScrapedEntry, QuoteData, QuoteSeries, IntervalQuotes} from "@/shared/types";
+import {QuoteData, QuoteEntry, QuoteSeries, ScrapedData, ScrapedEntry} from "@/shared/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
@@ -20,20 +20,19 @@ export default function Home() {
             .then(json => setQuotes(json));
     }, []);
 
-    const data = useMemo(() => mergeData(scraped, quotes), [scraped, quotes]);
-
-    if (Object.keys(data).length === 0) return <div className="p-4">Loading...</div>;
+    const data = useMemo(() => consolidateData(scraped, quotes), [scraped, quotes]);
 
     return (
         <Card className="m-4 p-4 overflow-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        {headers.map(([group, cols], i) => (
-                            <TableHead key={i} colSpan={cols.length} className="text-center font-bold">
-                                {group}
+                        {headers.map(([group, cols], i) => {
+                            const label = labels[group]?.[0] ?? group;
+                            return <TableHead key={i} colSpan={cols.length} className="text-center font-bold">
+                                {label}
                             </TableHead>
-                        ))}
+                        })}
                     </TableRow>
                     <TableRow>
                         {headers.flatMap(([_, keys]) => keys).map((k, i) => {
@@ -44,17 +43,16 @@ export default function Home() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {rows.map((ticker, ri) => (
+                    {rows.filter(ticker => data[ticker]).map((ticker, ri) =>
                         <TableRow key={ri}>
                             {headers.flatMap(([group, keys]) => keys.map(k => [group, k])).map(([group, key], hi) => {
-                                const value = key === "Ticker" ? ticker : getValue(data[ticker], group, key);
+                                const value = key === "ticker" ? ticker : renderValue(data[ticker], group, key);
                                 const color = getColor(value, key);
                                 return <TableCell style={{backgroundColor: color}} key={hi}>
                                     {value ?? ""}
                                 </TableCell>;
                             })}
-                        </TableRow>
-                    ))}
+                        </TableRow>)}
                 </TableBody>
             </Table>
         </Card>
@@ -62,19 +60,17 @@ export default function Home() {
 }
 
 type Header = [group: string, keys: string[]];
-type MergedEntry = ScrapedEntry & {Quotes: IntervalQuotes};
-type MergedData = Record<string, MergedEntry>;
+type DerivedEntry = Record<keyof typeof derivations, any>
+type FinalEntry = ScrapedEntry & QuoteEntry & DerivedEntry;
+type FinalData = Record<string, FinalEntry>;
 type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
+type Derivation = {function: (...args: any[]) => any, arguments: string[]};
 
-function getValue(row: MergedEntry, group: string, key: string) {
-    const map: Record<string, any> = {
-        Fundamentals: row.fundamentals,
-        "Analyst Rating": row.analystRating,
-        "Price Forecast": row.priceForecast,
-        Overview: row.overview,
-        Quotes: row.Quotes,
-    };
-    const value = map[group]?.[key];
+function getValue(row: FinalEntry, group: string, key: string) {
+    return (row as any)[group]?.[key];
+}
+function renderValue(row: FinalEntry, group: string, key: string) {
+    const value = getValue(row, group, key);
     if (types[key] == "chart") return renderChart(value)
     return value;
 }
@@ -91,18 +87,60 @@ function renderChart(data: QuoteSeries) {
 }
 
 function quoteChange(data: QuoteSeries) {
-    const latest = data[data.length - 1];
-    const first = data[0];
-    return Math.floor((latest - first) / first * 100);
+    return calcChangePct(data[0], data[data.length - 1]);
 }
 
-function mergeData(scraped: ScrapedData, quotes: QuoteData): MergedData {
-    return Object.fromEntries(
-        Object.keys({ ...scraped, ...quotes }).map(key => [
-            key,
-            { ...scraped[key], Quotes: { ...quotes[key] } }
-        ])
-    );
+function calcChangePct(start: number, end: number) {
+    let result = Math.floor((end - start) / start * 100);
+    if (!isNaN(result)) return result;
+}
+
+function mergeData<A, B>(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
+    let entries = Object.keys({ ...data1, ...data2 }).map(key => {
+        let value = { ...data1[key], ...data2[key] };
+        return [key, value]
+    });
+    return Object.fromEntries(entries);
+}
+
+function deriveData(data: Record<string, Record<string, any>>): Record<string, DerivedEntry> {
+    let entries = Object.keys(data).map(ticker => {
+        let derived = deriveEntry(data[ticker]);
+        return [ticker, derived];
+    })
+    return Object.fromEntries(entries);
+}
+
+function deriveEntry(data: Record<string, any>): Record<string, DerivedEntry> {
+    let entries = Object.keys(derivations).map(path => {
+        let derivation = derivations[path];
+        let args = derivation.arguments.map((path) => getValueByPath(data, path))
+        let value = derivation.function(args);
+        return [path, value];
+    })
+    let flatObj = Object.fromEntries(entries);
+    return unflatten(flatObj);
+}
+
+function unflatten(obj: Record<string, any>): Record<string, any> {
+    const result: Record<string, any> = {};
+    for (const flatKey in obj) {
+        const [group, key] = flatKey.split(".");
+        result[group] ??= {};
+        result[group][key] = obj[flatKey];
+    }
+    return result;
+}
+
+function getValueByPath(data: any, path: string) {
+    let [group, key] = path.split(".");
+    return getValue(data, group, key);
+}
+
+function consolidateData(scraped: ScrapedData, quotes: QuoteData): FinalData {
+    let merged = mergeData(scraped, quotes);
+    let derived = deriveData(merged);
+    return mergeData(merged, derived);
 }
 
 function getColor(value: number, key: string): string {
@@ -113,9 +151,9 @@ function getColor(value: number, key: string): string {
 }
 
 const headers: Header[] = [
-    ["", ["Ticker"]],
-    ["Quotes", ["1d", "1mo", "1y", "5y"]],
-    ["Fundamentals", [
+    ["", ["ticker"]],
+    ["quotes", ["latest", "1mo", "1y", "5y"]],
+    ["fundamentals", [
         "liquidezMediaDiaria", //TODO x / 1.000.000
         "P/L",
         "P/VP",
@@ -128,19 +166,34 @@ const headers: Header[] = [
         "lucro",
         "DY",
     ]],
-    ["Analyst Rating", [
+    ["analystRating", [
         "strong_buy",
         "buy",
         "hold",
         "underperform",
         "sell",
     ]],
-    ["Price Forecast", [
-        "min", //TODO relative to current price:
-        "avg", //TODO   (x - price) / price
-        "max", //TODO
+    ["priceForecast", [
+        "min_pct", //TODO relative to current price:
+        "avg_pct", //TODO   (x - price) / price
+        "max_pct", //TODO
     ]],
 ];
+
+const derivations: Record<string, Derivation> = {
+    "priceForecast.min_pct": {
+        function: (args) => calcChangePct(args[1], args[0]),
+        arguments: ["priceForecast.min", "quotes.latest"],
+    },
+    "priceForecast.avg_pct": {
+        function: (args) => calcChangePct(args[1], args[0]),
+        arguments: ["priceForecast.avg", "quotes.latest"],
+    },
+    "priceForecast.max_pct": {
+        function: (args) => calcChangePct(args[1], args[0]),
+        arguments: ["priceForecast.max", "quotes.latest"],
+    },
+}
 
 const types: Record<string, "chart" | "number" | "string"> = {
     "1mo": "chart",
@@ -149,6 +202,13 @@ const types: Record<string, "chart" | "number" | "string"> = {
 }
 
 const labels: Record<string, string[]> = {
+    "ticker": ["Ticker"],
+    "latest": ["Today"],
+    "fundamentals": ["Fundamentals"],
+    "analystRating": ["Analyst Rating"],
+    "priceForecast": ["Price Forecast"],
+    "overview": ["Overview"],
+    "quotes": ["Quotes"],
     "liquidezMediaDiaria": ["Liq", "Liquidez Média Diária"],
     "margem": ["Margem", "Margem Líquida"],
     "divida": ["Dívida", "Dívida Líquida / Patrimônio"],
@@ -159,9 +219,9 @@ const labels: Record<string, string[]> = {
     "hold": ["Hold"],
     "underperform": ["Und", "Underperform"],
     "sell": ["Sell"],
-    "min": ["Min"],
-    "avg": ["Avg"],
-    "max": ["Max"],
+    "min_pct": ["Min"],
+    "avg_pct": ["Avg"],
+    "max_pct": ["Max"],
 }
 
 const colors: Record<string, ColorRule> = {
@@ -181,9 +241,9 @@ const colors: Record<string, ColorRule> = {
     "hold": {min: 4, max: 15, minColor: "white", maxColor: "red"},
     "underperform": {min: 0, max: 3, minColor: "white", maxColor: "red"},
     "sell": {min: 0, max: 1, minColor: "white", maxColor: "red"},
-    "min": {min: 0, max: 30, minColor: "white", maxColor: "green"}, //TODO red -5% -> 0% white
-    "avg": {min: 10, max: 80, minColor: "white", maxColor: "green"}, //TODO red 0% -> 10% white
-    "max": {min: 50, max: 100, minColor: "white", maxColor: "green"}, //TODO red 15% -> 50% white
+    "min_pct": {min: 0, max: 30, minColor: "white", maxColor: "green"}, //TODO red -5% -> 0% white
+    "avg_pct": {min: 10, max: 80, minColor: "white", maxColor: "green"}, //TODO red 0% -> 10% white
+    "max_pct": {min: 50, max: 100, minColor: "white", maxColor: "green"}, //TODO red 15% -> 50% white
 }
 
 const rows = [
