@@ -71,7 +71,8 @@ function getValue(row: FinalEntry, group: string, key: string) {
 }
 function renderValue(row: FinalEntry, group: string, key: string) {
     const value = getValue(row, group, key);
-    if (types[key] == "chart") return renderChart(value)
+    if (types[key] == "chart") return renderChart(value);
+    if (typeof value == "number") return Math.round(value * 10) / 10;
     return value;
 }
 
@@ -122,7 +123,7 @@ function deriveEntry(data: Record<string, any>): Record<string, DerivedEntry> {
     return unflatten(flatObj);
 }
 
-function unflatten(obj: Record<string, any>): Record<string, any> {
+function unflatten(obj: Record<string, any>): Record<string, Record<string, any>> {
     const result: Record<string, any> = {};
     for (const flatKey in obj) {
         const [group, key] = flatKey.split(".");
