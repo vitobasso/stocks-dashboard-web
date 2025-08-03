@@ -3,7 +3,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {QuoteData, QuoteEntry, QuoteSeries, ScrapedData, ScrapedEntry} from "@/lib/types";
+import {QuoteData, QuoteSeries, ScrapedData, Derivation, consolidateData, getValue} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
@@ -20,7 +20,7 @@ export default function Home() {
             .then(json => setQuotes(json));
     }, []);
 
-    const data = useMemo(() => consolidateData(scraped, quotes), [scraped, quotes]);
+    const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
     return (
         <Card className="m-4 p-4 overflow-auto">
@@ -63,11 +63,6 @@ export default function Home() {
 
 type Header = [group: string, keys: string[]];
 type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
-type Derivation = {function: (...args: any[]) => any, arguments: string[]};
-
-function getValue(row: FinalEntry, group: string, key: string) {
-    return (row as any)[group]?.[key];
-}
 
 function getValueColor(value: number, key: string): string {
     let rule = colors[key];
@@ -177,7 +172,7 @@ const labels: Record<string, string[]> = {
     "fundamentals": ["Fundamentals"],
     "analystRating": ["Analyst Rating"],
     "priceForecast": ["Price Forecast"],
-    "overview": ["Overview"],
+    "overview": ["Overview"], //TODO
     "quotes": ["Quotes"],
     "liqmd_millions": ["Liq", "Liquidez Média Diária"],
     "margem": ["Margem", "Margem Líquida"],
@@ -243,66 +238,3 @@ const rows = [
     "VALE3",
     "WEGE3",
 ]
-
-type DerivedEntry = Record<keyof typeof derivations, any>
-type FinalEntry = ScrapedEntry & QuoteEntry & DerivedEntry;
-type FinalData = Record<string, FinalEntry>;
-
-function mergeData<A extends Record<string, any>, B extends Record<string, any>>
-(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
-    let entries = Object.keys({ ...data1, ...data2 }).map(key => {
-        let value = mergeEntries(data1[key], data2[key]);
-        return [key, value]
-    });
-    return Object.fromEntries(entries);
-}
-
-function mergeEntries(data1: Record<string, any>, data2: Record<string, any>): Record<string, any> {
-    if (!data1) return data2;
-    if (!data2) return data1;
-    let entries = Object.keys({ ...data1, ...data2 }).map(key => {
-        let value = { ...data1[key], ...data2[key] };
-        return [key, value]
-    });
-    return Object.fromEntries(entries);
-}
-
-function deriveData(data: Record<string, Record<string, any>>): Record<string, DerivedEntry> {
-    let entries = Object.keys(data).map(ticker => {
-        let derived = deriveEntry(data[ticker]);
-        return [ticker, derived];
-    })
-    return Object.fromEntries(entries);
-}
-
-function deriveEntry(data: Record<string, any>): Record<string, DerivedEntry> {
-    let entries = Object.keys(derivations).map(path => {
-        let derivation = derivations[path];
-        let args = derivation.arguments.map((path) => getValueByPath(data, path))
-        let value = derivation.function(args);
-        return [path, value];
-    })
-    let flatObj = Object.fromEntries(entries);
-    return unflatten(flatObj);
-}
-
-function unflatten(obj: Record<string, any>): Record<string, Record<string, any>> {
-    const result: Record<string, any> = {};
-    for (const flatKey in obj) {
-        const [group, key] = flatKey.split(".");
-        result[group] ??= {};
-        result[group][key] = obj[flatKey];
-    }
-    return result;
-}
-
-function getValueByPath(data: any, path: string) {
-    let [group, key] = path.split(".");
-    return getValue(data, group, key);
-}
-
-function consolidateData(scraped: ScrapedData, quotes: QuoteData): FinalData {
-    let merged = mergeData(scraped, quotes);
-    let derived = deriveData(merged);
-    return mergeData(merged, derived);
-}
