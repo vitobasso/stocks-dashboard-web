@@ -11,9 +11,9 @@ type ScrapedEntry = {
 export type ScrapedData = Record<string, ScrapedEntry>;
 
 export type QuoteSeries = number[];
-type TimeInterval = "1d" | "1mo" | "1y" | "5y" | "latest";
+type TimeInterval = "1d" | "1mo" | "1y" | "5y";
 type IntervalQuotes = Partial<Record<TimeInterval, QuoteSeries>>;
-type QuoteEntry = { quotes: IntervalQuotes };
+type QuoteEntry = { quotes: IntervalQuotes & { latest: number }};
 export type QuoteData = Record<string, QuoteEntry>;
 
 export type Derivation = {function: (...args: any[]) => any, arguments: string[]};
@@ -41,7 +41,7 @@ function mergeData<A extends Record<string, any>, B extends Record<string, any>>
     return Object.fromEntries(entries);
 }
 
-function mergeEntries(data1: Record<string, any>, data2: Record<string, any>): Record<string, any> {
+export function mergeEntries(data1: Record<string, any>, data2: Record<string, any>): Record<string, any> {
     if (!data1) return data2;
     if (!data2) return data1;
     let entries = Object.keys({ ...data1, ...data2 }).map(key => {

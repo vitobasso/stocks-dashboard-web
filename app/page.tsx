@@ -15,7 +15,11 @@ export default function Home() {
         fetch("/api/scraped")
             .then(res => res.json())
             .then(json => setScraped(json));
-        fetch("/api/quotes")
+        fetch("/api/quotes", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({tickers: rows}),
+        })
             .then(res => res.json())
             .then(json => setQuotes(json));
     }, []);
