@@ -47,11 +47,11 @@ export default function Home() {
                         <TableRow key={ri}>
                             {headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
                                 .map(([group, key], hi) => {
-                                    let rawValue = getValue(data[ticker], group, key);
-                                    let color = getColor(rawValue, key);
-                                    let renderedValue = key === "ticker" ? ticker : renderValue(rawValue, key);
+                                    let cellData = getCellValue(data[ticker], group, key);
+                                    let color = getCellColor(cellData, key);
+                                    let renderedCell = key === "ticker" ? ticker : renderCell(cellData, key);
                                     return <TableCell style={{backgroundColor: color}} key={hi}>
-                                        {renderedValue ?? ""}
+                                        {renderedCell}
                                     </TableCell>;
                                 })}
                         </TableRow>)}
@@ -68,22 +68,27 @@ type FinalData = Record<string, FinalEntry>;
 type ColorRule = {min: number, minColor: string, max: number, maxColor: string}
 type Derivation = {function: (...args: any[]) => any, arguments: string[]};
 
-function getValue(row: FinalEntry, group: string, key: string) {
+function getCellValue(row: FinalEntry, group: string, key: string) {
     return (row as any)[group]?.[key];
 }
 
-function getColor(value: number, key: string): string {
+function getValueColor(value: number, key: string): string {
     let rule = colors[key];
     if (!rule || !value) return "white";
     const scale = chroma.scale([rule.minColor, rule.maxColor]).domain([rule.min, rule.max]);
     return scale(value).hex();
 }
 
-function renderValue(value: any, key: string) {
+function getCellColor(data: any, key: string): string {
+    let value: number = formats[key] == "chart" ? quoteChange(data) : data;
+    return getValueColor(value, key)
+}
+
+function renderCell(value: any, key: string) {
     if (formats[key] == "chart") return renderChart(value);
     if (formats[key] == "percent" && value) return value + "%";
     if (typeof value == "number") return Math.round(value * 10) / 10;
-    return value;
+    return value ?? "";
 }
 
 function renderChart(data: QuoteSeries) {
@@ -98,7 +103,7 @@ function renderChart(data: QuoteSeries) {
 }
 
 function quoteChange(data: QuoteSeries) {
-    return calcChangePct(data[0], data[data.length - 1]);
+    return data && calcChangePct(data[0], data[data.length - 1]);
 }
 
 function calcChangePct(start: number, end: number) {
@@ -156,7 +161,7 @@ function unflatten(obj: Record<string, any>): Record<string, Record<string, any>
 
 function getValueByPath(data: any, path: string) {
     let [group, key] = path.split(".");
-    return getValue(data, group, key);
+    return getCellValue(data, group, key);
 }
 
 function consolidateData(scraped: ScrapedData, quotes: QuoteData): FinalData {
@@ -252,6 +257,9 @@ const labels: Record<string, string[]> = {
 }
 
 const colors: Record<string, ColorRule> = {
+    "1mo": {min: 0, max: 10, minColor: "white", maxColor: "green"}, //TODO red 10% -> 0% white
+    "1y": {min: 8.5, max: 35, minColor: "white", maxColor: "green"}, //TODO red -5% -> 8.5% white
+    "5y": {min: 30, max: 100, minColor: "white", maxColor: "green"}, //TODO red 0% -> 0.3% white
     "liquidezMediaDiaria": {min: 4, max: 6, minColor: "red", maxColor: "white"},
     "P/L": {min: 12, max: 20, minColor: "white", maxColor: "red"}, //TODO < 0 red
     "P/VP": {min: 2, max: 5, minColor: "white", maxColor: "red"},
