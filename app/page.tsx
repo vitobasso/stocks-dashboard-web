@@ -54,7 +54,7 @@ export default function Home() {
                                     let cellData = getValue(data[ticker], group, key);
                                     let color = getCellColor(cellData, key);
                                     let renderedCell = key === "ticker" ? ticker : renderCell(cellData, key);
-                                    return <TableCell style={{backgroundColor: color}} key={hi}>
+                                    return <TableCell className="text-center" style={{backgroundColor: color}} key={hi}>
                                         {renderedCell}
                                     </TableCell>;
                                 })}
@@ -170,14 +170,19 @@ const labels: Record<string, string[]> = {
     "overview": ["Overview"],
     "quotes": ["Quotes"],
     "liqmd_millions": ["Liq", "Liquidez Média Diária"],
-    "margem": ["Margem", "Margem Líquida"],
-    "divida": ["Dívida", "Dívida Líquida / Patrimônio"],
+    "margem": ["Marg", "Margem Líquida"],
+    "divida": ["Dív", "Dívida Líquida / Patrimônio"],
     "liquidezCorrente": ["L.Cor.", "Liquidez Corrente"],
     "lucro": ["Lucro", "CAGR Lucros 5 Anos"],
+    "value": ["Valu"],
+    "future": ["Futu"],
+    "past": ["Past"],
+    "health": ["Heal"],
+    "dividend": ["Divi"],
     "strong_buy": ["SBuy", "Strong Buy"],
     "buy": ["Buy"],
     "hold": ["Hold"],
-    "underperform": ["Und", "Underperform"],
+    "underperform": ["Unde", "Underperform"],
     "sell": ["Sell"],
     "min_pct": ["Min"],
     "avg_pct": ["Avg"],
