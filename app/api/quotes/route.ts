@@ -1,36 +1,46 @@
 import {NextResponse} from 'next/server';
 import yahooFinance from "yahoo-finance2";
-import {QuoteData} from "@/lib/types";
-import { DateTime } from "luxon";
+import {DateTime} from "luxon";
 
 
-export async function GET() {
-    let ticker = "BBAS3"; //TODO ticker list from request
+export async function POST(req: Request) {
+    let tickers: string[] = (await req.json()).tickers;
+    let entries = (await yahooFinance.quote(tickers.map(ticker => ticker + ".SA")))
+        .map(quotes => {
+            let ticker = quotes.symbol.split(".")[0];
+            let value = { latest: quotes.regularMarketPrice };
+            return [ticker, value]
+        });
+    let quotes = Object.fromEntries(entries);
+
+    //TODO scape series async instead
+    let series = await fetchSeries("BBAS3");
+    let bbas3series = quotes["BBAS3"];
+    quotes["BBAS3"] = { ...bbas3series, ...series };
+    let adaptedEntries = Object.keys(quotes).map(key => [key, { quotes: quotes[key] }]);
+    let adaptedResult = Object.fromEntries(adaptedEntries);
+    return NextResponse.json(adaptedResult);
+}
+
+async function fetchSeries(ticker: string) {
     let tickerReq = ticker + ".SA";
-    const month = await yahooFinance.chart(tickerReq, {
+    let month = await yahooFinance.chart(tickerReq, {
         period1: DateTime.now().minus({months:1}).startOf('day').toUnixInteger(),
         interval: "1d",
     });
-    const year = await yahooFinance.chart(tickerReq, {
+    let year = await yahooFinance.chart(tickerReq, {
         period1: DateTime.now().minus({years:1}).startOf('day').toUnixInteger(),
         interval: "1wk",
     });
-    const year5 = await yahooFinance.chart(tickerReq, {
+    let year5 = await yahooFinance.chart(tickerReq, {
         period1: DateTime.now().minus({years:5}).startOf('day').toUnixInteger(),
         interval: "3mo",
     });
-    let extractedMonth = extractClose(month);
-    const quotes: QuoteData = {
-        [ticker]: {
-            quotes: {
-                "1mo": extractedMonth,
-                "1y": extractClose(year),
-                "5y": extractClose(year5),
-                "latest": extractedMonth[extractedMonth.length - 1],
-            }
-        }
+    return {
+        "1mo": extractClose(month),
+        "1y": extractClose(year),
+        "5y": extractClose(year5),
     }
-    return NextResponse.json(quotes);
 }
 
 // @ts-ignore
