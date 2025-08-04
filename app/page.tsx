@@ -27,8 +27,8 @@ export default function Home() {
     const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
     return (
-        <Card className="m-4 p-4 overflow-auto">
-            <Table>
+        <Card className="m-4 p-4" >
+            <Table className="overflow-hidden">
                 <TableHeader>
                     <TableRow>
                         {headers.map(([group, cols], i) => {
@@ -70,7 +70,7 @@ type ColorRule = {domain: number[], scale: string[]}
 
 function getValueColor(value: number, key: string): string {
     let rule = colors[key];
-    if (!rule || !value) return bgColor;
+    if (!rule || value == null || isNaN(value)) return bgColor;
     const scale = chroma.scale(rule.scale).domain(rule.domain);
     return scale(value).hex();
 }
@@ -90,9 +90,9 @@ function renderCell(value: any, key: string) {
 
 function renderChart(data: number[]) {
     return <div style={{position: "relative"}}>
-        {data && <span style={{opacity: 0.5}}>{quoteChange(data) + "%"}</span>}
+        {data && <span>{quoteChange(data) + "%"}</span>}
         <div style={{ position: "absolute", inset: -10 }}>
-            <Sparklines data={data} width={60} height={39} >
+            <Sparklines data={data} width={60} height={39} style={{opacity: 0.25}}>
                 <SparklinesLine color="black" style={{fill: "none"}}/>
             </Sparklines>
         </div>
@@ -197,13 +197,13 @@ const labels: Record<string, string[]> = {
     "max_pct": ["Max"],
 }
 
-const red = "#f44335"; //TODO --chart-1
-const bgColor = "#ffffff"; //TODO --background
-const green = "#4CAF50"; //TODO --chart-2
+const red = "#D23D2D"; //TODO --chart-1
+const bgColor = "#F0EEE5"; //TODO --background
+const green = "#428554"; //TODO --chart-2
 const colors: Record<string, ColorRule> = {
-    "1mo": {domain: [-10, 0, 10], scale: [red, bgColor, green]},
-    "1y": {domain: [-5, 8.5, 35], scale: [red, bgColor, green]},
-    "5y": {domain: [0, 30, 100], scale: [red, bgColor, green]},
+    "1mo": {domain: [-20, -5, 10, 20], scale: [red, bgColor, bgColor, green]},
+    "1y": {domain: [-20, 8.8, 18.8, 45], scale: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
+    "5y": {domain: [0, 70, 115, 150], scale: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
     "liquidezMediaDiaria": {domain: [4, 6], scale: [red, bgColor]},
 
     "P/L": {domain: [-1000, 0, 12, 20], scale: [red, bgColor, bgColor, red]},
@@ -214,24 +214,24 @@ const colors: Record<string, ColorRule> = {
     "margem": {domain: [0, 10], scale: [red, bgColor]},
     "divida": {domain: [1, 2], scale: [bgColor, red]},
     "liquidezCorrente": {domain: [0.5, 1], scale: [red, bgColor]},
-    "lucro": {domain: [0, 8, 50], scale: [red, bgColor, green]},
+    "lucro": {domain: [0, 8, 15, 50], scale: [red, bgColor, bgColor, green]},
     "DY": {domain: [7, 20], scale: [bgColor, green]},
 
-    "value": {domain: [0, 2.5, 5], scale: [red, red, bgColor, green]},
-    "future": {domain: [0, 2.5, 5], scale: [red, bgColor, green]},
-    "past": {domain: [0, 2.5, 5], scale: [red, bgColor, green]},
-    "health": {domain: [0, 2.5, 5], scale: [red, bgColor, green]},
+    "value": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
+    "future": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
+    "past": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
+    "health": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
     "dividend": {domain: [3, 6], scale: [bgColor, green]},
 
-    "strong_buy": {domain: [0, 10], scale: [bgColor, green]},
-    "buy": {domain: [0, 20], scale: [bgColor, green]},
+    "strong_buy": {domain: [1, 10], scale: [bgColor, green]},
+    "buy": {domain: [2, 20], scale: [bgColor, green]},
     "hold": {domain: [4, 15], scale: [bgColor, red]},
-    "underperform": {domain: [0, 3], scale: [bgColor, red]},
-    "sell": {domain: [0, 1], scale: [bgColor, red]},
+    "underperform": {domain: [0, 4], scale: [bgColor, red]},
+    "sell": {domain: [0, 2], scale: [bgColor, red]},
 
-    "min_pct": {domain: [-5, 0, 30], scale: [red, bgColor, green]},
-    "avg_pct": {domain: [0, 10, 80], scale: [red, bgColor, green]},
-    "max_pct": {domain: [15, 50, 100], scale: [red, bgColor, green]},
+    "min_pct": {domain: [-20, 0, 10, 30], scale: [red, bgColor, bgColor, green]},
+    "avg_pct": {domain: [-5, 5, 20, 80], scale: [red, bgColor, bgColor, green]},
+    "max_pct": {domain: [10, 25, 60, 100], scale: [red, bgColor, bgColor, green]},
 }
 
 const rows = [
