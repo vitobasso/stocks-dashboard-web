@@ -75,9 +75,9 @@ function simplyWall(): Record<string,Overview> {
 
 function yahooChart(): Record<string,QuoteCharts> {
     return extractJsonPerTicker("/yahoo_chart/data/ready", (data: number[]) => ({
-        "1mo": data.slice(-Math.floor(data.length / (5 * 12))),
-        "1y": data.slice(-Math.floor(data.length / 5)),
-        "5y": data.filter((_, i) => i % 5 === 0),
+        "1mo": data.slice(-21),
+        "1y": data.slice(-252).filter((_, i) => i % 5 === 0),
+        "5y": data.filter((_, i) => i % 20 === 0),
     }));
 }
 
