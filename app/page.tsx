@@ -164,13 +164,13 @@ const formats: Record<string, "chart" | "percent"> = {
 }
 
 const labels: Record<string, string[]> = {
-    "ticker": ["Ticker"],
-    "latest": ["Today"],
-    "fundamentals": ["Fundamentals"],
-    "analystRating": ["Analyst Rating"],
-    "priceForecast": ["Price Forecast"],
-    "overview": ["Overview"],
-    "quotes": ["Quotes"],
+    "ticker": ["Ação"],
+    "latest": ["Hoje"],
+    "quotes": ["Preço"],
+    "fundamentals": ["Fundamentos"],
+    "overview": ["Score"],
+    "analystRating": ["Recomendação"],
+    "priceForecast": ["Previsão"],
     "liqmd_millions": ["Liq", "Liquidez Média Diária"],
     "margem": ["Marg", "Margem Líquida"],
     "divida": ["Dív", "Dívida Líquida / Patrimônio"],
