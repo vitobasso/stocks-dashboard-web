@@ -2,18 +2,17 @@ export type Fundamentals = { [key: string]: string | number };
 export type Overview = { value: number; future: number; past: number; health: number; dividend: number };
 export type AnalystRating = { strongBuy: number; buy: number; hold: number; underperform: number; sell: number };
 export type PriceForecast = { min: number; avg: number; max: number };
+export type QuoteCharts = { "1mo": number[], "1y": number[], "5y": number[] }
 type ScrapedEntry = {
     fundamentals?: Fundamentals;
     overview?: Overview;
     analystRating?: AnalystRating;
     priceForecast?: PriceForecast;
+    quoteCharts?: QuoteCharts;
 };
 export type ScrapedData = Record<string, ScrapedEntry>;
 
-export type QuoteSeries = number[];
-type TimeInterval = "1d" | "1mo" | "1y" | "5y";
-type IntervalQuotes = Partial<Record<TimeInterval, QuoteSeries>>;
-type QuoteEntry = { quotes: IntervalQuotes & { latest: number }};
+type QuoteEntry = { quotes: { latest: number }};
 export type QuoteData = Record<string, QuoteEntry>;
 
 export type Derivation = {function: (...args: any[]) => any, arguments: string[]};

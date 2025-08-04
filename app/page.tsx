@@ -3,7 +3,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {QuoteData, QuoteSeries, ScrapedData, Derivation, consolidateData, getValue} from "@/lib/types";
+import {QuoteData, ScrapedData, Derivation, consolidateData, getValue} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
@@ -82,23 +82,24 @@ function getCellColor(data: any, key: string): string {
 
 function renderCell(value: any, key: string) {
     if (formats[key] == "chart") return renderChart(value);
+    if (isNaN(value)) return "";
     if (formats[key] == "percent" && value) return value + "%";
     if (typeof value == "number") return Math.round(value * 10) / 10;
     return value ?? "";
 }
 
-function renderChart(data: QuoteSeries) {
+function renderChart(data: number[]) {
     return <div style={{position: "relative"}}>
         {data && <span style={{opacity: 0.5}}>{quoteChange(data) + "%"}</span>}
         <div style={{ position: "absolute", inset: -10 }}>
-            <Sparklines data={data} width={40} height={30} >
+            <Sparklines data={data} width={40} height={26} >
                 <SparklinesLine color="black" style={{fill: "none"}}/>
             </Sparklines>
         </div>
     </div>
 }
 
-function quoteChange(data: QuoteSeries) {
+function quoteChange(data: number[]) {
     return data && calcChangePct(data[0], data[data.length - 1]);
 }
 
@@ -109,7 +110,8 @@ function calcChangePct(start: number, end: number) {
 
 const headers: Header[] = [
     ["", ["ticker"]],
-    ["quotes", ["latest", "1mo", "1y", "5y"]],
+    ["quotes", ["latest"]],
+    ["quoteCharts", ["1mo", "1y", "5y"]], //TODO compare with latest when displaying % change?
     ["fundamentals", [
         "liqmd_millions",
         "P/L",

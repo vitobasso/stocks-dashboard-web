@@ -1,14 +1,15 @@
 import {NextResponse} from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import {AnalystRating, Fundamentals, Overview, PriceForecast, ScrapedData} from "@/lib/types";
+import {AnalystRating, Fundamentals, Overview, PriceForecast, QuoteCharts, ScrapedData} from "@/lib/types";
 
-const rootDir = "../ai-scraper/output/20250701";
+const rootDir = "../ai-scraper/output/20250803";
 
 export async function GET() {
+    const chart = yahooChart();
     const funds = fundamentals();
     const ratings = analysis();
-    const overview = simplywall();
+    const overview = simplyWall();
     const tickers = new Set([...Object.keys(funds), ...Object.keys(ratings)]);
     const rows = Array.from(tickers).reduce((acc, ticker) => {
         acc[ticker] = {
@@ -16,6 +17,7 @@ export async function GET() {
             overview: overview[ticker],
             analystRating: ratings[ticker]?.analyst_rating,
             priceForecast: ratings[ticker]?.price_forecast,
+            quoteCharts: chart[ticker],
         };
         return acc;
     }, {} as ScrapedData);
@@ -23,10 +25,15 @@ export async function GET() {
 }
 
 function fundamentals(): Record<string, Fundamentals> {
-    const file = rootDir + "/statusinvest/data/ready/20250701T140910.csv"
-    const filePath = path.join(process.cwd(), file)
-    const csv = fs.readFileSync(filePath, 'utf8');
-    return parseFundamentals(csv)
+    const file = pickLatestFile(rootDir + "/statusinvest/data/ready");
+    return file ? parseFundamentals(fs.readFileSync(file, 'utf8')) : {};
+}
+
+function pickLatestFile(dir: string): string | null {
+    const files = fs.readdirSync(dir);
+    if (files.length === 0) return null;
+    const sorted = files.sort();
+    return path.join(dir, sorted[sorted.length - 1]);
 }
 
 function parseFundamentals(csv: string): Record<string, Fundamentals> {
@@ -59,21 +66,28 @@ function tryConvertNumber(value: string): number | string {
 }
 
 function analysis(): Record<string, { analyst_rating: AnalystRating, price_forecast: PriceForecast }> {
-    const dir = rootDir + "/yahoo/data/ready"
-    const entries = fs.readdirSync(dir).map(file => {
-        const ticker = file.split('-')[0].toUpperCase();
-        const data = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
-        return [ticker, data];
-    });
-    return Object.fromEntries(entries);
+    return extractJsonPerTicker("/yahoo/data/ready", (data: any) => data);
 }
 
-function simplywall(): Record<string,Overview> {
-    const dir = rootDir + "/simplywall/data/ready"
+function simplyWall(): Record<string,Overview> {
+    return extractJsonPerTicker("/simplywall/data/ready", (data: any) => data?.data?.Company?.score);
+}
+
+function yahooChart(): Record<string,QuoteCharts> {
+    return extractJsonPerTicker("/yahoo_chart/data/ready", (data: number[]) => ({
+        "1mo": data.slice(-Math.floor(data.length / (5 * 12))),
+        "1y": data.slice(-Math.floor(data.length / 5)),
+        "5y": data.filter((_, i) => i % 5 === 0),
+    }));
+}
+
+function extractJsonPerTicker<In, Out>(filePath: string, extract: (data: In) => Out): Record<string, Out> {
+    const dir = rootDir + filePath;
+    if (!fs.existsSync(dir)) return {};
     const entries = fs.readdirSync(dir).map(file => {
         const ticker = file.split('-')[0].toUpperCase();
         const data = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
-        return [ticker, data?.data?.Company?.score];
+        return [ticker, extract(data)];
     });
     return Object.fromEntries(entries);
 }
