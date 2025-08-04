@@ -45,9 +45,9 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.9481 0.0125 93.9);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: var(--background);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -120,3 +120,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+red = "#f44335"
+green = "#4CAF50"
+
+# Pash classics, mid-century modern
+Neutral: #F5EFDF
+Dark Neutral: #031B35
+Accent: #F2A123
+Main 1 (green): #777C2F
+Main 2 (red): #B3311B
+
+# Warm
+Fire Red: #D23D2D
+Vanilla Cream: #F8EECB
+Retro Green: #31603D
+Saffron: #F5C065
+Russet: #6E433D
+*/
