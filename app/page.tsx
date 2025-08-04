@@ -108,10 +108,13 @@ function calcChangePct(start: number, end: number) {
     if (!isNaN(result)) return result;
 }
 
+function copy(originalPath: string): Derivation {
+    return { function: (args) => args[0], arguments: [originalPath] }
+}
+
 const headers: Header[] = [
     ["", ["ticker"]],
-    ["quotes", ["latest"]],
-    ["quoteCharts", ["1mo", "1y", "5y"]], //TODO compare with latest when displaying % change?
+    ["quotes", ["latest", "1mo", "1y", "5y"]], //TODO compare with latest when displaying % change?
     ["fundamentals", [
         "liqmd_millions",
         "P/L",
@@ -151,6 +154,9 @@ const derivations: Record<string, Derivation> = {
         function: (args) => Math.round(100 / args[0]),
         arguments: ["fundamentals.EV/EBIT"],
     },
+    "quotes.1mo": copy("quoteCharts.1mo"),
+    "quotes.1y": copy("quoteCharts.1y"),
+    "quotes.5y": copy("quoteCharts.5y"),
 }
 
 const formats: Record<string, "chart" | "percent"> = {
@@ -171,10 +177,10 @@ const labels: Record<string, string[]> = {
     "overview": ["Score"],
     "analystRating": ["Recomendação"],
     "priceForecast": ["Previsão"],
-    "liqmd_millions": ["Liq", "Liquidez Média Diária"],
+    "liqmd_millions": ["LiqM", "Liquidez Média Diária"],
     "margem": ["Marg", "Margem Líquida"],
     "divida": ["Dív", "Dívida Líquida / Patrimônio"],
-    "liquidezCorrente": ["L.Cor.", "Liquidez Corrente"],
+    "liquidezCorrente": ["LCor", "Liquidez Corrente"],
     "lucro": ["Lucro", "CAGR Lucros 5 Anos"],
     "value": ["Valu"],
     "future": ["Futu"],
