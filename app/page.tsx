@@ -3,15 +3,23 @@
 import {useEffect, useMemo, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {QuoteData, ScrapedData, Derivation, consolidateData, getValue} from "@/lib/types";
+import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
 import chroma from "chroma-js";
+import {formatHex, parse} from 'culori';
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
     const [quotes, setQuotes] = useState<QuoteData>({});
+    const [palette, setPalette] = useState<any>();
 
     useEffect(() => {
+        setPalette({
+            bg: getCSSColor("--background"),
+            red: getCSSColor("--chart-1"),
+            green: getCSSColor("--chart-2"),
+        });
+
         fetch("/api/scraped")
             .then(res => res.json())
             .then(json => setScraped(json));
@@ -52,7 +60,7 @@ export default function Home() {
                             {headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
                                 .map(([group, key], hi) => {
                                     let cellData = getValue(data[ticker], group, key);
-                                    let color = getCellColor(cellData, key);
+                                    let color = getCellColor(cellData, key, palette);
                                     let renderedCell = key === "ticker" ? ticker : renderCell(cellData, key);
                                     return <TableCell className="text-center" style={{backgroundColor: color}} key={hi}>
                                         {renderedCell}
@@ -66,18 +74,24 @@ export default function Home() {
 }
 
 type Header = [group: string, keys: string[]];
-type ColorRule = {domain: number[], scale: string[]}
+type ColorRule = {domain: number[], colors: string[]}
 
-function getValueColor(value: number, key: string): string {
+function getCSSColor(cssVar: string) {
+    const cssColor = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
+    return formatHex(parse(cssColor));
+}
+
+function getValueColor(value: number, key: string, palette: string[]): string {
     let rule = colors[key];
-    if (!rule || value == null || isNaN(value)) return bgColor;
-    const scale = chroma.scale(rule.scale).domain(rule.domain);
+    if (!rule || value == null || isNaN(value)) return palette["bg"];
+    let cc = rule.colors.map(c => palette[c]);
+    const scale = chroma.scale(cc).domain(rule.domain);
     return scale(value).hex();
 }
 
-function getCellColor(data: any, key: string): string {
+function getCellColor(data: any, key: string, palette: string[]): string {
     let value: number = formats[key] == "chart" ? quoteChange(data) : data;
-    return getValueColor(value, key)
+    return getValueColor(value, key, palette)
 }
 
 function renderCell(value: any, key: string) {
@@ -197,41 +211,41 @@ const labels: Record<string, string[]> = {
     "max_pct": ["Max"],
 }
 
-const red = "#D23D2D"; //TODO --chart-1
-const bgColor = "#F0EEE5"; //TODO --background
-const green = "#428554"; //TODO --chart-2
+// const bgColor = "#F0EEE5"; //TODO --background
+// const red = "#D23D2D"; //TODO --chart-1
+// const green = "#428554"; //TODO --chart-2
 const colors: Record<string, ColorRule> = {
-    "1mo": {domain: [-20, -5, 10, 20], scale: [red, bgColor, bgColor, green]},
-    "1y": {domain: [-20, 8.8, 18.8, 45], scale: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
-    "5y": {domain: [0, 70, 115, 150], scale: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
-    "liquidezMediaDiaria": {domain: [4, 6], scale: [red, bgColor]},
+    "1mo": {domain: [-20, -5, 10, 20], colors: ["red", "bg", "bg", "green"]},
+    "1y": {domain: [-20, 8.8, 18.8, 45], colors: ["red", "bg", "bg", "green"]}, //selic anual media: 13.84
+    "5y": {domain: [0, 70, 115, 150], colors: ["red", "bg", "bg", "green"]}, //selic acc 5 anos: 92.4
+    "liquidezMediaDiaria": {domain: [4, 6], colors: ["red", "bg"]},
 
-    "P/L": {domain: [-1000, 0, 12, 20], scale: [red, bgColor, bgColor, red]},
-    "P/VP": {domain: [2, 5], scale: [bgColor, red]},
-    "EY": {domain: [0, 10], scale: [red, bgColor]},
-    "ROE": {domain: [2, 15], scale: [red, bgColor]},
-    "ROIC": {domain: [0, 10], scale: [red, bgColor]},
-    "margem": {domain: [0, 10], scale: [red, bgColor]},
-    "divida": {domain: [1, 2], scale: [bgColor, red]},
-    "liquidezCorrente": {domain: [0.5, 1], scale: [red, bgColor]},
-    "lucro": {domain: [0, 8, 15, 50], scale: [red, bgColor, bgColor, green]},
-    "DY": {domain: [7, 20], scale: [bgColor, green]},
+    "P/L": {domain: [-1000, 0, 12, 20], colors: ["red", "bg", "bg", "red"]},
+    "P/VP": {domain: [2, 5], colors: ["bg", "red"]},
+    "EY": {domain: [0, 10], colors: ["red", "bg"]},
+    "ROE": {domain: [2, 15], colors: ["red", "bg"]},
+    "ROIC": {domain: [0, 10], colors: ["red", "bg"]},
+    "margem": {domain: [0, 10], colors: ["red", "bg"]},
+    "divida": {domain: [1, 2], colors: ["bg", "red"]},
+    "liquidezCorrente": {domain: [0.5, 1], colors: ["red", "bg"]},
+    "lucro": {domain: [0, 8, 15, 50], colors: ["red", "bg", "bg", "green"]},
+    "DY": {domain: [7, 20], colors: ["bg", "green"]},
 
-    "value": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "future": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "past": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "health": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "dividend": {domain: [3, 6], scale: [bgColor, green]},
+    "value": {domain: [-2, 2, 4, 8], colors: ["red", "bg", "bg", "green"]},
+    "future": {domain: [-2, 2, 4, 8], colors: ["red", "bg", "bg", "green"]},
+    "past": {domain: [-2, 2, 4, 8], colors: ["red", "bg", "bg", "green"]},
+    "health": {domain: [-2, 2, 4, 8], colors: ["red", "bg", "bg", "green"]},
+    "dividend": {domain: [3, 6], colors: ["bg", "green"]},
 
-    "strong_buy": {domain: [1, 10], scale: [bgColor, green]},
-    "buy": {domain: [2, 20], scale: [bgColor, green]},
-    "hold": {domain: [4, 15], scale: [bgColor, red]},
-    "underperform": {domain: [0, 4], scale: [bgColor, red]},
-    "sell": {domain: [0, 2], scale: [bgColor, red]},
+    "strong_buy": {domain: [1, 10], colors: ["bg", "green"]},
+    "buy": {domain: [2, 20], colors: ["bg", "green"]},
+    "hold": {domain: [4, 15], colors: ["bg", "red"]},
+    "underperform": {domain: [0, 4], colors: ["bg", "red"]},
+    "sell": {domain: [0, 2], colors: ["bg", "red"]},
 
-    "min_pct": {domain: [-20, 0, 10, 30], scale: [red, bgColor, bgColor, green]},
-    "avg_pct": {domain: [-5, 5, 20, 80], scale: [red, bgColor, bgColor, green]},
-    "max_pct": {domain: [10, 25, 60, 100], scale: [red, bgColor, bgColor, green]},
+    "min_pct": {domain: [-20, 0, 10, 30], colors: ["red", "bg", "bg", "green"]},
+    "avg_pct": {domain: [-5, 5, 20, 80], colors: ["red", "bg", "bg", "green"]},
+    "max_pct": {domain: [10, 25, 60, 100], colors: ["red", "bg", "bg", "green"]},
 }
 
 const rows = [

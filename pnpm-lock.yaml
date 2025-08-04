@@ -14,12 +14,12 @@ dependencies:
   clsx:
     specifier: ^2.1.1
     version: 2.1.1
+  culori:
+    specifier: ^4.0.2
+    version: 4.0.2
   lucide-react:
     specifier: ^0.532.0
     version: 0.532.0(react@19.1.0)
-  luxon:
-    specifier: ^3.7.1
-    version: 3.7.1
   next:
     specifier: 15.4.4
     version: 15.4.4(react-dom@19.1.0)(react@19.1.0)
@@ -46,9 +46,6 @@ devDependencies:
   '@types/chroma-js':
     specifier: ^3.1.1
     version: 3.1.1
-  '@types/luxon':
-    specifier: ^3.7.1
-    version: 3.7.1
   '@types/node':
     specifier: ^20
     version: 20.19.9
@@ -580,10 +577,6 @@ packages:
     resolution: {integrity: sha512-SFCr4edNkZ1bGaLzGz7rgR1bRzVX4MmMxwsIa3/Bh6ose8v+hRpneoizHv0KChdjxaXyjRtaMq7sCuZSzPomQA==}
     dev: true
 
-  /@types/luxon@3.7.1:
-    resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
-    dev: true
-
   /@types/node@20.19.9:
     resolution: {integrity: sha512-cuVNgarYWZqxRJDQHEB58GEONhOK79QVR/qYx4S7kcUObQvUwvFnYxJuuHUKm2aieN9X3yZB4LZsuYNU1Qphsw==}
     dependencies:
@@ -679,6 +672,11 @@ packages:
   /csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
     dev: true
+
+  /culori@4.0.2:
+    resolution: {integrity: sha512-1+BhOB8ahCn4O0cep0Sh2l9KCOfOdY+BXJnKMHFFzDEouSr/el18QwXEMRlOj9UY5nCeA8UN3a/82rUWRBeyBw==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dev: false
 
   /detect-libc@2.0.4:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
@@ -832,11 +830,6 @@ packages:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
     dependencies:
       react: 19.1.0
-    dev: false
-
-  /luxon@3.7.1:
-    resolution: {integrity: sha512-RkRWjA926cTvz5rAb1BqyWkKbbjzCGchDUIKMCUvNi17j6f6j8uHGDV82Aqcqtzd+icoYpELmG3ksgGiFNNcNg==}
-    engines: {node: '>=12'}
     dev: false
 
   /magic-string@0.30.17:
