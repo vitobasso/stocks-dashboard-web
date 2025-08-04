@@ -66,12 +66,12 @@ export default function Home() {
 }
 
 type Header = [group: string, keys: string[]];
-type ColorRule = {domain: number[], scale: string[]}
+type ColorRule = {domain: number[], colors: string[]}
 
 function getValueColor(value: number, key: string): string {
     let rule = colors[key];
     if (!rule || value == null || isNaN(value)) return bgColor;
-    const scale = chroma.scale(rule.scale).domain(rule.domain);
+    const scale = chroma.scale(rule.colors).domain(rule.domain);
     return scale(value).hex();
 }
 
@@ -201,37 +201,37 @@ const red = "#D23D2D"; //TODO --chart-1
 const bgColor = "#F0EEE5"; //TODO --background
 const green = "#428554"; //TODO --chart-2
 const colors: Record<string, ColorRule> = {
-    "1mo": {domain: [-20, -5, 10, 20], scale: [red, bgColor, bgColor, green]},
-    "1y": {domain: [-20, 8.8, 18.8, 45], scale: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
-    "5y": {domain: [0, 70, 115, 150], scale: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
-    "liquidezMediaDiaria": {domain: [4, 6], scale: [red, bgColor]},
+    "1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
+    "5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
+    "liquidezMediaDiaria": {domain: [4, 6], colors: [red, bgColor]},
 
-    "P/L": {domain: [-1000, 0, 12, 20], scale: [red, bgColor, bgColor, red]},
-    "P/VP": {domain: [2, 5], scale: [bgColor, red]},
-    "EY": {domain: [0, 10], scale: [red, bgColor]},
-    "ROE": {domain: [2, 15], scale: [red, bgColor]},
-    "ROIC": {domain: [0, 10], scale: [red, bgColor]},
-    "margem": {domain: [0, 10], scale: [red, bgColor]},
-    "divida": {domain: [1, 2], scale: [bgColor, red]},
-    "liquidezCorrente": {domain: [0.5, 1], scale: [red, bgColor]},
-    "lucro": {domain: [0, 8, 15, 50], scale: [red, bgColor, bgColor, green]},
-    "DY": {domain: [7, 20], scale: [bgColor, green]},
+    "P/L": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
+    "P/VP": {domain: [2, 5], colors: [bgColor, red]},
+    "EY": {domain: [0, 10], colors: [red, bgColor]},
+    "ROE": {domain: [2, 15], colors: [red, bgColor]},
+    "ROIC": {domain: [0, 10], colors: [red, bgColor]},
+    "margem": {domain: [0, 10], colors: [red, bgColor]},
+    "divida": {domain: [1, 2], colors: [bgColor, red]},
+    "liquidezCorrente": {domain: [0.5, 1], colors: [red, bgColor]},
+    "lucro": {domain: [0, 8, 15, 50], colors: [red, bgColor, bgColor, green]},
+    "DY": {domain: [7, 20], colors: [bgColor, green]},
 
-    "value": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "future": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "past": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "health": {domain: [-2, 2, 4, 8], scale: [red, bgColor, bgColor, green]},
-    "dividend": {domain: [3, 6], scale: [bgColor, green]},
+    "value": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "future": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "past": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "dividend": {domain: [3, 6], colors: [bgColor, green]},
 
-    "strong_buy": {domain: [1, 10], scale: [bgColor, green]},
-    "buy": {domain: [2, 20], scale: [bgColor, green]},
-    "hold": {domain: [4, 15], scale: [bgColor, red]},
-    "underperform": {domain: [0, 4], scale: [bgColor, red]},
-    "sell": {domain: [0, 2], scale: [bgColor, red]},
+    "strong_buy": {domain: [1, 10], colors: [bgColor, green]},
+    "buy": {domain: [2, 20], colors: [bgColor, green]},
+    "hold": {domain: [4, 15], colors: [bgColor, red]},
+    "underperform": {domain: [0, 4], colors: [bgColor, red]},
+    "sell": {domain: [0, 2], colors: [bgColor, red]},
 
-    "min_pct": {domain: [-20, 0, 10, 30], scale: [red, bgColor, bgColor, green]},
-    "avg_pct": {domain: [-5, 5, 20, 80], scale: [red, bgColor, bgColor, green]},
-    "max_pct": {domain: [10, 25, 60, 100], scale: [red, bgColor, bgColor, green]},
+    "min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
+    "avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
+    "max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
 }
 
 const rows = [
