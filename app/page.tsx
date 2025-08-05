@@ -1,11 +1,12 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {Card} from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {QuoteData, ScrapedData, Derivation, consolidateData, getValue} from "@/lib/types";
+import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
+import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
+import 'react-data-grid/lib/styles.css';
+
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
@@ -18,7 +19,7 @@ export default function Home() {
         fetch("/api/quotes", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({tickers: rows}),
+            body: JSON.stringify({tickers}),
         })
             .then(res => res.json())
             .then(json => setQuotes(json));
@@ -26,43 +27,38 @@ export default function Home() {
 
     const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
-    return (
-        <Card className="m-4 p-4" >
-            <Table className="overflow-hidden">
-                <TableHeader>
-                    <TableRow>
-                        {headers.map(([group, cols], i) => {
-                            const label = labels[group]?.[0] ?? group;
-                            return <TableHead key={i} colSpan={cols.length} className="text-center font-bold">
-                                {label}
-                            </TableHead>
-                        })}
-                    </TableRow>
-                    <TableRow>
-                        {headers.flatMap(([_, keys]) => keys).map((k, i) => {
-                            const label = labels[k]?.[0] ?? k;
-                            const hint = labels[k]?.[1] ?? "";
-                            return <TableHead title={hint} key={i}>{label}</TableHead>
-                        })}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {rows.filter(ticker => data[ticker]).map((ticker, ri) =>
-                        <TableRow key={ri}>
-                            {headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
-                                .map(([group, key], hi) => {
-                                    let cellData = getValue(data[ticker], group, key);
-                                    let color = getCellColor(cellData, key);
-                                    let renderedCell = key === "ticker" ? ticker : renderCell(cellData, key);
-                                    return <TableCell className="text-center" style={{backgroundColor: color}} key={hi}>
-                                        {renderedCell}
-                                    </TableCell>;
-                                })}
-                        </TableRow>)}
-                </TableBody>
-            </Table>
-        </Card>
-    );
+    type Row = any
+
+    const columns: readonly ColumnOrColumnGroup<Row, unknown>[] = headers.map(([group, keys]) => ({
+        name: labels[group]?.[0] ?? group,
+        headerCellClass: 'text-center',
+        children: keys.map(key => ({
+            key,
+            name: <span title={labels[key]?.[1] ?? ""}>{labels[key]?.[0] ?? key}</span>,
+            frozen: key == "ticker",
+            headerCellClass: 'text-center',
+            renderCell(props) {
+                return renderCell2(props.row[key], key);
+            }
+        }))
+    }));
+
+    const rows: Row[] = tickers.filter(ticker => data[ticker]).map(ticker => {
+        let entries = headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
+            .map(([group, key], hi) => {
+                let value = key === "ticker" ? ticker : getValue(data[ticker], group, key)
+                return [key, value]
+            });
+        return Object.fromEntries(entries);
+    });
+
+    function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
+        let cellData = props.row[key];
+        let color = getCellColor(cellData, key);
+        return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
+    }
+
+    return <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}/>
 }
 
 type Header = [group: string, keys: string[]];
@@ -80,11 +76,14 @@ function getCellColor(data: any, key: string): string {
     return getValueColor(value, key)
 }
 
-function renderCell(value: any, key: string) {
+function renderCell2(value: any, key: string) {
+    console.log("renderCell2", value, key);
     if (formats[key] == "chart") return renderChart(value);
-    if (isNaN(value)) return "";
     if (formats[key] == "percent" && value) return value + "%";
-    if (typeof value == "number") return Math.round(value * 10) / 10;
+    if (typeof value == "number") {
+        if (isNaN(value)) return "";
+        return Math.round(value * 10) / 10;
+    }
     return value ?? "";
 }
 
@@ -234,7 +233,7 @@ const colors: Record<string, ColorRule> = {
     "max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
 }
 
-const rows = [
+const tickers = [
     "ABCB4",
     "BBAS3",
     "BBSE3",

@@ -121,6 +121,10 @@
   }
 }
 
+.rdg-header-row {
+  background-color: var(--background);
+}
+
 /*
 red = "#f44335"
 green = "#4CAF50"
