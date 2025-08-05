@@ -17,15 +17,15 @@ dependencies:
   lucide-react:
     specifier: ^0.532.0
     version: 0.532.0(react@19.1.0)
-  luxon:
-    specifier: ^3.7.1
-    version: 3.7.1
   next:
     specifier: 15.4.4
     version: 15.4.4(react-dom@19.1.0)(react@19.1.0)
   react:
     specifier: 19.1.0
     version: 19.1.0
+  react-data-grid:
+    specifier: 7.0.0-beta.57
+    version: 7.0.0-beta.57(react-dom@19.1.0)(react@19.1.0)
   react-dom:
     specifier: 19.1.0
     version: 19.1.0(react@19.1.0)
@@ -46,9 +46,6 @@ devDependencies:
   '@types/chroma-js':
     specifier: ^3.1.1
     version: 3.1.1
-  '@types/luxon':
-    specifier: ^3.7.1
-    version: 3.7.1
   '@types/node':
     specifier: ^20
     version: 20.19.9
@@ -580,10 +577,6 @@ packages:
     resolution: {integrity: sha512-SFCr4edNkZ1bGaLzGz7rgR1bRzVX4MmMxwsIa3/Bh6ose8v+hRpneoizHv0KChdjxaXyjRtaMq7sCuZSzPomQA==}
     dev: true
 
-  /@types/luxon@3.7.1:
-    resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
-    dev: true
-
   /@types/node@20.19.9:
     resolution: {integrity: sha512-cuVNgarYWZqxRJDQHEB58GEONhOK79QVR/qYx4S7kcUObQvUwvFnYxJuuHUKm2aieN9X3yZB4LZsuYNU1Qphsw==}
     dependencies:
@@ -834,11 +827,6 @@ packages:
       react: 19.1.0
     dev: false
 
-  /luxon@3.7.1:
-    resolution: {integrity: sha512-RkRWjA926cTvz5rAb1BqyWkKbbjzCGchDUIKMCUvNi17j6f6j8uHGDV82Aqcqtzd+icoYpELmG3ksgGiFNNcNg==}
-    engines: {node: '>=12'}
-    dev: false
-
   /magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
     dependencies:
@@ -958,6 +946,17 @@ packages:
 
   /querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
+    dev: false
+
+  /react-data-grid@7.0.0-beta.57(react-dom@19.1.0)(react@19.1.0):
+    resolution: {integrity: sha512-z0gcCsoXUS3xdOc2TGZZJGHFXImSorNVE9/wNUNUhcpBlH1eG1Fl7vo5ozxwOJrcaXkCj8nbEjmRAwcPJdw6Lg==}
+    peerDependencies:
+      react: ^19.0
+      react-dom: ^19.0
+    dependencies:
+      clsx: 2.1.1
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
     dev: false
 
   /react-dom@19.1.0(react@19.1.0):
