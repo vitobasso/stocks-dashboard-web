@@ -38,7 +38,7 @@ export default function Home() {
             frozen: key == "ticker",
             headerCellClass: 'text-center',
             renderCell(props) {
-                return renderCell2(props.row[key], key);
+                return renderValue(key, props.row[key]);
             }
         }))
     }));
@@ -54,7 +54,7 @@ export default function Home() {
 
     function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
         let cellData = props.row[key];
-        let color = getCellColor(cellData, key);
+        let color = getColor(key, cellData);
         return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
     }
 
@@ -64,20 +64,15 @@ export default function Home() {
 type Header = [group: string, keys: string[]];
 type ColorRule = {domain: number[], colors: string[]}
 
-function getValueColor(value: number, key: string): string {
+function getColor(key: string, data: any): string {
+    let value: number = formats[key] == "chart" ? quoteChange(data) : data;
     let rule = colors[key];
     if (!rule || value == null || isNaN(value)) return bgColor;
     const scale = chroma.scale(rule.colors).domain(rule.domain);
     return scale(value).hex();
 }
 
-function getCellColor(data: any, key: string): string {
-    let value: number = formats[key] == "chart" ? quoteChange(data) : data;
-    return getValueColor(value, key)
-}
-
-function renderCell2(value: any, key: string) {
-    console.log("renderCell2", value, key);
+function renderValue(key: string, value: any) {
     if (formats[key] == "chart") return renderChart(value);
     if (formats[key] == "percent" && value) return value + "%";
     if (typeof value == "number") {
@@ -196,9 +191,9 @@ const labels: Record<string, string[]> = {
     "max_pct": ["Max"],
 }
 
-const red = "#D23D2D"; //TODO --chart-1
-const bgColor = "#F0EEE5"; //TODO --background
-const green = "#428554"; //TODO --chart-2
+const red = "#D23D2D";
+const bgColor = "#F0EEE5";
+const green = "#428554";
 const colors: Record<string, ColorRule> = {
     "1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
     "1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
