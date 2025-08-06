@@ -1,31 +1,41 @@
 "use client"
 
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
 import 'react-data-grid/lib/styles.css';
-
+import {ContextMenu, MenuHandler} from "@/components/ui/ContextMenu";
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
     const [quotes, setQuotes] = useState<QuoteData>({});
+    const [tickers, setTickers] = useState<string[]>([]);
 
     useEffect(() => {
+        setTickers(loadTickers(localStorage));
+
         fetch("/api/scraped")
             .then(res => res.json())
             .then(json => setScraped(json));
-        fetch("/api/quotes", {
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("tickers", JSON.stringify(tickers));
+
+        tickers?.length && fetch("/api/quotes", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({tickers}),
         })
             .then(res => res.json())
             .then(json => setQuotes(json));
-    }, []);
+    }, [tickers]);
 
     const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
+
+    const menuRef = useRef<{onCellContextMenu: MenuHandler} | null>(null);
 
     type Row = any
 
@@ -53,12 +63,18 @@ export default function Home() {
     });
 
     function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
-        let cellData = props.row[key];
-        let color = getColor(key, cellData);
+        let cellData = props.row[key as string];
+        let color = getColor(key as string, cellData);
         return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
     }
 
-    return <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}/>
+    return <>
+        <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}
+                  onCellContextMenu={(args, event) => menuRef.current?.onCellContextMenu(args, event)}/>
+        <ContextMenu ref={menuRef}
+                     insertRow={(ticker: string) => setTickers([...tickers, ticker])}
+                     deleteRow={(ticker: string) => setTickers(tickers.filter(item => item !== ticker))} />
+    </>
 }
 
 type Header = [group: string, keys: string[]];
@@ -104,6 +120,11 @@ function calcChangePct(start: number, end: number) {
 
 function copy(originalPath: string): Derivation {
     return { function: (args) => args[0], arguments: [originalPath] }
+}
+
+function loadTickers(localStorage: Storage): string[] {
+    let rawTickers = localStorage.getItem("tickers");
+    return rawTickers?.length && JSON.parse(rawTickers) || initialTickers;
 }
 
 const headers: Header[] = [
@@ -228,7 +249,7 @@ const colors: Record<string, ColorRule> = {
     "max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
 }
 
-const tickers = [
+const initialTickers = [
     "ABCB4",
     "BBAS3",
     "BBSE3",
