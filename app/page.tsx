@@ -4,14 +4,45 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
-import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
 import 'react-data-grid/lib/styles.css';
 import {ContextMenu, MenuHandler} from "@/components/ui/ContextMenu";
+import {Cell, CellRendererProps, ColumnOrColumnGroup} from 'react-data-grid';
+import {DataGrid} from "@/components/ui/DataGrid";
+
+// import 'react-data-grid/lib/styles.css';
+// import {DataGrid, SelectColumn} from 'react-data-grid';
+// import {useState} from "react";
+//
+// const rows = [
+//     { ticker: 'AAPL', price: 100 },
+//     { ticker: 'MSFT', price: 200 }
+// ];
+//
+// const columns = [
+//     SelectColumn,
+//     { key: 'ticker', name: 'Ticker' },
+//     { key: 'price', name: 'Price' }
+// ];
+//
+// export default function Home() {
+//     const [selectedRows, setSelectedRows] = useState<ReadonlySet<string>>(new Set());
+//     return <DataGrid
+//         columns={columns}
+//         rows={rows}
+//         rowKeyGetter={(row) => row.ticker}
+//         selectedRows={selectedRows}
+//         onCellClick={(args, event) => {
+//             let newSelection = event.shiftKey ? [...selectedRows, args.row.ticker] : [args.row.ticker]
+//             setSelectedRows(new Set(newSelection));
+//         }}
+//     />
+// }
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
     const [quotes, setQuotes] = useState<QuoteData>({});
     const [tickers, setTickers] = useState<string[]>([]);
+    const [selectedRows, setSelectedRows] = useState<ReadonlySet<string>>(new Set());
 
     useEffect(() => {
         setTickers(loadTickers(localStorage));
@@ -70,7 +101,13 @@ export default function Home() {
 
     return <>
         <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}
-                  onCellContextMenu={(args, event) => menuRef.current?.onCellContextMenu(args, event)}/>
+                  defaultColumnOptions={{sortable: true}}
+                  onCellContextMenu={(args, event) => menuRef.current?.onCellContextMenu(args, event)}
+                  rowKeyGetter={(row: Row) => row.ticker}
+                  selectedRows={selectedRows}
+                  onCellClick={({ row }) => setSelectedRows(new Set([row.ticker]))}
+                  // onSelectedRowsChange={(args) => console.log("hi", args)}
+        />
         <ContextMenu ref={menuRef}
                      insertRow={(ticker: string) => setTickers([...tickers, ticker])}
                      deleteRow={(ticker: string) => setTickers(tickers.filter(item => item !== ticker))} />

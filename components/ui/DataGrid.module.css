@@ -1,0 +1,19 @@
+
+.rdg-header-row {
+    background-color: var(--background);
+}
+:global(.selectedRow .rdg-cell) {
+    background-color: red !important;
+    border: 2px solid blue !important;
+}
+.selectedRow {
+    /*background-color: #73aed5; !* light blue *!*/
+    /*border: 2px solid var(--primary);*/
+    /*background-color: black;*/
+    /*border: 2px solid black;*/
+    /*outline: black;*/
+    /*outline: var(--rdg-selection-width) solid var(--rdg-selection-color);*/
+    background-color: red !important;
+    border: 2px solid blue !important;
+}
+/* --rdg-selection-color  */
