@@ -1,7 +1,7 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Derivation, QuoteData, ScrapedData} from "@/lib/types";
+import {consolidateData, Derivation, QuoteData, ScrapedData} from "@/lib/data";
 import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
 import {Colors, Derivations, Formats, Header, Labels, TickerGrid} from "@/components/ui/ticker-grid";

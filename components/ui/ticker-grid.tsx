@@ -1,6 +1,6 @@
 import {CSSProperties} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from "react-data-grid";
-import {Derivation, FinalData, getValue} from "@/lib/types";
+import {Derivation, FinalData, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
