@@ -1,12 +1,11 @@
 "use client"
 
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
 import 'react-data-grid/lib/styles.css';
-import {ContextMenu, MenuHandler} from "@/components/ui/ContextMenu";
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
@@ -35,8 +34,6 @@ export default function Home() {
 
     const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
-    const menuRef = useRef<{onCellContextMenu: MenuHandler} | null>(null);
-
     type Row = any
 
     const columns: readonly ColumnOrColumnGroup<Row, unknown>[] = headers.map(([group, keys]) => ({
@@ -47,6 +44,7 @@ export default function Home() {
             name: <span title={labels[key]?.[1] ?? ""}>{labels[key]?.[0] ?? key}</span>,
             frozen: key == "ticker",
             headerCellClass: 'text-center',
+            width: key == "ticker" ? "68px" : "52px",
             renderCell(props) {
                 return renderValue(key, props.row[key]);
             }
@@ -68,13 +66,7 @@ export default function Home() {
         return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
     }
 
-    return <>
-        <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}
-                  onCellContextMenu={(args, event) => menuRef.current?.onCellContextMenu(args, event)}/>
-        <ContextMenu ref={menuRef}
-                     insertRow={(ticker: string) => setTickers([...tickers, ticker])}
-                     deleteRow={(ticker: string) => setTickers(tickers.filter(item => item !== ticker))} />
-    </>
+    return <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}/>
 }
 
 type Header = [group: string, keys: string[]];
