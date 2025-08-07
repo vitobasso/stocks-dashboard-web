@@ -143,3 +143,7 @@ Retro Green: #31603D
 Saffron: #F5C065
 Russet: #6E433D
 */
+
+.ag-theme-balham {
+  --ag-cell-horizontal-padding: 0px;
+}

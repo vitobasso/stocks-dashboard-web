@@ -1,12 +1,15 @@
 "use client"
 
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
-import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
-import 'react-data-grid/lib/styles.css';
-import {ContextMenu, MenuHandler} from "@/components/ui/ContextMenu";
+import {AllCommunityModule, GridReadyEvent, ModuleRegistry} from 'ag-grid-community';
+import { AgGridReact } from 'ag-grid-react';
+import { themeBalham } from 'ag-grid-community';
+import type {ColGroupDef} from "ag-grid-community/dist/types/src/entities/colDef";
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
@@ -35,20 +38,23 @@ export default function Home() {
 
     const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
-    const menuRef = useRef<{onCellContextMenu: MenuHandler} | null>(null);
-
     type Row = any
 
-    const columns: readonly ColumnOrColumnGroup<Row, unknown>[] = headers.map(([group, keys]) => ({
-        name: labels[group]?.[0] ?? group,
-        headerCellClass: 'text-center',
+    const columns: ColGroupDef<Row>[] = headers.map(([group, keys]) => ({
+        headerName: labels[group]?.[0] ?? group,
+        headerClass: 'text-center',
         children: keys.map(key => ({
-            key,
-            name: <span title={labels[key]?.[1] ?? ""}>{labels[key]?.[0] ?? key}</span>,
-            frozen: key == "ticker",
-            headerCellClass: 'text-center',
-            renderCell(props) {
-                return renderValue(key, props.row[key]);
+            field: key,
+            headerName: labels[key]?.[0] ?? key,
+            // headerName: <span title={labels[key]?.[1] ?? ""}>{labels[key]?.[0] ?? key}</span>,
+            // frozen: key == "ticker",
+            headerClass: 'text-center',
+            cellRenderer(props) {
+                console.log("cellRenderer", props);
+                let color = getColor(key as string, props.value);
+                return <div key={key} className="text-center" style={{backgroundColor: color}}>
+                    {renderValue(key, props.value)}
+                </div>
             }
         }))
     }));
@@ -62,19 +68,14 @@ export default function Home() {
         return Object.fromEntries(entries);
     });
 
-    function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
-        let cellData = props.row[key as string];
-        let color = getColor(key as string, cellData);
-        return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
-    }
+    const onGridReady = (params: GridReadyEvent) => {
+        params.api.sizeColumnsToFit(); // fits to grid width
+        // params.columnApi.autoSizeAllColumns(); // fits to content
+    };
 
-    return <>
-        <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}
-                  onCellContextMenu={(args, event) => menuRef.current?.onCellContextMenu(args, event)}/>
-        <ContextMenu ref={menuRef}
-                     insertRow={(ticker: string) => setTickers([...tickers, ticker])}
-                     deleteRow={(ticker: string) => setTickers(tickers.filter(item => item !== ticker))} />
-    </>
+    return <div style={{height: "100vh"}}>
+        <AgGridReact columnDefs={columns} rowData={rows} theme={themeBalham} onGridReady={onGridReady}/>
+    </div>
 }
 
 type Header = [group: string, keys: string[]];
