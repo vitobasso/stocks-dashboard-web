@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import {AnalystRating, Fundamentals, Overview, PriceForecast, QuoteCharts, ScrapedData} from "@/lib/types";
+import {AnalystRating, Fundamentals, Overview, PriceForecast, QuoteCharts, ScrapedData} from "@/lib/data";
 
 const rootDir = "../ai-scraper/output/20250803";
 
