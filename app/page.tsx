@@ -1,12 +1,10 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Derivation, getValue, QuoteData, ScrapedData} from "@/lib/types";
-import chroma from "chroma-js";
-import {Sparklines, SparklinesLine} from 'react-sparklines';
-import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
+import {consolidateData, Derivation, QuoteData, ScrapedData} from "@/lib/types";
 import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
+import {Colors, Derivations, Formats, Header, Labels, TickerGrid} from "@/components/ui/ticker-grid";
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
@@ -35,92 +33,12 @@ export default function Home() {
 
     const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
-    type Row = any
-
-    const columns: readonly ColumnOrColumnGroup<Row, unknown>[] = headers.map(([group, keys]) => ({
-        name: labels[group]?.[0] ?? group,
-        headerCellClass: 'text-center',
-        children: keys.map(key => ({
-            key,
-            name: <span title={labels[key]?.[1] ?? ""}>{labels[key]?.[0] ?? key}</span>,
-            frozen: key == "ticker",
-            headerCellClass: 'text-center',
-            width: key == "ticker" ? "68px" : "52px",
-            renderCell(props) {
-                return renderValue(key, props.row[key]);
-            }
-        }))
-    }));
-
-    const rows: Row[] = tickers.filter(ticker => data[ticker]).map(ticker => {
-        let entries = headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
-            .map(([group, key], hi) => {
-                let value = key === "ticker" ? ticker : getValue(data[ticker], group, key)
-                return [key, value]
-            });
-        return Object.fromEntries(entries);
-    });
-
-    function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
-        let cellData = props.row[key as string];
-        let color = getColor(key as string, cellData);
-        return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
-    }
-
     return <>
         <ManageDialog tickers={tickers} setTickers={setTickers} />
-        <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}/>
+        <TickerGrid
+            style={{height: "100vh"}} bgColor={bgColor}
+            tickers={tickers} headers={headers} labels={labels} formats={formats} colors={colors} data={data}/>
     </>
-}
-
-type Header = [group: string, keys: string[]];
-type ColorRule = {domain: number[], colors: string[]}
-
-function getColor(key: string, data: any): string {
-    let value: number = formats[key] == "chart" ? quoteChange(data) : data;
-    let rule = colors[key];
-    if (!rule || value == null || isNaN(value)) return bgColor;
-    const scale = chroma.scale(rule.colors).domain(rule.domain);
-    return scale(value).hex();
-}
-
-function renderValue(key: string, value: any) {
-    if (formats[key] == "chart") return renderChart(value);
-    if (formats[key] == "percent" && value) return value + "%";
-    if (typeof value == "number") {
-        if (isNaN(value)) return "";
-        return Math.round(value * 10) / 10;
-    }
-    return value ?? "";
-}
-
-function renderChart(data: number[]) {
-    return <div style={{position: "relative"}}>
-        {data && <span>{quoteChange(data) + "%"}</span>}
-        <div style={{ position: "absolute", inset: -10 }}>
-            <Sparklines data={data} width={60} height={39} style={{opacity: 0.25}}>
-                <SparklinesLine color="black" style={{fill: "none"}}/>
-            </Sparklines>
-        </div>
-    </div>
-}
-
-function quoteChange(data: number[]) {
-    return data && calcChangePct(data[0], data[data.length - 1]);
-}
-
-function calcChangePct(start: number, end: number) {
-    let result = Math.floor((end - start) / start * 100);
-    if (!isNaN(result)) return result;
-}
-
-function copy(originalPath: string): Derivation {
-    return { function: (args) => args[0], arguments: [originalPath] }
-}
-
-function loadTickers(localStorage: Storage): string[] {
-    let rawTickers = localStorage.getItem("tickers");
-    return rawTickers?.length && JSON.parse(rawTickers) || initialTickers;
 }
 
 const headers: Header[] = [
@@ -144,7 +62,7 @@ const headers: Header[] = [
     ["priceForecast", [ "min_pct", "avg_pct", "max_pct" ]],
 ];
 
-const derivations: Record<string, Derivation> = {
+const derivations: Derivations = {
     "priceForecast.min_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
         arguments: ["priceForecast.min", "quotes.latest"],
@@ -170,7 +88,7 @@ const derivations: Record<string, Derivation> = {
     "quotes.5y": copy("quoteCharts.5y"),
 }
 
-const formats: Record<string, "chart" | "percent"> = {
+const formats: Formats = {
     "1mo": "chart",
     "1y": "chart",
     "5y": "chart",
@@ -180,7 +98,7 @@ const formats: Record<string, "chart" | "percent"> = {
     "max_pct": "percent",
 }
 
-const labels: Record<string, string[]> = {
+const labels: Labels = {
     "ticker": ["Ação"],
     "latest": ["Hoje"],
     "quotes": ["Preço"],
@@ -211,7 +129,7 @@ const labels: Record<string, string[]> = {
 const red = "#D23D2D";
 const bgColor = "#F0EEE5";
 const green = "#428554";
-const colors: Record<string, ColorRule> = {
+const colors: Colors = {
     "1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
     "1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
     "5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
@@ -269,3 +187,17 @@ const initialTickers = [
     "VALE3",
     "WEGE3",
 ]
+
+function calcChangePct(start: number, end: number) {
+    let result = Math.floor((end - start) / start * 100);
+    if (!isNaN(result)) return result;
+}
+
+function copy(originalPath: string): Derivation {
+    return { function: (args) => args[0], arguments: [originalPath] }
+}
+
+function loadTickers(localStorage: Storage): string[] {
+    let rawTickers = localStorage.getItem("tickers");
+    return rawTickers?.length && JSON.parse(rawTickers) || initialTickers;
+}
