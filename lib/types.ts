@@ -19,7 +19,7 @@ export type Derivation = {function: (...args: any[]) => any, arguments: string[]
 type Derivations = Record<string, Derivation>;
 type DerivedEntry = Record<string, any>
 type FinalEntry = ScrapedEntry & QuoteEntry & DerivedEntry;
-type FinalData = Record<string, FinalEntry>;
+export type FinalData = Record<string, FinalEntry>;
 
 export function getValue(row: FinalEntry, group: string, key: string) {
     return (row as any)[group]?.[key];
