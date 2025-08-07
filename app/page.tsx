@@ -6,6 +6,7 @@ import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from 'react-data-grid';
 import 'react-data-grid/lib/styles.css';
+import {ManageDialog} from "@/components/ui/manage-dialog";
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
@@ -66,7 +67,10 @@ export default function Home() {
         return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
     }
 
-    return <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}/>
+    return <>
+        <ManageDialog tickers={tickers} setTickers={setTickers} />
+        <DataGrid style={{height: "100vh"}} columns={columns} rows={rows} renderers={{renderCell}}/>
+    </>
 }
 
 type Header = [group: string, keys: string[]];
