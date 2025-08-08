@@ -5,6 +5,7 @@ import {consolidateData, Derivation, Derivations, FinalData, QuoteData, ScrapedD
 import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
 import {Colors, Formats, Header, Labels, TickerGrid} from "@/components/ui/ticker-grid";
+import {HeaderOption} from "@/components/ui/manage-dialog-cols";
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
@@ -40,7 +41,8 @@ export default function Home() {
     const data: FinalData = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
     return <>
-        <ManageDialog tickers={tickers} setTickers={setTickers} headers={headers} setHeaders={setHeaders} />
+        <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
+                      getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
             tickers={tickers} headers={headers} labels={labels} formats={formats} colors={colors} data={data}/>
@@ -193,6 +195,58 @@ const initialTickers = [
     "VALE3",
     "WEGE3",
 ]
+
+function selectedHeaders(headers: Header[]): string[] {
+    return headers.flatMap(([g,ks]) => ks.map(k => `${g}.${k}`))
+}
+
+function headerOptions(data: FinalData): HeaderOption[] {
+
+    const addKeys = (groupId: string, keys: string[] | undefined) => {
+        if (!keys) return;
+        if (!headersMap.has(groupId)) headersMap.set(groupId, new Set());
+        const set = headersMap.get(groupId)!;
+        keys.forEach(k => set.add(k));
+    };
+
+    const headersMap = new Map<string, Set<string>>();
+    for (const entry of Object.values(data)) {
+        if (!entry) continue;
+        Object.entries(entry).forEach(([group, obj]) => {
+            addKeys(group, Object.keys(obj));
+        })
+    }
+
+    const out: HeaderOption[] = [];
+    for (const [group, set] of headersMap) {
+        const keys = Array.from(set).sort();
+        for (const k of keys) {
+            out.push({
+                group,
+                key: k,
+            });
+        }
+    }
+
+    return out;
+}
+
+function getLabel(key: string): string {
+    return labels[key]?.[0] ?? titleize(key);
+}
+
+function titleize(s: string) {
+    // replace dots/underscores, split camelCase, capitalize words
+    const spaced = s
+        .replace(/\./g, ' ')
+        .replace(/[_\-]+/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2');
+    return spaced
+        .split(/\s+/)
+        .map(w => (w.length ? w[0].toUpperCase() + w.slice(1) : ''))
+        .join(' ')
+        .trim();
+}
 
 function calcChangePct(start: number, end: number) {
     let result = Math.floor((end - start) / start * 100);

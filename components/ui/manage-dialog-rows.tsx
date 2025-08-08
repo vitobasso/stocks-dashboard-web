@@ -6,7 +6,7 @@ import {DialogDescription} from "@/components/ui/dialog";
 
 type Props = {
     tickers: string[]
-    setTickers(tickers: string[]): void
+    setTickerSelection(tickers: string[]): void
     className?: string
     style?: CSSProperties
 }
@@ -19,12 +19,12 @@ export function ManageDialogRows(props: Props) {
         newTicker = newTicker.toUpperCase();
         if (props.tickers.includes(newTicker)) return;
         let updatedTickers = [...props.tickers, newTicker];
-        props.setTickers(updatedTickers);
+        props.setTickerSelection(updatedTickers);
     }
 
     function removeTicker(ticker: string) {
         let updatedTickers = props.tickers.filter(item => item !== ticker)
-        props.setTickers(updatedTickers);
+        props.setTickerSelection(updatedTickers);
     }
 
     function handleEnterKey(arg: any) {
@@ -34,10 +34,16 @@ export function ManageDialogRows(props: Props) {
     }
 
     return <div className={props.className} style={{...props.style}}>
-        <DialogDescription className="mb-6">
-            Rows
-        </DialogDescription>
+        <DialogDescription className="mb-6"> Rows </DialogDescription>
         <div className="dialog max-w-30 max-h-120 overflow-y-auto">
+            <div className="flex w-full">
+                <Input id="input-ticker" placeholder="Add..." className="flex-1"
+                       onChange={e => setNewTicker(e.target.value)}
+                       onKeyUp={handleEnterKey}/>
+                <Button size="icon" className="size-8">
+                    <PlusIcon/>
+                </Button>
+            </div>
             <ul className="w-full">
                 {props.tickers.map(t => <li key={t} className="flex w-full justify-between font-mono">
                         <span>{t}</span>
@@ -47,14 +53,6 @@ export function ManageDialogRows(props: Props) {
                         </Button>
                     </li>)}
             </ul>
-            <div className="flex w-full">
-                <Input id="input-ticker" placeholder="Add..." className="flex-1"
-                       onChange={e => setNewTicker(e.target.value)}
-                       onKeyUp={handleEnterKey}/>
-                <Button size="icon" className="size-8">
-                    <PlusIcon/>
-                </Button>
-            </div>
         </div>
     </div>
 }
