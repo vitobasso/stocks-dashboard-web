@@ -16,7 +16,7 @@ type QuoteEntry = { quotes: { latest: number }};
 export type QuoteData = Record<string, QuoteEntry>;
 
 export type Derivation = {function: (...args: any[]) => any, arguments: string[]};
-type Derivations = Record<string, Derivation>;
+export type Derivations = Record<string, Derivation>;
 type DerivedEntry = Record<string, any>
 type FinalEntry = ScrapedEntry & QuoteEntry & DerivedEntry;
 export type FinalData = Record<string, FinalEntry>;
