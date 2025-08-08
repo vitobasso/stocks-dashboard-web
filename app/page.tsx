@@ -1,18 +1,20 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Derivation, QuoteData, ScrapedData} from "@/lib/data";
+import {consolidateData, Derivation, Derivations, FinalData, QuoteData, ScrapedData} from "@/lib/data";
 import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
-import {Colors, Derivations, Formats, Header, Labels, TickerGrid} from "@/components/ui/ticker-grid";
+import {Colors, Formats, Header, Labels, TickerGrid} from "@/components/ui/ticker-grid";
 
 export default function Home() {
     const [scraped, setScraped] = useState<ScrapedData>({});
     const [quotes, setQuotes] = useState<QuoteData>({});
     const [tickers, setTickers] = useState<string[]>([]);
+    const [headers, setHeaders] = useState<Header[]>([]);
 
     useEffect(() => {
         setTickers(loadTickers(localStorage));
+        setHeaders(loadHeaders(localStorage));
 
         fetch("/api/scraped")
             .then(res => res.json())
@@ -31,17 +33,21 @@ export default function Home() {
             .then(json => setQuotes(json));
     }, [tickers]);
 
-    const data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
+    useEffect(() => {
+        localStorage.setItem("headers", JSON.stringify(headers));
+    }, [headers]);
+
+    const data: FinalData = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
     return <>
-        <ManageDialog tickers={tickers} setTickers={setTickers} />
+        <ManageDialog tickers={tickers} setTickers={setTickers} headers={headers} setHeaders={setHeaders} />
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
             tickers={tickers} headers={headers} labels={labels} formats={formats} colors={colors} data={data}/>
     </>
 }
 
-const headers: Header[] = [
+const initialHeaders: Header[] = [
     ["", ["ticker"]],
     ["quotes", ["latest", "1mo", "1y", "5y"]], //TODO compare with latest when displaying % change?
     ["fundamentals", [
@@ -200,4 +206,9 @@ function copy(originalPath: string): Derivation {
 function loadTickers(localStorage: Storage): string[] {
     let rawTickers = localStorage.getItem("tickers");
     return rawTickers?.length && JSON.parse(rawTickers) || initialTickers;
+}
+
+function loadHeaders(localStorage: Storage): Header[] {
+    let rawHeaders = localStorage.getItem("headers");
+    return rawHeaders?.length && JSON.parse(rawHeaders) || initialHeaders;
 }

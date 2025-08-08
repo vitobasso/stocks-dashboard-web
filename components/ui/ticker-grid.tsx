@@ -1,6 +1,6 @@
 import {CSSProperties} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from "react-data-grid";
-import {Derivation, FinalData, getValue} from "@/lib/data";
+import {FinalData, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 
@@ -17,7 +17,6 @@ type Props = {
 
 type Row = any
 export type Header = [group: string, keys: string[]];
-export type Derivations = Record<string, Derivation>;
 export type Formats = Record<string, "chart" | "percent">;
 export type Labels = Record<string, string[]>;
 export type Colors = Record<string, ColorRule>;
