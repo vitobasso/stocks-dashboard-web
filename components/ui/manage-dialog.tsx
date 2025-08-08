@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input";
-import {PlusIcon, XIcon} from "lucide-react"
+import {PlusIcon, XIcon, Settings} from "lucide-react"
 import {useState} from "react";
 
 type Props = {
@@ -44,7 +44,7 @@ export function ManageDialog(props: Props) {
         <Dialog>
             <form>
                 <DialogTrigger asChild>
-                    <Button variant="outline">Manage Tickers</Button>
+                    <Button variant="ghost"><Settings/></Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
@@ -65,10 +65,9 @@ export function ManageDialog(props: Props) {
                             </div>
                             <ul className="w-full">
                                 {props.tickers.map(t => (
-                                    <li key={t} className="flex w-full items-center justify-between">
+                                    <li key={t} className="flex w-full items-center justify-between font-mono">
                                         <span>{t}</span>
-                                        <Button size="icon"
-                                                className="size-8 bg-transparent hover:bg-transparent text-black"
+                                        <Button variant="ghost" className="size-7"
                                                 onClick={() => removeTicker(t)}>
                                             <XIcon/>
                                         </Button>

@@ -93,5 +93,6 @@ export function TickerGrid(props: Props) {
         return scale(value).hex();
     }
 
-    return <DataGrid style={props.style} rows={rows} columns={columns} renderers={{renderCell}}/>
+    return <DataGrid className={"font-mono"} style={props.style} rows={rows} columns={columns}
+                     renderers={{renderCell}}/>
 }
