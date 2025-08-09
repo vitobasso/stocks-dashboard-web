@@ -125,6 +125,10 @@
   background-color: var(--background);
 }
 
+.rdg-cell {
+  outline-color: transparent;
+}
+
 /*
 red = "#f44335"
 green = "#4CAF50"

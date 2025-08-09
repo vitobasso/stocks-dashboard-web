@@ -13,6 +13,7 @@ import {ManageDialogRows} from "@/components/ui/manage-dialog-rows";
 import {ManageDialogCols} from "@/components/ui/manage-dialog-cols";
 import {useEffect, useState} from "react";
 import {Header, Label} from "@/app/page";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 
 type Props = {
     tickers: string[]
@@ -42,21 +43,29 @@ export function ManageDialog(props: Props) {
     }
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <form>
-            <DialogTrigger asChild>
-                <Button variant="ghost"><Settings/></Button>
+        <div className="flex justify-end p-1">
+            <DialogTrigger className="left-0" asChild>
+                <Settings className="size-8 p-1"/>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[800px]">
+            <DialogContent className="sm:max-w-[400px]">
                 <DialogHeader>
-                    <DialogTitle>Manage Table</DialogTitle>
+                    <DialogTitle>Customizar</DialogTitle>
                 </DialogHeader>
-                <div className="flex justify-between">
-                    <ManageDialogRows style={{ flex: '0.1 1 auto' }} setTickerSelection={setTickerSelection}
-                                      tickers={tickerSelection}/>
-                    <ManageDialogCols style={{ flex: '1 1 auto' }} setHeaderSelection={setHeaderSelection}
-                                      allHeaders={props.allHeaders} selectedHeaders={headerSelection}
-                                      getLabel={props.getLabel}/>
-                </div>
+                <Tabs defaultValue="rows">
+                    <TabsList>
+                        <TabsTrigger value="rows">Linhas</TabsTrigger>
+                        <TabsTrigger value="cols">Colunas</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="rows">
+                        <ManageDialogRows style={{ flex: '0.1 1 auto' }} setTickerSelection={setTickerSelection}
+                                          tickers={tickerSelection}/>
+                    </TabsContent>
+                    <TabsContent value="cols">
+                        <ManageDialogCols style={{ flex: '1 1 auto' }} setHeaderSelection={setHeaderSelection}
+                                          allHeaders={props.allHeaders} selectedHeaders={headerSelection}
+                                          getLabel={props.getLabel}/>
+                    </TabsContent>
+                </Tabs>
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="outline">Cancel</Button>
@@ -64,7 +73,7 @@ export function ManageDialog(props: Props) {
                     <Button type="submit" onClick={save}>Save changes</Button>
                 </DialogFooter>
             </DialogContent>
-        </form>
+        </div>
     </Dialog>
 }
 
