@@ -1,48 +1,28 @@
-export type Fundamentals = { [key: string]: string | number };
-export type Overview = { value: number; future: number; past: number; health: number; dividend: number };
-export type AnalystRating = { strongBuy: number; buy: number; hold: number; underperform: number; sell: number };
-export type PriceForecast = { min: number; avg: number; max: number };
-export type QuoteCharts = { "1mo": number[], "1y": number[], "5y": number[] }
-type ScrapedEntry = {
-    fundamentals?: Fundamentals;
-    overview?: Overview;
-    analystRating?: AnalystRating;
-    priceForecast?: PriceForecast;
-    quoteCharts?: QuoteCharts;
-};
-export type ScrapedData = Record<string, ScrapedEntry>;
-
-type QuoteEntry = { quotes: { latest: number }};
-export type QuoteData = Record<string, QuoteEntry>;
+export type DataEntry = Record<string, any>;
+export type Data = Record<string, DataEntry>;
 
 export type Derivation = {function: (...args: any[]) => any, arguments: string[]};
 export type Derivations = Record<string, Derivation>;
-type DerivedEntry = Record<string, any>
-type FinalEntry = ScrapedEntry & QuoteEntry & DerivedEntry;
-export type FinalData = Record<string, FinalEntry>;
 
-export function getValue(row: FinalEntry, group: string, key: string) {
-    return (row as any)[group]?.[key];
+export function getValue(row: DataEntry, key: string) {
+    return (row as any)?.[key];
 }
 
-export function consolidateData(scraped: ScrapedData, quotes: QuoteData, derivations: Derivations): FinalData {
+export function getGroup(path: string) {
+    return path.split(".")[0]
+}
+
+export function getBasename(path: string) {
+    return path.split(".")[1]
+}
+
+export function consolidateData(scraped: DataEntry, quotes: DataEntry, derivations: Derivations): Data {
     let merged = mergeData(scraped, quotes);
     let derived = deriveData(merged, derivations);
     return mergeData(merged, derived);
 }
 
-function mergeData<A extends Record<string, any>, B extends Record<string, any>>
-(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
-    let entries = Object.keys({ ...data1, ...data2 }).map(key => {
-        let value = mergeEntries(data1[key], data2[key]);
-        return [key, value]
-    });
-    return Object.fromEntries(entries);
-}
-
-export function mergeEntries(data1: Record<string, any>, data2: Record<string, any>): Record<string, any> {
-    if (!data1) return data2;
-    if (!data2) return data1;
+function mergeData<A extends DataEntry, B extends DataEntry>(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
     let entries = Object.keys({ ...data1, ...data2 }).map(key => {
         let value = { ...data1[key], ...data2[key] };
         return [key, value]
@@ -50,7 +30,7 @@ export function mergeEntries(data1: Record<string, any>, data2: Record<string, a
     return Object.fromEntries(entries);
 }
 
-function deriveData(data: Record<string, Record<string, any>>, derivations: Derivations): Record<string, DerivedEntry> {
+function deriveData(data: Data, derivations: Derivations): Data {
     let entries = Object.keys(data).map(ticker => {
         let derived = deriveEntry(data[ticker], derivations);
         return [ticker, derived];
@@ -58,28 +38,13 @@ function deriveData(data: Record<string, Record<string, any>>, derivations: Deri
     return Object.fromEntries(entries);
 }
 
-function deriveEntry(data: Record<string, any>, derivations: Derivations): Record<string, DerivedEntry> {
+function deriveEntry(data: DataEntry, derivations: Derivations): Data {
     let entries = Object.keys(derivations).map(path => {
         let derivation = derivations[path];
-        let args = derivation.arguments.map((path) => getValueByPath(data, path))
+        let args = derivation.arguments.map((key) => getValue(data, key))
         let value = derivation.function(args);
         return [path, value];
-    })
-    let flatObj = Object.fromEntries(entries);
-    return unflatten(flatObj);
+    }).filter(([_, value]) => !!value)
+    return Object.fromEntries(entries);
 }
 
-function unflatten(obj: Record<string, any>): Record<string, Record<string, any>> {
-    const result: Record<string, any> = {};
-    for (const flatKey in obj) {
-        const [group, key] = flatKey.split(".");
-        result[group] ??= {};
-        result[group][key] = obj[flatKey];
-    }
-    return result;
-}
-
-function getValueByPath(data: any, path: string) {
-    let [group, key] = path.split(".");
-    return getValue(data, group, key);
-}

@@ -1,15 +1,15 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Derivation, Derivations, FinalData, QuoteData, ScrapedData} from "@/lib/data";
+import {consolidateData, Derivations, Data} from "@/lib/data";
 import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
-import {Colors, Formats, Header, Labels, TickerGrid} from "@/components/ui/ticker-grid";
-import {HeaderOption} from "@/components/ui/manage-dialog-cols";
+import {TickerGrid} from "@/components/ui/ticker-grid";
+import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";
 
 export default function Home() {
-    const [scraped, setScraped] = useState<ScrapedData>({});
-    const [quotes, setQuotes] = useState<QuoteData>({});
+    const [scraped, setScraped] = useState<Data>({});
+    const [quotes, setQuotes] = useState<Data>({});
     const [tickers, setTickers] = useState<string[]>([]);
     const [headers, setHeaders] = useState<Header[]>([]);
 
@@ -38,138 +38,125 @@ export default function Home() {
         localStorage.setItem("headers", JSON.stringify(headers));
     }, [headers]);
 
-    const data: FinalData = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
+    const data: Data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
 
     return <>
         <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
                       getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
-            tickers={tickers} headers={headers} labels={labels} formats={formats} colors={colors} data={data}/>
+            tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}/>
     </>
 }
 
-const initialHeaders: Header[] = [
-    ["", ["ticker"]],
-    ["quotes", ["latest", "1mo", "1y", "5y"]], //TODO compare with latest when displaying % change?
-    ["fundamentals", [
-        "liqmd_millions",
-        "P/L",
-        "P/VP",
-        "EY",
-        "ROE",
-        "ROIC",
-        "margem",
-        "divida",
-        "liquidezCorrente",
-        "lucro",
-        "DY",
-    ]],
-    ["overview", [ "value", "future", "past", "health", "dividend" ]],
-    ["analystRating", [ "strong_buy", "buy", "hold", "underperform", "sell" ]],
-    ["priceForecast", [ "min_pct", "avg_pct", "max_pct" ]],
-];
-
 const derivations: Derivations = {
-    "priceForecast.min_pct": {
+    "derived_forecast.min_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
-        arguments: ["priceForecast.min", "quotes.latest"],
+        arguments: ["yahoo_forecast.min", "quotes.latest"],
     },
-    "priceForecast.avg_pct": {
+    "derived_forecast.avg_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
-        arguments: ["priceForecast.avg", "quotes.latest"],
+        arguments: ["yahoo_forecast.avg", "quotes.latest"],
     },
-    "priceForecast.max_pct": {
+    "derived_forecast.max_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
-        arguments: ["priceForecast.max", "quotes.latest"],
+        arguments: ["yahoo_forecast.max", "quotes.latest"],
     },
-    "fundamentals.liqmd_millions": {
+    "statusinvest.liqmd_millions": {
         function: (args) => args[0] / 1000000,
-        arguments: ["fundamentals.liquidezMediaDiaria"],
+        arguments: ["statusinvest.liquidezMediaDiaria"],
     },
-    "fundamentals.EY": {
+    "statusinvest.EY": {
         function: (args) => Math.round(100 / args[0]),
-        arguments: ["fundamentals.EV/EBIT"],
+        arguments: ["statusinvest.EV/EBIT"],
     },
-    "quotes.1mo": copy("quoteCharts.1mo"),
-    "quotes.1y": copy("quoteCharts.1y"),
-    "quotes.5y": copy("quoteCharts.5y"),
 }
 
+export type Formats = Record<string, "chart" | "percent">;
 const formats: Formats = {
-    "1mo": "chart",
-    "1y": "chart",
-    "5y": "chart",
-    "EY": "percent",
-    "min_pct": "percent",
-    "avg_pct": "percent",
-    "max_pct": "percent",
+    "yahoo_chart.1mo": "chart",
+    "yahoo_chart.1y": "chart",
+    "yahoo_chart.5y": "chart",
+    "statusinvest.EY": "percent",
+    "derived_forecast.min_pct": "percent",
+    "derived_forecast.avg_pct": "percent",
+    "derived_forecast.max_pct": "percent",
 }
 
+export type Label = { short?: string; long?: string }
+export type Labels = Record<string, Label>;
 const labels: Labels = {
-    "ticker": ["Ação"],
-    "latest": ["Hoje"],
-    "quotes": ["Preço"],
-    "fundamentals": ["Fundamentos"],
-    "overview": ["Score"],
-    "analystRating": ["Recomendação"],
-    "priceForecast": ["Previsão"],
-    "liqmd_millions": ["LiqM", "Liquidez Média Diária"],
-    "margem": ["Marg", "Margem Líquida"],
-    "divida": ["Dív", "Dívida Líquida / Patrimônio"],
-    "liquidezCorrente": ["LCor", "Liquidez Corrente"],
-    "lucro": ["Lucro", "CAGR Lucros 5 Anos"],
-    "value": ["Valu"],
-    "future": ["Futu"],
-    "past": ["Past"],
-    "health": ["Heal"],
-    "dividend": ["Divi"],
-    "strong_buy": ["SBuy", "Strong Buy"],
-    "buy": ["Buy"],
-    "hold": ["Hold"],
-    "underperform": ["Unde", "Underperform"],
-    "sell": ["Sell"],
-    "min_pct": ["Min"],
-    "avg_pct": ["Avg"],
-    "max_pct": ["Max"],
+    "ticker": { short: "Ação" },
+    "quotes.latest": { short: "Hoje" },
+    "statusinvest.liqmd_millions": { short: "LiqM", long: "Liquidez Média Diária" },
+    "statusinvest.margem": { short: "Marg", long: "Margem Líquida" },
+    "statusinvest.divida": { short: "Dív", long: "Dívida Líquida / Patrimônio" },
+    "statusinvest.liquidezCorrente": { short: "LCor", long: "Liquidez Corrente" },
+    "statusinvest.lucro": { short: "Lucro", long: "CAGR Lucros 5 Anos" },
+    "simplywallst.value": { short: "Valu", long: "Value" },
+    "simplywallst.future": { short: "Futu", long: "Future" },
+    "simplywallst.past": { short: "Past" },
+    "simplywallst.health": { short: "Heal", long: "Health" },
+    "simplywallst.dividend": { short: "Divi", long: "Dividend" },
+    "yahoo_api_rating.strongBuy": { short: "SBuy", long: "Strong Buy" },
+    "yahoo_api_rating.buy": { short: "Buy" },
+    "yahoo_api_rating.hold": { short: "Hold" },
+    "yahoo_api_rating.sell": { short: "Sell" },
+    "yahoo_api_rating.strongSell": { short: "SSell", long: "Strong Sell" },
+    "derived_forecast.min_pct": { short: "Min" },
+    "derived_forecast.avg_pct": { short: "Avg" },
+    "derived_forecast.max_pct": { short: "Max" },
 }
 
 const red = "#D23D2D";
 const bgColor = "#F0EEE5";
 const green = "#428554";
+export type Colors = Record<string, ColorRule>;
+export type ColorRule = { domain: number[], colors: string[] }
 const colors: Colors = {
-    "1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
-    "1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
-    "5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
-    "liquidezMediaDiaria": {domain: [4, 6], colors: [red, bgColor]},
+    "yahoo_chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "yahoo_chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
+    "yahoo_chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
 
-    "P/L": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
-    "P/VP": {domain: [2, 5], colors: [bgColor, red]},
-    "EY": {domain: [0, 10], colors: [red, bgColor]},
-    "ROE": {domain: [2, 15], colors: [red, bgColor]},
-    "ROIC": {domain: [0, 10], colors: [red, bgColor]},
-    "margem": {domain: [0, 10], colors: [red, bgColor]},
-    "divida": {domain: [1, 2], colors: [bgColor, red]},
-    "liquidezCorrente": {domain: [0.5, 1], colors: [red, bgColor]},
-    "lucro": {domain: [0, 8, 15, 50], colors: [red, bgColor, bgColor, green]},
-    "DY": {domain: [7, 20], colors: [bgColor, green]},
+    "statusinvest.liquidezMediaDiaria": {domain: [4, 6], colors: [red, bgColor]},
+    "statusinvest.P/L": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
+    "statusinvest.P/VP": {domain: [2, 5], colors: [bgColor, red]},
+    "statusinvest.EY": {domain: [0, 10], colors: [red, bgColor]},
+    "statusinvest.ROE": {domain: [2, 15], colors: [red, bgColor]},
+    "statusinvest.ROIC": {domain: [0, 10], colors: [red, bgColor]},
+    "statusinvest.margem": {domain: [0, 10], colors: [red, bgColor]},
+    "statusinvest.divida": {domain: [1, 2], colors: [bgColor, red]},
+    "statusinvest.liquidezCorrente": {domain: [0.5, 1], colors: [red, bgColor]},
+    "statusinvest.lucro": {domain: [0, 8, 15, 50], colors: [red, bgColor, bgColor, green]},
+    "statusinvest.DY": {domain: [7, 20], colors: [bgColor, green]},
 
-    "value": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "future": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "past": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "dividend": {domain: [3, 6], colors: [bgColor, green]},
+    "simplywallst.value": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywallst.future": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywallst.past": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywallst.health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywallst.dividend": {domain: [3, 6], colors: [bgColor, green]},
 
-    "strong_buy": {domain: [1, 10], colors: [bgColor, green]},
-    "buy": {domain: [2, 20], colors: [bgColor, green]},
-    "hold": {domain: [4, 15], colors: [bgColor, red]},
-    "underperform": {domain: [0, 4], colors: [bgColor, red]},
-    "sell": {domain: [0, 2], colors: [bgColor, red]},
+    "yahoo_api_rating.strongBuy": {domain: [1, 10], colors: [bgColor, green]},
+    "yahoo_api_rating.buy": {domain: [2, 20], colors: [bgColor, green]},
+    "yahoo_api_rating.hold": {domain: [4, 15], colors: [bgColor, red]},
+    "yahoo_api_rating.sell": {domain: [0, 4], colors: [bgColor, red]},
+    "yahoo_api_rating.strongSell": {domain: [0, 2], colors: [bgColor, red]},
 
-    "min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
-    "avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
-    "max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
+    "derived_forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
+    "derived_forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
+    "derived_forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
 }
+
+export type Header = [group: string, keys: string[]];
+const initialHeaders: Header[] = [
+    ["", ["ticker"]],
+    ["Preço", ["quotes.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]], //TODO compare with latest when displaying % change?
+    ["Fundamentos", ["liqmd_millions", "P/L", "P/VP", "EY", "ROE", "ROIC", "margem", "divida", "liquidezCorrente",
+        "lucro", "DY"].map(s => `statusinvest.${s}`)],
+    ["Score", [ "value", "future", "past", "health", "dividend" ].map(s => `simplywallst.${s}`)],
+    ["Recomendação", [ "strongBuy", "buy", "hold", "sell", "strongSell"].map(s => `yahoo_api_rating.${s}`)],
+    ["Previsão", [ "min_pct", "avg_pct", "max_pct" ].map(s => `derived_forecast.${s}`)],
+];
 
 const initialTickers = [
     "ABCB4",
@@ -196,48 +183,17 @@ const initialTickers = [
     "WEGE3",
 ]
 
-function selectedHeaders(headers: Header[]): string[] {
-    return headers.flatMap(([g,ks]) => ks.map(k => `${g}.${k}`))
-}
-
-function headerOptions(data: FinalData): HeaderOption[] {
-
-    const addKeys = (groupId: string, keys: string[] | undefined) => {
-        if (!keys) return;
-        if (!headersMap.has(groupId)) headersMap.set(groupId, new Set());
-        const set = headersMap.get(groupId)!;
-        keys.forEach(k => set.add(k));
+function getLabel(path: string): Label {
+    let basename = path?.split('.')[1]
+    return labels[path] ?? {
+        short: titleize(basename ?? path),
     };
-
-    const headersMap = new Map<string, Set<string>>();
-    for (const entry of Object.values(data)) {
-        if (!entry) continue;
-        Object.entries(entry).forEach(([group, obj]) => {
-            addKeys(group, Object.keys(obj));
-        })
-    }
-
-    const out: HeaderOption[] = [];
-    for (const [group, set] of headersMap) {
-        const keys = Array.from(set).sort();
-        for (const k of keys) {
-            out.push({
-                group,
-                key: k,
-            });
-        }
-    }
-
-    return out;
 }
 
-function getLabel(key: string): string {
-    return labels[key]?.[0] ?? titleize(key);
-}
-
-function titleize(s: string) {
+function titleize(key: string) {
     // replace dots/underscores, split camelCase, capitalize words
-    const spaced = s
+    if (!key) return "";
+    const spaced = key
         .replace(/\./g, ' ')
         .replace(/[_\-]+/g, ' ')
         .replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -251,10 +207,6 @@ function titleize(s: string) {
 function calcChangePct(start: number, end: number) {
     let result = Math.floor((end - start) / start * 100);
     if (!isNaN(result)) return result;
-}
-
-function copy(originalPath: string): Derivation {
-    return { function: (args) => args[0], arguments: [originalPath] }
 }
 
 function loadTickers(localStorage: Storage): string[] {
