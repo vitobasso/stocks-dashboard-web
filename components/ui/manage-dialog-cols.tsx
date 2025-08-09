@@ -41,13 +41,10 @@ export function ManageDialogCols(props: Props) {
     )
 
     return <div className={props.className} style={{...props.style}}>
-        <DialogDescription className="mb-6"> Columns </DialogDescription>
-        <Input
-            placeholder="Search columns..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="mb-2"/>
-        <div className="flex-1 max-h-120 overflow-auto">
+        <Input className="mb-2"
+               placeholder="Buscar..." value={search}
+               onChange={e => setSearch(e.target.value)}/>
+        <div className="flex-1 max-h-106 p-1 overflow-auto">
             <Accordion type="multiple" defaultValue={groups}>
                 {groups.map(group => <AccordionItem key={group} value={group}>
                         <AccordionTrigger>

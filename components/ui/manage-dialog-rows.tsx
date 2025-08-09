@@ -34,25 +34,26 @@ export function ManageDialogRows(props: Props) {
     }
 
     return <div className={props.className} style={{...props.style}}>
-        <DialogDescription className="mb-6"> Rows </DialogDescription>
-        <div className="dialog max-w-30 max-h-120 overflow-y-auto">
+        <div className="dialog max-w-30 p-1">
             <div className="flex w-full">
                 <Input id="input-ticker" placeholder="Add..." className="flex-1"
                        onChange={e => setNewTicker(e.target.value)}
                        onKeyUp={handleEnterKey}/>
-                <Button size="icon" className="size-8">
+                <Button size="icon" className="size-8 ml-2 mr-1">
                     <PlusIcon/>
                 </Button>
             </div>
-            <ul className="w-full">
-                {props.tickers.map(t => <li key={t} className="flex w-full justify-between font-mono">
-                        <span>{t}</span>
-                        <Button variant="ghost" className="size-7"
-                                onClick={() => removeTicker(t)}>
-                            <XIcon/>
-                        </Button>
-                    </li>)}
-            </ul>
+            <div className="w-full max-h-106 p-1 overflow-y-auto">
+                <ul>
+                    {props.tickers.map(t => <li key={t} className="flex w-full justify-between font-mono">
+                            <span>{t}</span>
+                            <Button variant="ghost" className="size-7"
+                                    onClick={() => removeTicker(t)}>
+                                <XIcon/>
+                            </Button>
+                        </li>)}
+                </ul>
+            </div>
         </div>
     </div>
 }
