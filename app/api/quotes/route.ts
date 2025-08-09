@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     let entries = (await yahooFinance.quote(tickers.map(ticker => ticker + ".SA")))
         .map(quotes => {
             let ticker = quotes.symbol.split(".")[0];
-            let value = { quotes: { latest: quotes.regularMarketPrice } };
+            let value = { "quotes.latest": quotes.regularMarketPrice };
             return [ticker, value]
         });
     return NextResponse.json(Object.fromEntries(entries));

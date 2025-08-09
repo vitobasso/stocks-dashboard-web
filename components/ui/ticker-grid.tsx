@@ -1,35 +1,31 @@
 import {CSSProperties} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from "react-data-grid";
-import {FinalData, getValue} from "@/lib/data";
+import {Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
+import {Colors, Formats, Header, Label} from "@/app/page";
 
 type Props = {
     tickers: string[];
-    labels: Labels;
+    getLabel(key: string): Label
     formats: Formats;
     colors: Colors;
     headers: Header[];
-    data: FinalData;
+    data: Data;
     style?: CSSProperties;
     bgColor: string;
 }
 
-type Row = any
-export type Header = [group: string, keys: string[]];
-export type Formats = Record<string, "chart" | "percent">;
-export type Labels = Record<string, string[]>;
-export type Colors = Record<string, ColorRule>;
-export type ColorRule = { domain: number[], colors: string[] }
+type Row = Record<string, any>;
 
 export function TickerGrid(props: Props) {
 
-    const columns: readonly ColumnOrColumnGroup<Row, unknown>[] = props.headers.map(([group, keys]) => ({
-        name: props.labels[group]?.[0] ?? group,
+    const columns: readonly ColumnOrColumnGroup<Row>[] = props.headers.map(([group, keys]) => ({
+        name: props.getLabel(group)?.short ?? group,
         headerCellClass: 'text-center',
         children: keys.map(key => ({
             key,
-            name: <span title={props.labels[key]?.[1] ?? ""}>{props.labels[key]?.[0] ?? key}</span>,
+            name: <span title={props.getLabel(key)?.long ?? ""}>{props.getLabel(key)?.short ?? key}</span>,
             frozen: key == "ticker",
             headerCellClass: 'text-center',
             width: key == "ticker" ? "68px" : "52px",
@@ -40,9 +36,9 @@ export function TickerGrid(props: Props) {
     }));
 
     const rows: Row[] = props.tickers.filter(ticker => props.data[ticker]).map(ticker => {
-        let entries = props.headers.flatMap(([group, keys]) => keys.map(key => [group, key]))
-            .map(([group, key], hi) => {
-                let value = key === "ticker" ? ticker : getValue(props.data[ticker], group, key)
+        let entries = props.headers.flatMap(([_, keys]) => keys)
+            .map((key) => {
+                let value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
                 return [key, value]
             });
         return Object.fromEntries(entries);
