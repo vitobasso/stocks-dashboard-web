@@ -1,11 +1,12 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Derivations, Data} from "@/lib/data";
+import {consolidateData, Data, Derivations} from "@/lib/data";
 import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
 import {TickerGrid} from "@/components/ui/ticker-grid";
 import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";
+import {Analytics} from "@vercel/analytics/next"
 
 export default function Home() {
     const [scraped, setScraped] = useState<Data>({});
@@ -46,6 +47,7 @@ export default function Home() {
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
             tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}/>
+        <Analytics />
     </>
 }
 
