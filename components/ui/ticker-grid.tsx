@@ -4,6 +4,7 @@ import {Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Colors, Formats, Header, Label} from "@/app/page";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 
 type Props = {
     tickers: string[];
@@ -25,7 +26,7 @@ export function TickerGrid(props: Props) {
         headerCellClass: 'text-center',
         children: keys.map(key => ({
             key,
-            name: <span title={props.getLabel(key)?.long ?? ""}>{props.getLabel(key)?.short ?? key}</span>,
+            name: renderHeader(key),
             frozen: key == "ticker",
             headerCellClass: 'text-center',
             width: key == "ticker" ? "68px" : "52px",
@@ -43,6 +44,17 @@ export function TickerGrid(props: Props) {
             });
         return Object.fromEntries(entries);
     });
+
+    function renderHeader(key: string) {
+        let label = props.getLabel(key)
+        return label?.long ?
+            <Tooltip>
+                <TooltipTrigger>{label?.short}</TooltipTrigger>
+                <TooltipContent>
+                    {label.long ?? ""}
+                </TooltipContent>
+            </Tooltip> : label.short;
+    }
 
     function renderValue(key: string, value: any) {
         if (props.formats[key] == "chart") return renderChart(value);

@@ -83,11 +83,14 @@ const formats: Formats = {
     "derived_forecast.max_pct": "percent",
 }
 
-export type Label = { short?: string; long?: string }
+export type Label = { short: string; long?: string }
 export type Labels = Record<string, Label>;
 const labels: Labels = {
     "ticker": { short: "Ação" },
     "quotes.latest": { short: "Hoje" },
+    "yahoo_chart.1mo": { short: "1mo", long: "1 mês" },
+    "yahoo_chart.1y": { short: "1y", long: "1 ano" },
+    "yahoo_chart.5y": { short: "5y", long: "5 anos" },
     "statusinvest.liqmd_millions": { short: "LiqM", long: "Liquidez Média Diária" },
     "statusinvest.margem": { short: "Marg", long: "Margem Líquida" },
     "statusinvest.divida": { short: "Dív", long: "Dívida Líquida / Patrimônio" },
