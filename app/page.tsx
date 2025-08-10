@@ -2,7 +2,6 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Derivations} from "@/lib/data";
-import 'react-data-grid/lib/styles.css';
 import {ManageDialog} from "@/components/ui/manage-dialog";
 import {TickerGrid} from "@/components/ui/ticker-grid";
 import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";

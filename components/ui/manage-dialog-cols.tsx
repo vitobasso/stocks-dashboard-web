@@ -1,5 +1,4 @@
 import {CSSProperties, useState} from "react"
-import {DialogDescription} from "@/components/ui/dialog"
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion"
 import {Checkbox} from "@/components/ui/checkbox"
 import {Input} from "@/components/ui/input"

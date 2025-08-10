@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server';
 import yahooFinance from "yahoo-finance2";
 
+yahooFinance.suppressNotices(['yahooSurvey']);
 
 export async function POST(req: Request) {
     let tickers: string[] = (await req.json()).tickers;
