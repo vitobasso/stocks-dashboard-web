@@ -44,6 +44,7 @@
 }
 
 :root {
+  --rdg-color-scheme: light;
   --radius: 0.625rem;
   --background: oklch(0.9481 0.0125 93.9);
   --foreground: oklch(0.145 0 0);
