@@ -93,11 +93,11 @@ export function TickerGrid(props: Props) {
     }
 
     function getColor(key: string, data: any): string {
-        let value: number = props.formats[key] == "chart" ? quoteChange(data) : data;
+        let value = props.formats[key] == "chart" ? quoteChange(data) : data;
         let rule = props.colors[key];
-        if (!rule || value == null || isNaN(value)) return props.bgColor;
+        if (!rule || value == null || value == "" || isNaN(value)) return props.bgColor;
         const scale = chroma.scale(rule.colors).domain(rule.domain);
-        return scale(value).hex();
+        return scale(value as number).hex();
     }
 
     return <DataGrid className={"font-mono"} style={props.style} rows={rows} columns={columns}
