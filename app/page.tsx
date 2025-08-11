@@ -17,7 +17,7 @@ export default function Home() {
         setTickers(loadTickers(localStorage));
         setHeaders(loadHeaders(localStorage));
 
-        fetch("/api/scraped")
+        fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/api/scraped")
             .then(res => res.json())
             .then(json => setScraped(json));
     }, []);
