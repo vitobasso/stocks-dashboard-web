@@ -95,7 +95,7 @@ export function TickerGrid(props: Props) {
     function getColor(key: string, data: any): string {
         let value = props.formats[key] == "chart" ? quoteChange(data) : data;
         let rule = props.colors[key];
-        if (!rule || value == null || value == "" || isNaN(value)) return props.bgColor;
+        if (!rule || value == null || value === "" || isNaN(value)) return props.bgColor;
         const scale = chroma.scale(rule.colors).domain(rule.domain);
         return scale(value as number).hex();
     }
