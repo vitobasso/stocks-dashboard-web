@@ -59,11 +59,17 @@ export function TickerGrid(props: Props) {
     function renderValue(key: string, value: any) {
         if (props.formats[key] == "chart") return renderChart(value);
         if (props.formats[key] == "percent" && value) return value + "%";
-        if (typeof value == "number") {
+        if (Number(value)) {
             if (isNaN(value)) return "";
-            return Math.round(value * 10) / 10;
+            return trimPrecision(value);
         }
         return value ?? "";
+    }
+
+    function trimPrecision(num: number) {
+        if (num >= 100) return Math.round(num)
+        if (num >= 10) return Math.round(num * 10) / 10
+        return Math.round(num * 100) / 100
     }
 
     function renderChart(data: number[]) {
