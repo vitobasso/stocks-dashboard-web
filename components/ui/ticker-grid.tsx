@@ -22,7 +22,7 @@ type Row = Record<string, any>;
 export function TickerGrid(props: Props) {
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.headers.map(([group, keys]) => ({
-        name: props.getLabel(group)?.short ?? group,
+        name: renderHeader(group),
         headerCellClass: 'text-center',
         children: keys.map(key => ({
             key,

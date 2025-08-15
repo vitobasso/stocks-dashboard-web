@@ -123,7 +123,7 @@ const labels: Labels = {
     "yahoo_chart.1y": { short: "1y", long: "1 ano" },
     "yahoo_chart.5y": { short: "5y", long: "5 anos" },
 
-    "statusinvest.liqmd_millions": { short: "LiqM", long: "Liquidez Média Diária" },
+    "statusinvest.liqmd_millions": { short: "LiqM", long: "Liquidez Média Diária (Milhões)" },
     "statusinvest.p_l": { short: "P/L", long: "Preço / Lucro" },
     "statusinvest.p_vp": { short: "P/VP", long: "Preço / Valor Patrimonial" },
     "statusinvest.ey": { short: "EY", long: "Earning Yield" },
@@ -162,7 +162,6 @@ const colors: Colors = {
     "yahoo_chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
     "yahoo_chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
 
-    "statusinvest.liquidez_media_diaria": {domain: [4, 6], colors: [red, bgColor]},
     "statusinvest.p_l": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
     "statusinvest.p_vp": {domain: [2, 5], colors: [bgColor, red]},
     "statusinvest.ey": {domain: [0, 10], colors: [red, bgColor]},
@@ -186,6 +185,7 @@ const colors: Colors = {
     "yahoo_api_rating.sell": {domain: [0, 4], colors: [bgColor, red]},
     "yahoo_api_rating.strongSell": {domain: [0, 2], colors: [bgColor, red]},
 
+    "statusinvest.liqmd_millions": {domain: [4, 6], colors: [red, bgColor]},
     "derived_forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
     "derived_forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
     "derived_forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
