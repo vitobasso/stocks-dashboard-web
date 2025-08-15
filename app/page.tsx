@@ -8,10 +8,16 @@ import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols
 import {Analytics} from "@vercel/analytics/next"
 
 export default function Home() {
-    const [scraped, setScraped] = useState<Data>({});
+
+    // query results
+    const [versions, setVersions] = useState<string[]>([]);
+    const [scraped, setScraped] = useState<Map<string, Data>>(new Map);
     const [quotes, setQuotes] = useState<Data>({});
-    const [tickers, setTickers] = useState<string[]>([]);
-    const [headers, setHeaders] = useState<Header[]>([]);
+
+    // derived state
+    const [selectedVersion, setSelectedVersion] = useState<string>("");
+    const [tickers, setTickers] = useState<string[] | null>(null);
+    const [headers, setHeaders] = useState<Header[] | null>(null);
 
     useEffect(() => {
         setTickers(loadTickers(localStorage));
@@ -19,8 +25,20 @@ export default function Home() {
 
         fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/api/scraped")
             .then(res => res.json())
-            .then(json => setScraped(json));
+            .then(json => setVersions(json));
     }, []);
+
+    useEffect(() => {
+        if (selectedVersion) return;
+        setSelectedVersion(versions[versions.length -1])
+    }, [versions]);
+
+    useEffect(() => {
+        if (!selectedVersion || scraped.has(selectedVersion)) return
+        fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/api/scraped/${selectedVersion}`)
+            .then(res => res.json())
+            .then(json => setScraped(prev => new Map(prev).set(selectedVersion, json)));
+    }, [selectedVersion]);
 
     useEffect(() => {
         localStorage.setItem("tickers", JSON.stringify(tickers));
@@ -38,11 +56,22 @@ export default function Home() {
         localStorage.setItem("headers", JSON.stringify(headers));
     }, [headers]);
 
-    const data: Data = useMemo(() => consolidateData(scraped, quotes, derivations), [scraped, quotes]);
+    const data: Data = useMemo(() => {
+        let selectedData = scraped.get(selectedVersion) ?? {};
+        return consolidateData(selectedData, quotes, derivations)
+    }, [selectedVersion, scraped, quotes]);
 
+    if (!tickers || !headers) return;
     return <>
-        <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
-                      getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
+        <div className="flex justify-between p-1">
+            <select value={selectedVersion} onChange={e => setSelectedVersion(e.target.value)}>
+                {versions.map(v => (
+                    <option key={v} value={v}>{v}</option>
+                ))}
+            </select>
+            <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
+                          getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
+        </div>
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
             tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}/>

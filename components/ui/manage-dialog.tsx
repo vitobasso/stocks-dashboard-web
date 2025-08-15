@@ -43,37 +43,35 @@ export function ManageDialog(props: Props) {
     }
 
     return <Dialog open={open} onOpenChange={setOpen}>
-        <div className="flex justify-end p-1">
-            <DialogTrigger className="left-0" asChild>
-                <Settings className="size-8 p-1"/>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[400px]">
-                <DialogHeader>
-                    <DialogTitle>Customizar</DialogTitle>
-                </DialogHeader>
-                <Tabs defaultValue="rows">
-                    <TabsList>
-                        <TabsTrigger value="rows">Linhas</TabsTrigger>
-                        <TabsTrigger value="cols">Colunas</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="rows">
-                        <ManageDialogRows style={{ flex: '0.1 1 auto' }} setTickerSelection={setTickerSelection}
-                                          tickers={tickerSelection}/>
-                    </TabsContent>
-                    <TabsContent value="cols">
-                        <ManageDialogCols style={{ flex: '1 1 auto' }} setHeaderSelection={setHeaderSelection}
-                                          allHeaders={props.allHeaders} selectedHeaders={headerSelection}
-                                          getLabel={props.getLabel}/>
-                    </TabsContent>
-                </Tabs>
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
-                    </DialogClose>
-                    <Button type="submit" onClick={save}>Save changes</Button>
-                </DialogFooter>
-            </DialogContent>
-        </div>
+        <DialogTrigger className="left-0" asChild>
+            <Settings className="size-8 p-1"/>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+                <DialogTitle>Customizar</DialogTitle>
+            </DialogHeader>
+            <Tabs defaultValue="rows">
+                <TabsList>
+                    <TabsTrigger value="rows">Linhas</TabsTrigger>
+                    <TabsTrigger value="cols">Colunas</TabsTrigger>
+                </TabsList>
+                <TabsContent value="rows">
+                    <ManageDialogRows style={{ flex: '0.1 1 auto' }} setTickerSelection={setTickerSelection}
+                                      tickers={tickerSelection}/>
+                </TabsContent>
+                <TabsContent value="cols">
+                    <ManageDialogCols style={{ flex: '1 1 auto' }} setHeaderSelection={setHeaderSelection}
+                                      allHeaders={props.allHeaders} selectedHeaders={headerSelection}
+                                      getLabel={props.getLabel}/>
+                </TabsContent>
+            </Tabs>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="submit" onClick={save}>Save changes</Button>
+            </DialogFooter>
+        </DialogContent>
     </Dialog>
 }
 
