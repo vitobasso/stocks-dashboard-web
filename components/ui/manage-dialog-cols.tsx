@@ -22,7 +22,7 @@ type Props = {
 export function ManageDialogCols(props: Props) {
     const [search, setSearch] = useState("")
 
-    const groups = Array.from(new Set(props.allHeaders.map(h => h.split(".")[0])))
+    const allGroups = Array.from(new Set(props.allHeaders.map(h => h.split(".")[0])))
 
     function isSelected(key: string) {
         return props.selectedHeaders.includes(key)
@@ -39,13 +39,15 @@ export function ManageDialogCols(props: Props) {
         props.getLabel(key)?.long?.toLowerCase().includes(search.toLowerCase())
     )
 
+    const filteredGroups = allGroups.filter(group => filtered.map(getGroup).includes(group));
+
     return <div className={props.className} style={{...props.style}}>
         <Input className="mb-2"
                placeholder="Buscar..." value={search}
                onChange={e => setSearch(e.target.value)}/>
-        <div className="flex-1 max-h-106 p-1 overflow-auto">
-            <Accordion type="multiple" defaultValue={groups}>
-                {groups.map(group => <AccordionItem key={group} value={group}>
+        <div className="flex-1 h-106 p-1 overflow-auto">
+            <Accordion type="multiple" defaultValue={filteredGroups}>
+                {filteredGroups.map(group => <AccordionItem key={group} value={group}>
                         <AccordionTrigger>
                             <div className="flex w-full items-center justify-between">
                                 <span className="font-bold">{props.getLabel(group).short}</span>
