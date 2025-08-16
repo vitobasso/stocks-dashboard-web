@@ -6,6 +6,7 @@ import {ManageDialog} from "@/components/ui/manage-dialog";
 import {TickerGrid} from "@/components/ui/ticker-grid";
 import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";
 import {Analytics} from "@vercel/analytics/next"
+import XLSReader from "@/components/ui/xls-reader";
 
 export default function Home() {
 
@@ -13,6 +14,7 @@ export default function Home() {
     const [versions, setVersions] = useState<string[]>([]);
     const [scraped, setScraped] = useState<Map<string, Data>>(new Map);
     const [quotes, setQuotes] = useState<Data>({});
+    const [positions, setPositions] = useState<Data>({});
 
     // derived state
     const [selectedVersion, setSelectedVersion] = useState<string>("");
@@ -58,8 +60,8 @@ export default function Home() {
 
     const data: Data = useMemo(() => {
         let selectedData = scraped.get(selectedVersion) ?? {};
-        return consolidateData(selectedData, quotes, derivations)
-    }, [selectedVersion, scraped, quotes]);
+        return consolidateData([selectedData, quotes, positions], derivations)
+    }, [selectedVersion, scraped, quotes, positions]);
 
     if (!tickers || !headers) return;
     return <>
@@ -69,6 +71,7 @@ export default function Home() {
                     <option key={v} value={v}>{v}</option>
                 ))}
             </select>
+            <XLSReader setPositions={setPositions} />
             <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
                           getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
         </div>
@@ -117,6 +120,10 @@ export type Label = { short: string; long?: string }
 export type Labels = Record<string, Label>;
 const labels: Labels = {
     "ticker": { short: "Ação" },
+
+    "b3_position.quantity": { short: "Qtd", long: "Quantidade" },
+    "b3_position.averagePrice": { short: "PrM", long: "Preço Médio" },
+
     "quotes.latest": { short: "Hoje" },
 
     "yahoo_chart.1mo": { short: "1mo", long: "1 mês" },
@@ -194,6 +201,7 @@ const colors: Colors = {
 export type Header = [group: string, keys: string[]];
 const initialHeaders: Header[] = [
     ["", ["ticker"]],
+    ["Posição", ["b3_position.quantity", "b3_position.averagePrice"]],
     ["Preço", ["quotes.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]], //TODO compare with latest when displaying % change?
     ["Fundamentos", ["liqmd_millions", "p_l", "p_vp", "ey", "roe", "roic", "marg_liquida", "div_liq_patri", "liq_corrente",
         "cagr_lucros_5_anos", "dy"].map(s => `statusinvest.${s}`)],
