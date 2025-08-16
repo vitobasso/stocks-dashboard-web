@@ -16,13 +16,13 @@ export function getBasename(path: string) {
     return path.split(".")[1]
 }
 
-export function consolidateData(scraped: DataEntry, quotes: DataEntry, derivations: Derivations): Data {
-    let merged = mergeData(scraped, quotes);
+export function consolidateData(data: Data[], derivations: Derivations): Data {
+    let merged = data.reduce(mergeData, {});
     let derived = deriveData(merged, derivations);
     return mergeData(merged, derived);
 }
 
-function mergeData<A extends DataEntry, B extends DataEntry>(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
+function mergeData<A extends Data, B extends Data>(data1: Record<string, A>, data2: Record<string, B>): Record<string, A & B> {
     let entries = Object.keys({ ...data1, ...data2 }).map(key => {
         let value = { ...data1[key], ...data2[key] };
         return [key, value]

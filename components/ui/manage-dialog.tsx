@@ -88,6 +88,7 @@ function convertHeaders(options: string[]): Header[] {
 function getHeaderGroup(path: string): string {
     let prefixMap: Record<string, string> = {
         "": "",
+        "b3_position": "Posição",
         "quotes": "Preço",
         "yahoo_chart": "Preço",
         "statusinvest": "Fundamentos",
