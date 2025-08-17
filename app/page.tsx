@@ -83,6 +83,10 @@ export default function Home() {
 }
 
 const derivations: Derivations = {
+    "derived_position.total_price": {
+        function: (args) => args[1] * args[0],
+        arguments: ["b3_position.quantity", "quotes.latest"],
+    },
     "derived_forecast.min_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
         arguments: ["yahoo_forecast.min", "quotes.latest"],
@@ -121,8 +125,9 @@ export type Labels = Record<string, Label>;
 const labels: Labels = {
     "ticker": { short: "Ação" },
 
+    "derived_position.total_price": { short: "Tota", long: "Preço Total" },
     "b3_position.quantity": { short: "Qtd", long: "Quantidade" },
-    "b3_position.averagePrice": { short: "PrM", long: "Preço Médio" },
+    "b3_position.average_price": { short: "Med", long: "Preço Médio" },
 
     "quotes.latest": { short: "Hoje" },
 
@@ -201,7 +206,7 @@ const colors: Colors = {
 export type Header = [group: string, keys: string[]];
 const initialHeaders: Header[] = [
     ["", ["ticker"]],
-    ["Posição", ["b3_position.quantity", "b3_position.averagePrice"]],
+    ["Posição", ["derived_position.total_price", "b3_position.average_price"]],
     ["Preço", ["quotes.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]], //TODO compare with latest when displaying % change?
     ["Fundamentos", ["liqmd_millions", "p_l", "p_vp", "ey", "roe", "roic", "marg_liquida", "div_liq_patri", "liq_corrente",
         "cagr_lucros_5_anos", "dy"].map(s => `statusinvest.${s}`)],
