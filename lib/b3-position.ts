@@ -1,4 +1,4 @@
-import {Data} from "@/lib/data";
+import {Data, DataEntry} from "@/lib/data";
 
 type Trade = {
     ticker: string;
@@ -52,15 +52,21 @@ function getTrade(r: any): Trade {
     return {ticker, side, quantity, unitPrice};
 }
 
-
 function adaptData(map: Map<string, StockPosition>): Data {
     return Object.fromEntries(
-        [...map].map(([outerKey, record]) => {
-            const newRecord: Record<string, any> = {};
-            for (const [k, v] of Object.entries(record)) {
-                newRecord["b3_position." + k] = v;
-            }
-            return [outerKey, newRecord];
-        })
+        [...map].map(([outerKey, record]) => [outerKey, adaptRecord(record)])
     );
+}
+
+function adaptRecord(record: DataEntry): DataEntry {
+    const newRecord: DataEntry = {};
+    for (const [k, v] of Object.entries(record)) {
+        let newKey = "b3_position." + camelToSnake(k);
+        newRecord[newKey] = v;
+    }
+    return newRecord;
+}
+
+function camelToSnake(str: string) {
+    return str.replace(/[A-Z]/g, letter => "_" + letter.toLowerCase());
 }
