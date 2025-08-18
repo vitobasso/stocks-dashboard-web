@@ -1,6 +1,6 @@
 "use client"
 
-import {useEffect, useMemo, useState} from "react";
+import {ReactElement, useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Derivations} from "@/lib/data";
 import {ManageDialog} from "@/components/ui/manage-dialog";
 import {TickerGrid} from "@/components/ui/ticker-grid";
@@ -68,6 +68,12 @@ export default function Home() {
         return consolidateData([selectedData, quotes, positions], derivations)
     }, [selectedVersion, scraped, quotes, positions]);
 
+    function customHeaders(key: string): ((defaultRender: ReactElement) => ReactElement) | undefined {
+        if (key == "Posição") {
+            return (visibleElement: ReactElement) => <PositionsReader visibleElement={visibleElement} setPositions={setPositions} />
+        }
+    }
+
     if (!tickers || !headers) return;
     return <>
         <div className="flex justify-between p-1">
@@ -76,13 +82,13 @@ export default function Home() {
                     <option key={v} value={v}>{v}</option>
                 ))}
             </select>
-            <PositionsReader label={"Upload"} setPositions={setPositions} />
             <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
                           getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
         </div>
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
-            tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}/>
+            tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}
+            renderHeader={customHeaders}/>
         <Analytics />
     </>
 }

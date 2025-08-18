@@ -1,4 +1,4 @@
-import {CSSProperties} from "react";
+import {CSSProperties, ReactElement} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from "react-data-grid";
 import {Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
@@ -13,6 +13,7 @@ type Props = {
     colors: Colors;
     headers: Header[];
     data: Data;
+    renderHeader?: (key: string) => ((defaultRender: ReactElement) => ReactElement) | undefined;
     style?: CSSProperties;
     bgColor: string;
 }
@@ -45,15 +46,18 @@ export function TickerGrid(props: Props) {
         return Object.fromEntries(entries);
     });
 
-    function renderHeader(key: string) {
+    function renderHeader(key: string): ReactElement {
         let label = props.getLabel(key)
-        return label?.long ?
+        let defaultRender = label.long ?
             <Tooltip>
                 <TooltipTrigger>{label?.short}</TooltipTrigger>
                 <TooltipContent>
                     {label.long ?? ""}
                 </TooltipContent>
-            </Tooltip> : label.short;
+            </Tooltip>
+            :
+            <>{label.short}</>;
+        return props.renderHeader?.(key)?.(defaultRender) ?? defaultRender;
     }
 
     function renderValue(key: string, value: any) {

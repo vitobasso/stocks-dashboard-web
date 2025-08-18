@@ -1,9 +1,10 @@
 import * as XLSX from "xlsx";
 import {extractData} from "@/lib/b3-position"
 import {Data} from "@/lib/data";
+import {ReactElement} from "react";
 
 type Props = {
-    label: string
+    visibleElement: ReactElement
     setPositions(data: Data): void
 }
 
@@ -27,7 +28,7 @@ export default function PositionsReader(props: Props) {
     };
 
     return <label className="cursor-pointer">
-        {props.label}
+        {props.visibleElement}
         <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
     </label>
 }
