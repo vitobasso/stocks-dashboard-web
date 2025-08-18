@@ -45,7 +45,7 @@ export function ManageDialogCols(props: Props) {
         <Input className="mb-2"
                placeholder="Buscar..." value={search}
                onChange={e => setSearch(e.target.value)}/>
-        <div className="flex-1 h-106 p-1 overflow-auto">
+        <div className="flex-1 max-h-106 p-1 overflow-auto">
             <Accordion type="multiple" defaultValue={filteredGroups}>
                 {filteredGroups.map(group => <AccordionItem key={group} value={group}>
                         <AccordionTrigger>
