@@ -3,10 +3,11 @@ import {extractData} from "@/lib/b3-position"
 import {Data} from "@/lib/data";
 
 type Props = {
+    label: string
     setPositions(data: Data): void
 }
 
-export default function XLSReader(props: Props) {
+export default function PositionsReader(props: Props) {
 
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -25,5 +26,8 @@ export default function XLSReader(props: Props) {
         reader.readAsArrayBuffer(file);
     };
 
-    return <input type="file" accept=".xlsx,.xls" onChange={handleFile}/>;
+    return <label className="cursor-pointer">
+        {props.label}
+        <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
+    </label>
 }

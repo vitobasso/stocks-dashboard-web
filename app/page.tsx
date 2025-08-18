@@ -6,7 +6,7 @@ import {ManageDialog} from "@/components/ui/manage-dialog";
 import {TickerGrid} from "@/components/ui/ticker-grid";
 import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";
 import {Analytics} from "@vercel/analytics/next"
-import XLSReader from "@/components/ui/xls-reader";
+import PositionsReader from "@/components/ui/positions-reader";
 
 export default function Home() {
 
@@ -14,9 +14,9 @@ export default function Home() {
     const [versions, setVersions] = useState<string[]>([]);
     const [scraped, setScraped] = useState<Map<string, Data>>(new Map);
     const [quotes, setQuotes] = useState<Data>({});
-    const [positions, setPositions] = useState<Data>({});
 
     // derived state
+    const [positions, setPositions] = useState<Data>({});
     const [selectedVersion, setSelectedVersion] = useState<string>("");
     const [tickers, setTickers] = useState<string[] | null>(null);
     const [headers, setHeaders] = useState<Header[] | null>(null);
@@ -24,6 +24,7 @@ export default function Home() {
     useEffect(() => {
         setTickers(loadTickers(localStorage));
         setHeaders(loadHeaders(localStorage));
+        setPositions(loadPositions(localStorage));
 
         fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/api/scraped")
             .then(res => res.json())
@@ -58,6 +59,10 @@ export default function Home() {
         localStorage.setItem("headers", JSON.stringify(headers));
     }, [headers]);
 
+    useEffect(() => {
+        localStorage.setItem("positions", JSON.stringify(positions));
+    }, [positions]);
+
     const data: Data = useMemo(() => {
         let selectedData = scraped.get(selectedVersion) ?? {};
         return consolidateData([selectedData, quotes, positions], derivations)
@@ -71,7 +76,7 @@ export default function Home() {
                     <option key={v} value={v}>{v}</option>
                 ))}
             </select>
-            <XLSReader setPositions={setPositions} />
+            <PositionsReader label={"Upload"} setPositions={setPositions} />
             <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
                           getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
         </div>
@@ -267,11 +272,16 @@ function calcChangePct(start: number, end: number) {
 }
 
 function loadTickers(localStorage: Storage): string[] {
-    let rawTickers = localStorage.getItem("tickers");
-    return rawTickers?.length && JSON.parse(rawTickers) || initialTickers;
+    let rawString = localStorage.getItem("tickers");
+    return rawString?.length && JSON.parse(rawString) || initialTickers;
 }
 
 function loadHeaders(localStorage: Storage): Header[] {
-    let rawHeaders = localStorage.getItem("headers");
-    return rawHeaders?.length && JSON.parse(rawHeaders) || initialHeaders;
+    let rawString = localStorage.getItem("headers");
+    return rawString?.length && JSON.parse(rawString) || initialHeaders;
+}
+
+function loadPositions(localStorage: Storage): Data {
+    let rawString = localStorage.getItem("positions");
+    return rawString?.length && JSON.parse(rawString) || [];
 }
