@@ -13,7 +13,6 @@ type Props = {
     colors: Colors;
     headers: Header[];
     data: Data;
-    renderHeader?: (key: string) => ((defaultRender: ReactElement) => ReactElement) | undefined;
     style?: CSSProperties;
     bgColor: string;
 }
@@ -48,7 +47,7 @@ export function TickerGrid(props: Props) {
 
     function renderHeader(key: string): ReactElement {
         let label = props.getLabel(key)
-        let defaultRender = label.long ?
+        return label.long ?
             <Tooltip>
                 <TooltipTrigger>{label?.short}</TooltipTrigger>
                 <TooltipContent>
@@ -57,7 +56,6 @@ export function TickerGrid(props: Props) {
             </Tooltip>
             :
             <>{label.short}</>;
-        return props.renderHeader?.(key)?.(defaultRender) ?? defaultRender;
     }
 
     function renderValue(key: string, value: any) {

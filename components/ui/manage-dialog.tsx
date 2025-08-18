@@ -14,6 +14,7 @@ import {ManageDialogCols} from "@/components/ui/manage-dialog-cols";
 import {useEffect, useState} from "react";
 import {Header, Label} from "@/app/page";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import PositionsReader from "@/components/ui/positions-reader";
 
 type Props = {
     tickers: string[]
@@ -22,6 +23,7 @@ type Props = {
     getLabel(key: string): Label
     setTickers(tickers: string[]): void
     setHeaders(headers: Header[]): void
+    setPositions(positions: Data): void
 }
 
 export function ManageDialog(props: Props) {
@@ -46,14 +48,15 @@ export function ManageDialog(props: Props) {
         <DialogTrigger className="left-0" asChild>
             <Settings className="size-8 p-1"/>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent>
             <DialogHeader>
                 <DialogTitle>Customizar</DialogTitle>
             </DialogHeader>
-            <Tabs defaultValue="rows">
+            <Tabs defaultValue="rows" className="h-120">
                 <TabsList>
                     <TabsTrigger value="rows">Linhas</TabsTrigger>
                     <TabsTrigger value="cols">Colunas</TabsTrigger>
+                    <TabsTrigger value="local-data">Importar</TabsTrigger>
                 </TabsList>
                 <TabsContent value="rows">
                     <ManageDialogRows style={{ flex: '0.1 1 auto' }} setTickerSelection={setTickerSelection}
@@ -63,6 +66,9 @@ export function ManageDialog(props: Props) {
                     <ManageDialogCols style={{ flex: '1 1 auto' }} setHeaderSelection={setHeaderSelection}
                                       allHeaders={props.allHeaders} selectedHeaders={headerSelection}
                                       getLabel={props.getLabel}/>
+                </TabsContent>
+                <TabsContent value="local-data">
+                    <PositionsReader setPositions={props.setPositions}/>
                 </TabsContent>
             </Tabs>
             <DialogFooter>

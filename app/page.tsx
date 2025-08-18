@@ -68,12 +68,6 @@ export default function Home() {
         return consolidateData([selectedData, quotes, positions], derivations)
     }, [selectedVersion, scraped, quotes, positions]);
 
-    function customHeaders(key: string): ((defaultRender: ReactElement) => ReactElement) | undefined {
-        if (key == "Posição") {
-            return (visibleElement: ReactElement) => <PositionsReader visibleElement={visibleElement} setPositions={setPositions} />
-        }
-    }
-
     if (!tickers || !headers) return;
     return <>
         <div className="flex justify-between p-1">
@@ -83,12 +77,11 @@ export default function Home() {
                 ))}
             </select>
             <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
-                          getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders}/>
+                          getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders} setPositions={setPositions} />
         </div>
         <TickerGrid
             style={{height: "100vh"}} bgColor={bgColor}
-            tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}
-            renderHeader={customHeaders}/>
+            tickers={tickers} headers={headers} getLabel={getLabel} formats={formats} colors={colors} data={data}/>
         <Analytics />
     </>
 }

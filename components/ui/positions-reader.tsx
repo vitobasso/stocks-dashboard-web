@@ -1,10 +1,8 @@
 import * as XLSX from "xlsx";
 import {extractData} from "@/lib/b3-position"
 import {Data} from "@/lib/data";
-import {ReactElement} from "react";
 
 type Props = {
-    visibleElement: ReactElement
     setPositions(data: Data): void
 }
 
@@ -27,8 +25,21 @@ export default function PositionsReader(props: Props) {
         reader.readAsArrayBuffer(file);
     };
 
-    return <label className="cursor-pointer">
-        {props.visibleElement}
-        <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
-    </label>
+    return <div>
+        <div className="font-bold">Posições</div>
+        <div className="text-xs text-muted-foreground">
+            1. Acesse
+            <a className="underline" href="https://www.investidor.b3.com.br/login" target="_blank" rel="noopener noreferrer">
+                www.investidor.b3.com.br
+            </a>,
+            selecione "Extratos" no menu à esquerda, "Filtrar", selecione apenas "Compra e Venda" e baixe em formato Excel.
+        </div>
+        <div className="text-xs text-muted-foreground">
+            2. Depois <label className="underline cursor-pointer">
+                clique aqui para importar
+                <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
+            </label>
+        </div>
+
+    </div>
 }
