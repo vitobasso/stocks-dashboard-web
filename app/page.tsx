@@ -2,10 +2,11 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Derivations} from "@/lib/data";
-import {ManageDialog} from "@/components/ui/manage-dialog";
-import {TickerGrid} from "@/components/ui/ticker-grid";
-import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";
+import {ManageDialog} from "@/components/domain/manage-dialog";
+import {TickerGrid} from "@/components/domain/ticker-grid";
+import {headerOptions, selectedHeaders} from "@/components/domain/manage-dialog-cols";
 import {Analytics} from "@vercel/analytics/next"
+import SelectVersion from "@/components/domain/select-version";
 
 export default function Home() {
 
@@ -29,11 +30,6 @@ export default function Home() {
             .then(res => res.json())
             .then(json => setVersions(json));
     }, []);
-
-    useEffect(() => {
-        if (selectedVersion) return;
-        setSelectedVersion(versions[versions.length -1])
-    }, [versions]);
 
     useEffect(() => {
         if (!selectedVersion || scraped.has(selectedVersion)) return
@@ -70,11 +66,7 @@ export default function Home() {
     if (!tickers || !headers) return;
     return <>
         <div className="flex justify-between p-1">
-            <select value={selectedVersion} onChange={e => setSelectedVersion(e.target.value)}>
-                {versions.map(v => (
-                    <option key={v} value={v}>{v}</option>
-                ))}
-            </select>
+            <SelectVersion selectedVersion={selectedVersion} setSelectedVersion={setSelectedVersion} versions={versions} />
             <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
                           getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders} setPositions={setPositions} />
         </div>

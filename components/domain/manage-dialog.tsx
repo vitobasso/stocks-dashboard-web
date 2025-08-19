@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
 import {Settings} from "lucide-react"
-import {ManageDialogRows} from "@/components/ui/manage-dialog-rows";
-import {ManageDialogCols} from "@/components/ui/manage-dialog-cols";
+import {ManageDialogRows} from "@/components/domain/manage-dialog-rows";
+import {ManageDialogCols} from "@/components/domain/manage-dialog-cols";
 import {useEffect, useState} from "react";
 import {Header, Label} from "@/app/page";
 import {Data} from "@/lib/data";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import PositionsReader from "@/components/ui/positions-reader";
+import ImportPositions from "@/components/domain/import-positions";
 
 type Props = {
     tickers: string[]
@@ -69,7 +69,7 @@ export function ManageDialog(props: Props) {
                                       getLabel={props.getLabel}/>
                 </TabsContent>
                 <TabsContent value="local-data">
-                    <PositionsReader setPositions={props.setPositions}/>
+                    <ImportPositions setPositions={props.setPositions}/>
                 </TabsContent>
             </Tabs>
             <DialogFooter>
