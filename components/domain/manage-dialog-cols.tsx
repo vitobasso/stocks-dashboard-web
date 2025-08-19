@@ -73,12 +73,3 @@ export function ManageDialogCols(props: Props) {
 export function selectedHeaders(headers: Header[]): string[] {
     return headers.flatMap(([_,ks]) => ks)
 }
-
-export function headerOptions(data: Data): string[] {
-    let set = Object.values(data).map(entry => Object.keys(entry))
-        .reduce((acc, entry) => acc.union(new Set(entry)), new Set<string>);
-    return [...set].map(path => {
-        return path
-    })
-}
-
