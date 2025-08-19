@@ -1,22 +1,13 @@
+import {derivations, Derivations} from "@/lib/metadata/derivations";
+
 export type DataEntry = Record<string, any>;
 export type Data = Record<string, DataEntry>;
-
-export type Derivation = {function: (...args: any[]) => any, arguments: string[]};
-export type Derivations = Record<string, Derivation>;
 
 export function getValue(row: DataEntry, key: string) {
     return (row as any)?.[key];
 }
 
-export function getGroup(path: string) {
-    return path.split(".")[0]
-}
-
-export function getBasename(path: string) {
-    return path.split(".")[1]
-}
-
-export function consolidateData(data: Data[], derivations: Derivations): Data {
+export function consolidateData(data: Data[]): Data {
     let merged = data.reduce(mergeData, {});
     let derived = deriveData(merged, derivations);
     return mergeData(merged, derived);
