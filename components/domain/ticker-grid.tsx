@@ -3,28 +3,26 @@ import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid, SortColumn} from
 import {Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
-import {Colors, Formats, Header, Label} from "@/app/page";
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
+import {getLabel} from "@/lib/metadata/labels";
+import {bgColor, colors} from "@/lib/metadata/colors";
+import {Header} from "@/lib/metadata/defaults";
 
 type Props = {
     tickers: string[];
-    getLabel(key: string): Label
-    formats: Formats;
-    colors: Colors;
     headers: Header[];
     data: Data;
     style?: CSSProperties;
-    bgColor: string;
 }
 
 type Row = Record<string, any>;
 
 export function TickerGrid(props: Props) {
 
-    const columns: readonly ColumnOrColumnGroup<Row>[] = props.headers.map(([group, keys]) => ({
-        name: renderHeader(group),
+    const columns: readonly ColumnOrColumnGroup<Row>[] = props.headers.map(h => ({
+        name: renderHeader(h.group),
         headerCellClass: 'text-center',
-        children: keys.map(key => ({
+        children: h.keys.map(key => ({
             key,
             name: renderHeader(key),
             frozen: key == "ticker",
@@ -38,7 +36,7 @@ export function TickerGrid(props: Props) {
     }));
 
     const rows: Row[] = props.tickers.filter(ticker => props.data[ticker]).map(ticker => {
-        let entries = props.headers.flatMap(([_, keys]) => keys)
+        let entries = props.headers.flatMap(h => h.keys)
             .map((key) => {
                 let value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
                 return [key, value]
@@ -47,7 +45,7 @@ export function TickerGrid(props: Props) {
     });
 
     function renderHeader(key: string): ReactElement {
-        let label = props.getLabel(key)
+        let label = getLabel(key)
         let plainHeader = <span>{label.short}</span>;
         return label.long ?
             <Tooltip>
@@ -61,8 +59,8 @@ export function TickerGrid(props: Props) {
     }
 
     function renderValue(key: string, value: any) {
-        if (props.formats[key] == "chart") return renderChart(value);
-        if (props.formats[key] == "percent" && value) return value + "%";
+        if (formats[key] == "chart") return renderChart(value);
+        if (formats[key] == "percent" && value) return value + "%";
         if (Number(value)) {
             if (isNaN(value)) return "";
             return trimPrecision(value);
@@ -103,9 +101,9 @@ export function TickerGrid(props: Props) {
     }
 
     function getColor(key: string, data: any): string {
-        let value = props.formats[key] == "chart" ? quoteChange(data) : data;
-        let rule = props.colors[key];
-        if (!rule || value == null || value === "" || isNaN(value)) return props.bgColor;
+        let value = formats[key] == "chart" ? quoteChange(data) : data;
+        let rule = colors[key];
+        if (!rule || value == null || value === "" || isNaN(value)) return bgColor;
         const scale = chroma.scale(rule.colors).domain(rule.domain);
         return scale(value as number).hex();
     }
@@ -125,4 +123,15 @@ export function TickerGrid(props: Props) {
 
     return <DataGrid className={"font-mono"} style={props.style} rows={getSortedRows(rows)} columns={columns}
                      sortColumns={sortColumns} onSortColumnsChange={setSortColumns} renderers={{renderCell}}/>
+}
+
+type Formats = Record<string, "chart" | "percent">;
+const formats: Formats = {
+    "yahoo_chart.1mo": "chart",
+    "yahoo_chart.1y": "chart",
+    "yahoo_chart.5y": "chart",
+    "statusinvest.ey": "percent",
+    "derived_forecast.min_pct": "percent",
+    "derived_forecast.avg_pct": "percent",
+    "derived_forecast.max_pct": "percent",
 }
