@@ -6,7 +6,7 @@ type Props = {
     versions: string[];
 }
 
-export default function SelectVersion(props: Props) {
+export default function VersionSelector(props: Props) {
 
     useEffect(() => {
         if (props.selectedVersion) return;

@@ -1,22 +1,14 @@
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import {Button} from "@/components/ui/button"
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
 import {Settings} from "lucide-react"
-import {ManageDialogRows} from "@/components/domain/manage-dialog-rows";
-import {ManageDialogCols} from "@/components/domain/manage-dialog-cols";
-import {useEffect, useState} from "react";
+import {RowSelector} from "@/components/domain/row-selector";
+import React, {useEffect, useState} from "react";
 import {Data} from "@/lib/data";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import ImportPositions from "@/components/domain/import-positions";
-import {getLabel} from "@/lib/metadata/labels";
+import PositionsImporter from "@/components/domain/positions-importer";
 import {Header} from "@/lib/metadata/defaults";
+import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
+import HeaderOrderer from "@/components/domain/header-orderer";
+import {HeaderSelector} from "@/components/domain/header-selector";
 
 type Props = {
     allKeys: string[]
@@ -29,19 +21,17 @@ type Props = {
 
 export function ManageDialog(props: Props) {
     let [open, setOpen] = useState(false)
-    let [tickerSelection, setTickerSelection] = useState<string[]>(props.tickers);
-    let [headerSelection, setHeaderSelection] = useState<Header[]>(props.headers);
 
     useEffect(() => {
         if (open) {
-            setTickerSelection(props.tickers);
-            setHeaderSelection(props.headers);
+            props.setTickers(props.tickers);
+            props.setHeaders(props.headers);
         }
     }, [open, props.tickers, props.headers]);
 
     function save() {
-        props.setTickers(tickerSelection)
-        props.setHeaders(headerSelection)
+        props.setTickers(props.tickers)
+        props.setHeaders(props.headers)
         setOpen(false)
     }
 
@@ -49,34 +39,32 @@ export function ManageDialog(props: Props) {
         <DialogTrigger className="left-0" asChild>
             <Settings className="size-8 p-1"/>
         </DialogTrigger>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Customizar</DialogTitle>
-            </DialogHeader>
-            <Tabs defaultValue="rows" className="h-120">
-                <TabsList>
-                    <TabsTrigger value="rows">Linhas</TabsTrigger>
-                    <TabsTrigger value="cols">Colunas</TabsTrigger>
-                    <TabsTrigger value="local-data">Importar</TabsTrigger>
-                </TabsList>
+        <DialogContent className="sm:max-w-200 h-160">
+            <VisuallyHidden><DialogHeader><DialogTitle></DialogTitle></DialogHeader></VisuallyHidden>
+            <Tabs defaultValue="rows">
+                <div className="flex justify-start gap-4">
+                    <div className="text-lg font-semibold">Customizar</div>
+                    <TabsList>
+                        <TabsTrigger value="rows">Linhas</TabsTrigger>
+                        <TabsTrigger value="cols">Colunas</TabsTrigger>
+                        <TabsTrigger value="local-data">Importar</TabsTrigger>
+                    </TabsList>
+                </div>
                 <TabsContent value="rows">
-                    <ManageDialogRows style={{ flex: '0.1 1 auto' }} tickers={tickerSelection}
-                                      setTickerSelection={setTickerSelection} />
+                    <RowSelector {...props}/>
                 </TabsContent>
                 <TabsContent value="cols">
-                    <ManageDialogCols style={{ flex: '1 1 auto' }} allKeys={props.allKeys} getLabel={getLabel}
-                                      selectedHeaders={headerSelection} setHeaderSelection={setHeaderSelection} />
+                    <div className="flex justify-between">
+                        <div className="flex-1/3 max-h-133 overflow-auto">
+                            <HeaderOrderer {...props} />
+                        </div>
+                        <HeaderSelector {...props}/>
+                    </div>
                 </TabsContent>
                 <TabsContent value="local-data">
-                    <ImportPositions setPositions={props.setPositions}/>
+                    <PositionsImporter {...props}/>
                 </TabsContent>
             </Tabs>
-            <DialogFooter>
-                <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit" onClick={save}>Save changes</Button>
-            </DialogFooter>
         </DialogContent>
     </Dialog>
 }

@@ -6,7 +6,7 @@ type Props = {
     setPositions(data: Data): void
 }
 
-export default function ImportPositions(props: Props) {
+export default function PositionsImporter(props: Props) {
 
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

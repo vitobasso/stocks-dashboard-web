@@ -6,7 +6,7 @@ import {consolidateSchema} from "@/lib/schema";
 import {ManageDialog} from "@/components/domain/manage-dialog";
 import {TickerGrid} from "@/components/domain/ticker-grid";
 import {Analytics} from "@vercel/analytics/next"
-import SelectVersion from "@/components/domain/select-version";
+import VersionSelector from "@/components/domain/version-selector";
 import {Header, defaultHeaders, defaultTickers} from "@/lib/metadata/defaults";
 
 export default function Home() {
@@ -73,7 +73,7 @@ export default function Home() {
     if (!schema || !versions || !tickers || !headers) return;
     return <>
         <div className="flex justify-between p-1">
-            <SelectVersion selectedVersion={selectedVersion} setSelectedVersion={setSelectedVersion} versions={versions} />
+            <VersionSelector selectedVersion={selectedVersion} setSelectedVersion={setSelectedVersion} versions={versions} />
             <ManageDialog tickers={tickers} setTickers={setTickers} headers={headers} setHeaders={setHeaders}
                           allKeys={schema} setPositions={setPositions} />
         </div>
