@@ -48,15 +48,16 @@ export function TickerGrid(props: Props) {
 
     function renderHeader(key: string): ReactElement {
         let label = props.getLabel(key)
+        let plainHeader = <span>{label.short}</span>;
         return label.long ?
             <Tooltip>
-                <TooltipTrigger>{label?.short}</TooltipTrigger>
+                <TooltipTrigger asChild>{plainHeader}</TooltipTrigger>
                 <TooltipContent>
                     {label.long ?? ""}
                 </TooltipContent>
             </Tooltip>
             :
-            <>{label.short}</>;
+            plainHeader;
     }
 
     function renderValue(key: string, value: any) {
