@@ -13,6 +13,7 @@ import {ManageDialogRows} from "@/components/ui/manage-dialog-rows";
 import {ManageDialogCols} from "@/components/ui/manage-dialog-cols";
 import {useEffect, useState} from "react";
 import {Header, Label} from "@/app/page";
+import {Data} from "@/lib/data";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import PositionsReader from "@/components/ui/positions-reader";
 
