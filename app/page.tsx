@@ -2,24 +2,26 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Derivations} from "@/lib/data";
+import {consolidateSchema} from "@/lib/schema";
 import {ManageDialog} from "@/components/domain/manage-dialog";
 import {TickerGrid} from "@/components/domain/ticker-grid";
-import {headerOptions, selectedHeaders} from "@/components/domain/manage-dialog-cols";
+import {selectedHeaders} from "@/components/domain/manage-dialog-cols";
 import {Analytics} from "@vercel/analytics/next"
 import SelectVersion from "@/components/domain/select-version";
 
 export default function Home() {
 
     // query results
-    const [versions, setVersions] = useState<string[]>([]);
+    const [metadata, setMetadata] = useState<{versions: string[]; schema: string[]} | null>(null);
     const [scraped, setScraped] = useState<Map<string, Data>>(new Map);
     const [quotes, setQuotes] = useState<Data>({});
 
     // derived state
-    const [positions, setPositions] = useState<Data>({});
+    const [versions, setVersions] = useState<string[]>([]);
     const [selectedVersion, setSelectedVersion] = useState<string>("");
     const [tickers, setTickers] = useState<string[] | null>(null);
     const [headers, setHeaders] = useState<Header[] | null>(null);
+    const [positions, setPositions] = useState<Data>({});
 
     useEffect(() => {
         setTickers(loadTickers(localStorage));
@@ -28,8 +30,12 @@ export default function Home() {
 
         fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/api/scraped")
             .then(res => res.json())
-            .then(json => setVersions(json));
+            .then(json => setMetadata(json));
     }, []);
+
+    useEffect(() => {
+        metadata && setVersions(metadata.versions)
+    }, [metadata]);
 
     useEffect(() => {
         if (!selectedVersion || scraped.has(selectedVersion)) return
@@ -58,16 +64,20 @@ export default function Home() {
         localStorage.setItem("positions", JSON.stringify(positions));
     }, [positions]);
 
+    const schema: string[] | undefined = useMemo(() => {
+        if (metadata) return consolidateSchema(metadata.schema, derivations)
+    }, [metadata]);
+
     const data: Data = useMemo(() => {
         let selectedData = scraped.get(selectedVersion) ?? {};
         return consolidateData([selectedData, quotes, positions], derivations)
     }, [selectedVersion, scraped, quotes, positions]);
 
-    if (!tickers || !headers) return;
+    if (!schema || !tickers || !headers) return;
     return <>
         <div className="flex justify-between p-1">
             <SelectVersion selectedVersion={selectedVersion} setSelectedVersion={setSelectedVersion} versions={versions} />
-            <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={headerOptions(data)}
+            <ManageDialog tickers={tickers} headers={selectedHeaders(headers)} allHeaders={schema}
                           getLabel={getLabel} setTickers={setTickers} setHeaders={setHeaders} setPositions={setPositions} />
         </div>
         <TickerGrid

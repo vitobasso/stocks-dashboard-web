@@ -12,6 +12,11 @@ type StockPosition = {
     averagePrice: number;
 };
 
+export const schema = [
+    "b3_position.quantity",
+    "b3_position.averagePrice",
+]
+
 export function extractData(rows: any[]): Data {
     const trades: Trade[] = rows.map(getTrade);
     const positions: Map<string, StockPosition> = calculatePositions(trades);
