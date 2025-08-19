@@ -1,5 +1,5 @@
-import {CSSProperties, ReactElement} from "react";
-import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid} from "react-data-grid";
+import {CSSProperties, ReactElement, useState} from "react";
+import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid, SortColumn} from "react-data-grid";
 import {Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
@@ -28,6 +28,7 @@ export function TickerGrid(props: Props) {
             key,
             name: renderHeader(key),
             frozen: key == "ticker",
+            sortable: true,
             headerCellClass: 'text-center',
             width: key == "ticker" ? "68px" : "52px",
             renderCell(props) {
@@ -108,6 +109,19 @@ export function TickerGrid(props: Props) {
         return scale(value as number).hex();
     }
 
-    return <DataGrid className={"font-mono"} style={props.style} rows={rows} columns={columns}
-                     renderers={{renderCell}}/>
+    const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
+
+    function getSortedRows(rows: any[]): any[] {
+        if (sortColumns.length === 0) return rows;
+
+        const { columnKey, direction } = sortColumns[0];
+        return [...rows].sort((a, b) => {
+            if (a[columnKey] < b[columnKey]) return direction === 'ASC' ? -1 : 1;
+            if (a[columnKey] > b[columnKey]) return direction === 'ASC' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    return <DataGrid className={"font-mono"} style={props.style} rows={getSortedRows(rows)} columns={columns}
+                     sortColumns={sortColumns} onSortColumnsChange={setSortColumns} renderers={{renderCell}}/>
 }
