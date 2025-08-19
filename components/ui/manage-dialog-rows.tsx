@@ -2,7 +2,6 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input";
 import {PlusIcon, XIcon} from "lucide-react"
 import {CSSProperties, useState} from "react";
-import {DialogDescription} from "@/components/ui/dialog";
 
 type Props = {
     tickers: string[]

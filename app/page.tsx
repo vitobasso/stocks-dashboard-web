@@ -1,12 +1,11 @@
 "use client"
 
-import {ReactElement, useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Derivations} from "@/lib/data";
 import {ManageDialog} from "@/components/ui/manage-dialog";
 import {TickerGrid} from "@/components/ui/ticker-grid";
 import {headerOptions, selectedHeaders} from "@/components/ui/manage-dialog-cols";
 import {Analytics} from "@vercel/analytics/next"
-import PositionsReader from "@/components/ui/positions-reader";
 
 export default function Home() {
 

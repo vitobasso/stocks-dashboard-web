@@ -5,11 +5,6 @@ import {Input} from "@/components/ui/input"
 import {Header, Label} from "@/app/page";
 import {Data, getBasename, getGroup} from "@/lib/data";
 
-export type HeaderOption = {
-    group: string
-    key: string
-}
-
 type Props = {
     allHeaders: string[]
     selectedHeaders: string[]
