@@ -1,7 +1,7 @@
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
 import {Settings} from "lucide-react"
 import {RowSelector} from "@/components/domain/row-selector";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {Data} from "@/lib/data";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import PositionsImporter from "@/components/domain/positions-importer";
@@ -20,22 +20,7 @@ type Props = {
 }
 
 export function ManageDialog(props: Props) {
-    let [open, setOpen] = useState(false)
-
-    useEffect(() => {
-        if (open) {
-            props.setTickers(props.tickers);
-            props.setHeaders(props.headers);
-        }
-    }, [open, props.tickers, props.headers]);
-
-    function save() {
-        props.setTickers(props.tickers)
-        props.setHeaders(props.headers)
-        setOpen(false)
-    }
-
-    return <Dialog open={open} onOpenChange={setOpen}>
+    return <Dialog>
         <DialogTrigger className="left-0" asChild>
             <Settings className="size-8 p-1"/>
         </DialogTrigger>

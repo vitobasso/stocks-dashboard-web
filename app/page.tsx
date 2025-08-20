@@ -40,7 +40,7 @@ export default function Home() {
     }, [selectedVersion]);
 
     useEffect(() => {
-        localStorage.setItem("tickers", JSON.stringify(tickers));
+        localStorage.setItem("tickers", JSON.stringify(tickers?.toSorted()));
 
         tickers?.length && fetch("/api/quotes", {
             method: "POST",

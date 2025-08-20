@@ -35,7 +35,7 @@ export function TickerGrid(props: Props) {
         }))
     }));
 
-    const rows: Row[] = props.tickers.filter(ticker => props.data[ticker]).map(ticker => {
+    const rows: Row[] = props.tickers.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
         let entries = props.headers.flatMap(h => h.keys)
             .map((key) => {
                 let value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
