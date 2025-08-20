@@ -2,6 +2,7 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input";
 import {PlusIcon, XIcon} from "lucide-react"
 import {useState} from "react";
+import {Badge} from "@/components/ui/badge";
 
 type Props = {
     tickers: string[]
@@ -30,26 +31,25 @@ export function RowSelector(props: Props) {
         }
     }
 
-    return <div className="dialog max-w-30 p-1">
-        <div className="flex w-full">
-            <Input id="input-ticker" placeholder="Add..." className="flex-1"
+    return <div className="dialog p-1 space-y-4">
+        <div className="flex">
+            <Input id="input-ticker" placeholder="Adicionar..." className="flex-1"
                    onChange={e => setNewTicker(e.target.value)}
                    onKeyUp={handleEnterKey}/>
             <Button size="icon" className="size-8 ml-2 mr-1" onClick={() => addTicker(newTicker)}>
                 <PlusIcon/>
             </Button>
         </div>
-        <div className="w-full max-h-125 p-1 overflow-y-auto">
-            <ul>
-                {props.tickers.map(t =>
-                    <li key={t} className="flex w-full justify-between font-mono">
-                        <span>{t}</span>
-                        <Button variant="ghost" className="size-7"
-                                onClick={() => removeTicker(t)}>
-                            <XIcon/>
-                        </Button>
-                    </li>)}
-            </ul>
+        <div className="flex flex-wrap max-h-125 overflow-y-auto gap-1">
+            {props.tickers.map(t =>
+                <Badge key={t} variant="default" className="font-mono text-sm">
+                    {t}
+                    <button className="opacity-70 hover:opacity-100" aria-label={`Remove ${t}`}
+                            onClick={() => removeTicker(t)}>
+                        <XIcon className="h-3 w-3"/>
+                    </button>
+                </Badge>
+            )}
         </div>
     </div>
 }
