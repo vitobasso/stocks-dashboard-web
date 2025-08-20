@@ -41,7 +41,7 @@ export function RowSelector(props: Props) {
             </Button>
         </div>
         <div className="flex flex-wrap max-h-125 overflow-y-auto gap-1">
-            {props.tickers.map(t =>
+            {props.tickers.toSorted().map(t =>
                 <Badge key={t} variant="default" className="font-mono text-sm">
                     {t}
                     <button className="opacity-70 hover:opacity-100" aria-label={`Remove ${t}`}
