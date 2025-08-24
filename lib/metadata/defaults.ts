@@ -7,8 +7,8 @@ export const defaultHeaders: Header[] = [
     {group: "Fundamentos", keys: ["liqmd_millions", "p_l", "p_vp", "ey", "roe", "roic", "marg_liquida", "div_liq_patri", "liq_corrente",
             "cagr_lucros_5_anos", "dy"].map(s => `statusinvest.${s}`)
     },
-    {group: "Score", keys: ["value", "future", "past", "health", "dividend"].map(s => `simplywallst.${s}`)},
-    {group: "Recomendação", keys: ["strongBuy", "buy", "hold", "sell", "strongSell"].map(s => `yahoo_api_rating.${s}`)},
+    {group: "Score", keys: ["value", "future", "past", "health", "dividend"].map(s => `simplywall.${s}`)},
+    {group: "Recomendação", keys: ["strongBuy", "buy", "hold", "sell", "strongSell"].map(s => `yahoo_recommendations.${s}`)},
     {group: "Previsão", keys: ["min_pct", "avg_pct", "max_pct"].map(s => `derived_forecast.${s}`)},
 ];
 
