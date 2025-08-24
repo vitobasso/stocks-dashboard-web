@@ -8,15 +8,15 @@ export const derivations: Derivations = {
     },
     "derived_forecast.min_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
-        arguments: ["yahoo_forecast.min", "quotes.latest"],
+        arguments: ["yahoo.forecast.min", "quotes.latest"],
     },
     "derived_forecast.avg_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
-        arguments: ["yahoo_forecast.avg", "quotes.latest"],
+        arguments: ["yahoo.forecast.avg", "quotes.latest"],
     },
     "derived_forecast.max_pct": {
         function: (args) => calcChangePct(args[1], args[0]),
-        arguments: ["yahoo_forecast.max", "quotes.latest"],
+        arguments: ["yahoo.forecast.max", "quotes.latest"],
     },
     "statusinvest.liqmd_millions": {
         function: (args) => args[0] / 1000000,

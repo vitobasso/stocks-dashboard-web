@@ -18,7 +18,7 @@ export function HeaderSelector(props: Props) {
     const allPrefixes = Array.from(new Set(props.allKeys.map(h => getPrefix(h))))
 
     const filteredKeys = props.allKeys.filter(key =>
-        getSuffix(key).toLowerCase().includes(search.toLowerCase()) ||
+        getSuffix(key)?.toLowerCase().includes(search.toLowerCase()) ||
         getLabel(key)?.short?.toLowerCase().includes(search.toLowerCase()) ||
         getLabel(key)?.long?.toLowerCase().includes(search.toLowerCase())
     )
@@ -77,11 +77,11 @@ function HeaderItem(key: string, props: Props) {
 }
 
 function getPrefix(path: string) {
-    return path.split(".")[0]
+    return path.substring(0, path.lastIndexOf("."));
 }
 
 function getSuffix(path: string) {
-    return path.split(".")[1]
+    return path.split(".").pop()
 }
 
 function toggleSelection(key: string, currentSelection: Header[]): Header[] {
@@ -110,11 +110,11 @@ function defaultGroup(key: string): string {
         "quotes": "Preço",
         "yahoo_chart": "Preço",
         "statusinvest": "Fundamentos",
-        "simplywallst": "Score",
-        "yahoo_api_rating": "Recomendação",
-        "yahoo_rating": "Recomendação",
+        "simplywall": "Score",
+        "yahoo_recommendations": "Recomendação",
+        "yahoo.rating": "Recomendação",
         "tradingview_rating": "Recomendação",
-        "yahoo_forecast": "Previsão",
+        "yahoo.forecast": "Previsão",
         "tradingview_forecast": "Previsão",
         "derived_forecast": "Previsão",
     }
