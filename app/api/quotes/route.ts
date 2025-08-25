@@ -13,7 +13,3 @@ export async function POST(req: Request) {
         });
     return NextResponse.json(Object.fromEntries(entries));
 }
-
-export const schema = [
-    "quotes.latest"
-]
