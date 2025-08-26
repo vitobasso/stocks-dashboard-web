@@ -39,3 +39,28 @@ function deriveEntry(data: DataEntry, derivations: Derivations): Data {
     return Object.fromEntries(entries);
 }
 
+export type ColumnStats = { maxLength: number };
+
+export function calcStats(data: Data): Map<string, ColumnStats> {
+    let stats = new Map<string, ColumnStats>();
+    Object.entries(data).forEach(([ticker, cols]) => {
+        accStats("ticker", ticker, stats)
+        Object.entries(cols).forEach(([key, value]) => {
+            accStats(key, value, stats);
+        })
+    })
+    return stats
+}
+
+function accStats(key: string, value: any, stats: Map<string, ColumnStats>) {
+    let length = valueLength(value);
+    if (length) {
+        let currentMax = stats.get(key)?.maxLength || 0;
+        let maxWidth = Math.max(currentMax, length);
+        stats.set(key, {maxLength: maxWidth});
+    }
+}
+
+function valueLength(value: any): number | undefined {
+    return typeof value === "string" ? value.length : undefined
+}
