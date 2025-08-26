@@ -1,6 +1,6 @@
 import {CSSProperties, ReactElement, useState} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
-import {Data, getValue} from "@/lib/data";
+import {calcStats, ColumnStats, Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
@@ -19,6 +19,8 @@ type Row = Record<string, any>;
 
 export function DataGrid(props: Props) {
 
+    let columnStats = calcStats(props.data);
+
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
         name: renderHeader(h.group),
         headerCellClass: 'text-center',
@@ -28,10 +30,10 @@ export function DataGrid(props: Props) {
             frozen: key == "ticker",
             sortable: true,
             headerCellClass: 'text-center',
-            width: key == "ticker" ? "68px" : "52px",
-            renderCell(props) {
-                return renderValue(key, props.row[key]);
-            }
+            cellClass: cellClass(key),
+            minWidth: widthPx(key, columnStats),
+            width: widthPx(key, columnStats),
+            renderCell: props => renderValue(key, props.row[key])
         }))
     }));
 
@@ -108,12 +110,17 @@ export function DataGrid(props: Props) {
         return scale(value as number).hex();
     }
 
+    function cellClass(key: string) {
+        let stats = columnStats.get(key);
+        return stats?.maxLength && stats.maxLength > 10 ? 'text-left' : 'text-center';
+    }
+
     const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
     function getSortedRows(rows: any[]): any[] {
         if (sortColumns.length === 0) return rows;
 
-        const { columnKey, direction } = sortColumns[0];
+        const {columnKey, direction} = sortColumns[0];
         return [...rows].sort((a, b) => {
             if (a[columnKey] < b[columnKey]) return direction === 'ASC' ? -1 : 1;
             if (a[columnKey] > b[columnKey]) return direction === 'ASC' ? 1 : -1;
@@ -122,7 +129,16 @@ export function DataGrid(props: Props) {
     }
 
     return <ReactDataGrid className={"font-mono"} style={props.style} rows={getSortedRows(rows)} columns={columns}
-                     sortColumns={sortColumns} onSortColumnsChange={setSortColumns} renderers={{renderCell}}/>
+                          sortColumns={sortColumns} onSortColumnsChange={setSortColumns} renderers={{renderCell}}/>
+}
+
+const charWidthPx = 8.5;
+const paddingPx = 15;
+const defaultWidthPx = 50;
+
+function widthPx(key: string, columnStats: Map<string, ColumnStats>): number {
+    let stats = columnStats.get(key)
+    return stats ? stats.maxLength * charWidthPx + paddingPx : defaultWidthPx
 }
 
 type Formats = Record<string, "chart" | "percent">;
