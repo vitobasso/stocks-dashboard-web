@@ -4,9 +4,9 @@ import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data} from "@/lib/data";
 import {consolidateSchema} from "@/lib/schema";
 import {ManageDialog} from "@/components/domain/manage-dialog";
-import {TickerGrid} from "@/components/domain/ticker-grid";
+import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
-import {Header, defaultHeaders, defaultTickers} from "@/lib/metadata/defaults";
+import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
 
 export default function Home() {
 
@@ -16,13 +16,19 @@ export default function Home() {
     const [quotes, setQuotes] = useState<Data>({});
 
     // derived state
-    const [tickers, setTickers] = useState<string[] | null>(null);
-    const [headers, setHeaders] = useState<Header[] | null>(null);
+    const [rows, setRows] = useState<string[] | null>(null);
+    const [columns, setColumns] = useState<Header[] | null>(null);
     const [positions, setPositions] = useState<Data>({});
 
+    const schema: string[] | undefined = useMemo(() => {
+        if (metadata) return consolidateSchema(metadata.schema)
+    }, [metadata]);
+
+    const data: Data = useMemo(() => consolidateData([scraped, quotes, positions]), [scraped, quotes, positions]);
+
     useEffect(() => {
-        setTickers(loadTickers(localStorage));
-        setHeaders(loadHeaders(localStorage));
+        setRows(loadRows(localStorage));
+        setColumns(loadColumns(localStorage));
         setPositions(loadPositions(localStorage));
 
         fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/schema")
@@ -31,54 +37,48 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("tickers", JSON.stringify(tickers?.toSorted()));
+        localStorage.setItem("rows", JSON.stringify(rows?.toSorted()));
 
-        tickers?.length && fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?tickers=${tickers.join(",")}`)
+        rows?.length && fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?tickers=${rows.join(",")}`)
             .then(res => res.json())
             .then(json => setScraped(json));
 
-        tickers?.length && fetch("/api/quotes", {
+        rows?.length && fetch("/api/quotes", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({tickers}),
+            body: JSON.stringify({tickers: rows}),
         })
             .then(res => res.json())
             .then(json => setQuotes(json));
-    }, [tickers]);
+    }, [rows]);
 
     useEffect(() => {
-        localStorage.setItem("headers", JSON.stringify(headers));
-    }, [headers]);
+        localStorage.setItem("columns", JSON.stringify(columns));
+    }, [columns]);
 
     useEffect(() => {
         localStorage.setItem("positions", JSON.stringify(positions));
     }, [positions]);
 
-    const schema: string[] | undefined = useMemo(() => {
-        if (metadata) return consolidateSchema(metadata.schema)
-    }, [metadata]);
-
-    const data: Data = useMemo(() => consolidateData([scraped, quotes, positions]), [scraped, quotes, positions]);
-
-    if (!schema || !tickers || !headers) return;
+    if (!schema || !rows || !columns) return;
     return <>
         <div className="flex justify-between p-1">
-            <ManageDialog tickers={tickers} setTickers={setTickers} headers={headers} setHeaders={setHeaders}
+            <ManageDialog rows={rows} setRows={setRows} columns={columns} setColumns={setColumns}
                           allKeys={schema} setPositions={setPositions} />
         </div>
-        <TickerGrid style={{height: "100vh"}} tickers={tickers} headers={headers} data={data}/>
+        <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data}/>
         <Analytics />
     </>
 }
 
-function loadTickers(localStorage: Storage): string[] {
-    let rawString = localStorage.getItem("tickers");
-    return rawString?.length && JSON.parse(rawString) || defaultTickers;
+function loadRows(localStorage: Storage): string[] {
+    let rawString = localStorage.getItem("rows");
+    return rawString?.length && JSON.parse(rawString) || defaultRows;
 }
 
-function loadHeaders(localStorage: Storage): Header[] {
-    let rawString = localStorage.getItem("headers");
-    return rawString?.length && JSON.parse(rawString) || defaultHeaders;
+function loadColumns(localStorage: Storage): Header[] {
+    let rawString = localStorage.getItem("columns");
+    return rawString?.length && JSON.parse(rawString) || defaultColumns;
 }
 
 function loadPositions(localStorage: Storage): Data {

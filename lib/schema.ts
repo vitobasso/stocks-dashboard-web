@@ -5,7 +5,7 @@ export function consolidateSchema(scraper: string[]): string[] {
     return [...scraper, ...quotes, ...b3, ...derivations]
 }
 
-// cannot be imported from api route
+// next.js prohibits exporting this from api/../route.ts
 const quotes = [
     "quotes.latest"
 ]

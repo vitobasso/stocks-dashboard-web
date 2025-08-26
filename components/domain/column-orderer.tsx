@@ -17,11 +17,11 @@ import {Header} from "@/lib/metadata/defaults";
 import {getLabel} from "@/lib/metadata/labels";
 
 type Props = {
-    headers: Header[]
-    setHeaders(value: Header[] | ((prevState: Header[]) => Header[])): void
+    columns: Header[]
+    setColumns(value: Header[] | ((prevState: Header[]) => Header[])): void
 }
 
-export default function HeaderOrderer(props: Props) {
+export default function ColumnOrderer(props: Props) {
     const [activeId, setActiveId] = useState<string | null>(null);
 
     const sensors = useSensors(useSensor(PointerSensor, {activationConstraint: {distance: 5}}));
@@ -30,22 +30,22 @@ export default function HeaderOrderer(props: Props) {
         const {active, over} = event;
         if (!over || active.id === over.id) return;
 
-        const sourceGroupIndex = props.headers.findIndex(
+        const sourceGroupIndex = props.columns.findIndex(
             (g) => g.keys.includes(String(active.id)) || g.group === active.id
         );
-        const targetGroupIndex = props.headers.findIndex(
+        const targetGroupIndex = props.columns.findIndex(
             (g) => g.keys.includes(String(over.id)) || (g.group + "-dropzone") === over.id
         );
 
         // Reorder groups
-        if (props.headers.some((g) => g.group === active.id) && props.headers.some((g) => g.group === over.id)) {
-            props.setHeaders((prev) => arrayMove(prev, sourceGroupIndex, targetGroupIndex));
+        if (props.columns.some((g) => g.group === active.id) && props.columns.some((g) => g.group === over.id)) {
+            props.setColumns((prev) => arrayMove(prev, sourceGroupIndex, targetGroupIndex));
             return;
         }
 
         // Reorder/move items
         if (sourceGroupIndex !== -1 && targetGroupIndex !== -1) {
-            props.setHeaders((prev) => {
+            props.setColumns((prev) => {
                 const newGroups = [...prev];
                 const source = newGroups[sourceGroupIndex];
                 const target = newGroups[targetGroupIndex];
@@ -87,8 +87,8 @@ export default function HeaderOrderer(props: Props) {
                     onDragStart={({active}) => setActiveId(String(active.id))}
                     onDragEnd={(event) => { handleDragEnd(event); setActiveId(null) }}
                     onDragCancel={() => setActiveId(null)}>
-            <SortableContext items={props.headers.map((g) => g.group)} strategy={verticalListSortingStrategy}>
-                {props.headers.map((group) => (
+            <SortableContext items={props.columns.map((g) => g.group)} strategy={verticalListSortingStrategy}>
+                {props.columns.map((group) => (
                     <SortableGroup key={group.group} group={group}/>
                 ))}
             </SortableContext>
