@@ -27,8 +27,7 @@ export function ManageDialog(props: Props) {
         <DialogContent className="sm:max-w-200 h-160">
             <VisuallyHidden><DialogHeader><DialogTitle></DialogTitle></DialogHeader></VisuallyHidden>
             <Tabs defaultValue="rows">
-                <div className="flex justify-start gap-4">
-                    <div className="text-lg font-semibold">Customizar</div>
+                <div className="flex justify-center gap-4">
                     <TabsList>
                         <TabsTrigger value="rows">Linhas</TabsTrigger>
                         <TabsTrigger value="cols">Colunas</TabsTrigger>
@@ -40,7 +39,7 @@ export function ManageDialog(props: Props) {
                 </TabsContent>
                 <TabsContent value="cols">
                     <div className="flex justify-between">
-                        <div className="flex-1/3 max-h-133 overflow-auto">
+                        <div className="flex-1/3">
                             <ColumnOrderer {...props} />
                         </div>
                         <ColumnSelector {...props}/>
