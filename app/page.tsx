@@ -8,7 +8,7 @@ import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
 import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
 
-export default function Home() {
+export default function Page() {
 
     // query results
     const [metadata, setMetadata] = useState<{schema: string[]} | null>(null);

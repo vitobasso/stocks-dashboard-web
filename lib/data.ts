@@ -64,3 +64,11 @@ function accStats(key: string, value: any, stats: Map<string, ColumnStats>) {
 function valueLength(value: any): number | undefined {
     return typeof value === "string" ? value.length : undefined
 }
+
+export function getPrefix(path: string) {
+    return path.substring(0, path.lastIndexOf("."));
+}
+
+export function getSuffix(path: string) {
+    return path.split(".").pop()
+}

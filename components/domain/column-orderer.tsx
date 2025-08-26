@@ -87,11 +87,14 @@ export default function ColumnOrderer(props: Props) {
                     onDragStart={({active}) => setActiveId(String(active.id))}
                     onDragEnd={(event) => { handleDragEnd(event); setActiveId(null) }}
                     onDragCancel={() => setActiveId(null)}>
-            <SortableContext items={props.columns.map((g) => g.group)} strategy={verticalListSortingStrategy}>
-                {props.columns.map((group) => (
-                    <SortableGroup key={group.group} group={group}/>
-                ))}
-            </SortableContext>
+            <div className="font-bold p-2">Ordenar</div>
+            <div className="max-h-124 overflow-auto">
+                <SortableContext items={props.columns.map((g) => g.group)} strategy={verticalListSortingStrategy}>
+                    {props.columns.map((group) => (
+                        <SortableGroup key={group.group} group={group}/>
+                    ))}
+                </SortableContext>
+            </div>
 
             <DragOverlay>
                 {activeId ? (
@@ -108,7 +111,7 @@ function SortableRow({id, children}: { id: string; children: React.ReactNode }) 
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({id});
     const style = {transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1};
     return (
-        <div ref={setNodeRef} style={style} className="flex items-center gap-2 text-sm">
+        <div ref={setNodeRef} style={style} className="flex items-center gap-2 text-sm font-mono">
             <button {...attributes} {...listeners} className="cursor-grab touch-none">
                 <GripVertical className="h-4 w-4"/>
             </button>
@@ -120,7 +123,7 @@ function SortableRow({id, children}: { id: string; children: React.ReactNode }) 
 function SortableGroup({group}: { group: Header }) {
     return (
         <div className="p-3 space-y-2">
-            <div className="font-bold text-sm">{group.group}</div>
+            <div className="font-semibold text-sm">{group.group}</div>
             <SortableContext items={group.keys.length > 0 ? group.keys : [group.group + "-dropzone"]}
                              strategy={verticalListSortingStrategy}>
                 {group.keys.length > 0 ? (
