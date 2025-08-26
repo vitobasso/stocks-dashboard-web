@@ -7,11 +7,11 @@ import {getLabel} from "@/lib/metadata/labels";
 
 type Props = {
     allKeys: string[]
-    headers: Header[]
-    setHeaders(headers: Header[]): void
+    columns: Header[]
+    setColumns(columns: Header[]): void
 }
 
-export function HeaderSelector(props: Props) {
+export function ColumnSelector(props: Props) {
 
     const [search, setSearch] = useState("")
 
@@ -57,12 +57,12 @@ function HeaderGroup(prefix: string, filteredKeys: string[], props: Props) {
 function HeaderItem(key: string, props: Props) {
 
     function isSelected(key: string) {
-        return !!props.headers.find(h => h.keys.includes(key))
+        return !!props.columns.find(h => h.keys.includes(key))
     }
 
     function toggle(key: string) {
-        let newSelection: Header[] = toggleSelection(key, props.headers);
-        props.setHeaders(newSelection)
+        let newSelection: Header[] = toggleSelection(key, props.columns);
+        props.setColumns(newSelection)
     }
 
     return <label key={getSuffix(key)} className="flex items-center gap-2 cursor-pointer">

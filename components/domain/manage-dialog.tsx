@@ -7,15 +7,15 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import PositionsImporter from "@/components/domain/positions-importer";
 import {Header} from "@/lib/metadata/defaults";
 import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
-import HeaderOrderer from "@/components/domain/header-orderer";
-import {HeaderSelector} from "@/components/domain/header-selector";
+import ColumnOrderer from "@/components/domain/column-orderer";
+import {ColumnSelector} from "@/components/domain/column-selector";
 
 type Props = {
     allKeys: string[]
-    tickers: string[]
-    headers: Header[]
-    setTickers(tickers: string[]): void
-    setHeaders(headers: Header[]): void
+    rows: string[]
+    columns: Header[]
+    setRows(rows: string[]): void
+    setColumns(columns: Header[]): void
     setPositions(positions: Data): void
 }
 
@@ -41,9 +41,9 @@ export function ManageDialog(props: Props) {
                 <TabsContent value="cols">
                     <div className="flex justify-between">
                         <div className="flex-1/3 max-h-133 overflow-auto">
-                            <HeaderOrderer {...props} />
+                            <ColumnOrderer {...props} />
                         </div>
-                        <HeaderSelector {...props}/>
+                        <ColumnSelector {...props}/>
                     </div>
                 </TabsContent>
                 <TabsContent value="local-data">

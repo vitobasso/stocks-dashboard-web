@@ -5,8 +5,8 @@ import {useState} from "react";
 import {Badge} from "@/components/ui/badge";
 
 type Props = {
-    tickers: string[]
-    setTickers(tickers: string[]): void
+    rows: string[]
+    setRows(rows: string[]): void
 }
 
 export function RowSelector(props: Props) {
@@ -15,14 +15,14 @@ export function RowSelector(props: Props) {
 
     function addTicker(newTicker: string) {
         newTicker = newTicker.toUpperCase();
-        if (props.tickers.includes(newTicker)) return;
-        let updatedTickers = [...props.tickers, newTicker];
-        props.setTickers(updatedTickers);
+        if (props.rows.includes(newTicker)) return;
+        let updatedTickers = [...props.rows, newTicker];
+        props.setRows(updatedTickers);
     }
 
     function removeTicker(ticker: string) {
-        let updatedTickers = props.tickers.filter(item => item !== ticker)
-        props.setTickers(updatedTickers);
+        let updatedTickers = props.rows.filter(item => item !== ticker)
+        props.setRows(updatedTickers);
     }
 
     function handleEnterKey(arg: any) {
@@ -41,7 +41,7 @@ export function RowSelector(props: Props) {
             </Button>
         </div>
         <div className="flex flex-wrap max-h-125 overflow-y-auto gap-1">
-            {props.tickers.toSorted().map(t =>
+            {props.rows.toSorted().map(t =>
                 <Badge key={t} variant="default" className="font-mono text-sm">
                     {t}
                     <button className="opacity-70 hover:opacity-100" aria-label={`Remove ${t}`}

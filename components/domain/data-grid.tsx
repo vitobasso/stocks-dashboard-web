@@ -1,5 +1,5 @@
 import {CSSProperties, ReactElement, useState} from "react";
-import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid, SortColumn} from "react-data-grid";
+import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
 import {Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
@@ -9,17 +9,17 @@ import {bgColor, colors} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
 
 type Props = {
-    tickers: string[];
-    headers: Header[];
+    rows: string[];
+    columns: Header[];
     data: Data;
     style?: CSSProperties;
 }
 
 type Row = Record<string, any>;
 
-export function TickerGrid(props: Props) {
+export function DataGrid(props: Props) {
 
-    const columns: readonly ColumnOrColumnGroup<Row>[] = props.headers.map(h => ({
+    const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
         name: renderHeader(h.group),
         headerCellClass: 'text-center',
         children: h.keys.map(key => ({
@@ -35,8 +35,8 @@ export function TickerGrid(props: Props) {
         }))
     }));
 
-    const rows: Row[] = props.tickers.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
-        let entries = props.headers.flatMap(h => h.keys)
+    const rows: Row[] = props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
+        let entries = props.columns.flatMap(h => h.keys)
             .map((key) => {
                 let value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
                 return [key, value]
@@ -121,7 +121,7 @@ export function TickerGrid(props: Props) {
         });
     }
 
-    return <DataGrid className={"font-mono"} style={props.style} rows={getSortedRows(rows)} columns={columns}
+    return <ReactDataGrid className={"font-mono"} style={props.style} rows={getSortedRows(rows)} columns={columns}
                      sortColumns={sortColumns} onSortColumnsChange={setSortColumns} renderers={{renderCell}}/>
 }
 
