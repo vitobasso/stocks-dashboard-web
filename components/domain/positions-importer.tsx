@@ -26,7 +26,6 @@ export default function PositionsImporter(props: Props) {
     };
 
     return <div>
-        <div className="font-bold">Posições</div>
         <div className="text-xs text-muted-foreground">
             1. Acesse <a className="underline" href="https://www.investidor.b3.com.br/login" target="_blank"
                          rel="noopener noreferrer"> www.investidor.b3.com.br </a>,
@@ -35,7 +34,7 @@ export default function PositionsImporter(props: Props) {
         </div>
         <div className="text-xs text-muted-foreground">
             2. Depois <label className="underline cursor-pointer">
-            clique aqui para importar
+            clique aqui para importar.
             <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
         </label>
         </div>

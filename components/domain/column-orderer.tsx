@@ -87,7 +87,7 @@ export default function ColumnOrderer(props: Props) {
                     onDragStart={({active}) => setActiveId(String(active.id))}
                     onDragEnd={(event) => { handleDragEnd(event); setActiveId(null) }}
                     onDragCancel={() => setActiveId(null)}>
-            <div className="font-bold p-2">Ordenar</div>
+            <div className="font-bold p-2">Ordem</div>
             <div className="max-h-124 overflow-auto">
                 <SortableContext items={props.columns.map((g) => g.group)} strategy={verticalListSortingStrategy}>
                     {props.columns.map((group) => (
@@ -98,7 +98,7 @@ export default function ColumnOrderer(props: Props) {
 
             <DragOverlay>
                 {activeId ? (
-                    <div className="p-2 border shadow-lg w-full" style={{transform: "translate(-210%, -300%)"}}>
+                    <div className="p-2 border shadow-lg w-full" style={{transform: "translate(-330%, -400%)"}}>
                         {label(activeId)}
                     </div>
                 ) : null}
@@ -143,7 +143,7 @@ function SortableDropzone({id}: { id: string }) {
     return (
         <div ref={setNodeRef}
              className="h-10 flex items-center justify-center border border-dashed rounded text-sm text-muted-foreground">
-            Drop here
+            Solte aqui
         </div>
     );
 }
