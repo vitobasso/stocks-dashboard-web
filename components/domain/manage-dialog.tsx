@@ -1,14 +1,13 @@
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog"
-import {Settings} from "lucide-react"
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
+import {Settings, Columns3, Rows2, Import} from "lucide-react"
 import {RowSelector} from "@/components/domain/row-selector";
-import React from "react";
+import React, {useCallback, useState} from "react";
 import {Data} from "@/lib/data";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import PositionsImporter from "@/components/domain/positions-importer";
 import {Header} from "@/lib/metadata/defaults";
-import {VisuallyHidden} from "@radix-ui/react-visually-hidden";
 import ColumnOrderer from "@/components/domain/column-orderer";
 import {ColumnSelector} from "@/components/domain/column-selector";
+import {Fab, FabMenuItem} from "@/components/ui/fab";
 
 type Props = {
     allKeys: string[]
@@ -19,36 +18,56 @@ type Props = {
     setPositions(positions: Data): void
 }
 
+type MenuItem = null | "rows" | "cols" | "import";
+
 export function ManageDialog(props: Props) {
-    return <Dialog>
-        <DialogTrigger className="left-0" asChild>
-            <Settings className="size-8 p-1"/>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-200 h-160">
-            <VisuallyHidden><DialogHeader><DialogTitle></DialogTitle></DialogHeader></VisuallyHidden>
-            <Tabs defaultValue="rows">
-                <div className="flex justify-center gap-4">
-                    <TabsList>
-                        <TabsTrigger value="rows">Linhas</TabsTrigger>
-                        <TabsTrigger value="cols">Colunas</TabsTrigger>
-                        <TabsTrigger value="local-data">Importar</TabsTrigger>
-                    </TabsList>
-                </div>
-                <TabsContent value="rows">
-                    <RowSelector {...props}/>
-                </TabsContent>
-                <TabsContent value="cols">
-                    <div className="flex justify-between">
-                        <div className="flex-1/3">
-                            <ColumnOrderer {...props} />
-                        </div>
-                        <ColumnSelector {...props}/>
+    const [openPanel, setOpenPanel] = useState<MenuItem>(null)
+    const close = useCallback(() => setOpenPanel(null), [])
+    function trigger(item: MenuItem, close: () => void) {
+        return () => { setOpenPanel(item); close(); }
+    }
+    return <>
+        <Fab icon={<Settings className="size-6"/>} position="br" direction="up" label="Abrir menu de ações">
+            {({ close }) => <>
+                <FabMenuItem onClick={trigger("rows", close)}>
+                    <Rows2 className="size-4"/>
+                    Linhas
+                </FabMenuItem>
+                <FabMenuItem onClick={trigger("cols", close)}>
+                    <Columns3 className="size-4"/>
+                    Colunas
+                </FabMenuItem>
+                <FabMenuItem onClick={trigger("import", close)}>
+                        <Import className="size-4"/>
+                    Importar
+                </FabMenuItem>
+            </>}
+        </Fab>
+
+        <Dialog open={openPanel === "rows"} onOpenChange={(o) => !o && close()}>
+            <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
+                <DialogHeader><DialogTitle>Customizar Linhas</DialogTitle></DialogHeader>
+                <RowSelector {...props}/>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={openPanel === "cols"} onOpenChange={(o) => !o && close()}>
+            <DialogContent position="br" hideOverlay className="sm:max-w-[44rem] w-[90vw] max-w-[90vw] p-4">
+                <DialogHeader><DialogTitle>Customizar Colunas</DialogTitle></DialogHeader>
+                <div className="flex justify-between gap-4">
+                    <div className="flex-2/3 overflow-auto">
+                        <ColumnOrderer {...props} />
                     </div>
-                </TabsContent>
-                <TabsContent value="local-data">
-                    <PositionsImporter {...props}/>
-                </TabsContent>
-            </Tabs>
-        </DialogContent>
-    </Dialog>
+                    <ColumnSelector {...props}/>
+                </div>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={openPanel === "import"} onOpenChange={(o) => !o && close()}>
+            <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
+                <DialogHeader><DialogTitle>Importar Posição</DialogTitle></DialogHeader>
+                <PositionsImporter {...props}/>
+            </DialogContent>
+        </Dialog>
+    </>
 }
