@@ -5,8 +5,9 @@ import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 import {getLabel} from "@/lib/metadata/labels";
-import {bgColor, colors} from "@/lib/metadata/colors";
+import {bgColor, colors, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
+import {useCssVars} from "@/hooks/use-css-vars";
 
 type Props = {
     rows: string[];
@@ -102,11 +103,14 @@ export function DataGrid(props: Props) {
         return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
     }
 
+    let cssVars = useCssVars([bgColor, red, green])
+
     function getColor(key: string, data: any): string {
         let value = formats[key] == "chart" ? quoteChange(data) : data;
         let rule = colors[key];
-        if (!rule || value == null || value === "" || isNaN(value)) return bgColor;
-        const scale = chroma.scale(rule.colors).domain(rule.domain);
+        if (!rule || value == null || value === "" || isNaN(value)) return cssVars[bgColor];
+        let cssColors = rule.colors.map(c => cssVars[c]);
+        const scale = chroma.scale(cssColors).domain(rule.domain);
         return scale(value as number).hex();
     }
 

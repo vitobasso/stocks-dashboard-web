@@ -1,6 +1,6 @@
-export const bgColor = "#F0EEE5";
-const red = "#D23D2D";
-const green = "#428554";
+export const bgColor = "--background";
+export const red = "--chart-1";
+export const green = "--chart-2";
 
 export type Colors = Record<string, ColorRule>;
 export type ColorRule = { domain: number[], colors: string[] }
