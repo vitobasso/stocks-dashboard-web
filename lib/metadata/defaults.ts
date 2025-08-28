@@ -7,6 +7,7 @@ export const defaultColumns: Header[] = [
     {group: "Fundamentos", keys: ["liqmd_millions", "p_l", "p_vp", "ey", "roe", "roic", "marg_liquida", "div_liq_patri", "liq_corrente",
             "cagr_lucros_5_anos", "dy"].map(s => `statusinvest.${s}`)
     },
+    {group: "Score", keys: []},
     {group: "Recomendação", keys: ["strong_buy", "buy", "hold", "sell", "strong_sell"].map(s => `yahoo_recommendations.${s}`)},
     {group: "Previsão", keys: ["min_pct", "avg_pct", "max_pct"].map(s => `derived_forecast.${s}`)},
 ];
