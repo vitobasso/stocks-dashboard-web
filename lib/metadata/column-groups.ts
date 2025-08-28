@@ -1,6 +1,6 @@
 import {getPrefix} from "@/lib/data";
 
-// values are key prefixes
+// associates key prefixes to groups
 export const columnGroups: Record<string, string[]> = {
     "Perfil": ["ticker", "*cadastral", "*financeiro"],
     "Posição": ["b3_position"],
