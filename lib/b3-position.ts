@@ -14,7 +14,7 @@ type StockPosition = {
 
 export const schema = [
     "b3_position.quantity",
-    "b3_position.averagePrice",
+    "b3_position.average_price",
 ]
 
 export function extractData(rows: any[]): Data {

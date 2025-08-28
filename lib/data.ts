@@ -1,7 +1,10 @@
 import {derivations, Derivations} from "@/lib/metadata/derivations";
+import {Label} from "@/lib/metadata/labels";
 
-export type DataEntry = Record<string, any>;
+export type Metadata = {schema: string[], sources: Record<string, MetadataSource>, labels: Record<string, Label>}
+export type MetadataSource = { label: string, url: string };
 export type Data = Record<string, DataEntry>;
+export type DataEntry = Record<string, any>;
 
 export function getValue(row: DataEntry, key: string) {
     return (row as any)?.[key];
