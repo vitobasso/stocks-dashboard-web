@@ -4,16 +4,17 @@ import {calcStats, ColumnStats, Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
-import {getLabel} from "@/lib/metadata/labels";
 import {bgColor, colors, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
+import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
 
 type Props = {
-    rows: string[];
-    columns: Header[];
-    data: Data;
-    style?: CSSProperties;
+    rows: string[]
+    columns: Header[]
+    data: Data
+    getLabel: (path: string) => Label
+    style?: CSSProperties
 }
 
 type Row = Record<string, any>;
@@ -48,7 +49,7 @@ export function DataGrid(props: Props) {
     });
 
     function renderHeader(key: string): ReactElement {
-        let label = getLabel(key)
+        let label = props.getLabel(key)
         let plainHeader = <span>{label.short}</span>;
         return label.long ?
             <Tooltip>
@@ -150,8 +151,8 @@ const formats: Formats = {
     "yahoo_chart.1mo": "chart",
     "yahoo_chart.1y": "chart",
     "yahoo_chart.5y": "chart",
-    "statusinvest.ey": "percent",
-    "derived_forecast.min_pct": "percent",
-    "derived_forecast.avg_pct": "percent",
-    "derived_forecast.max_pct": "percent",
+    "derived.statusinvest.ey": "percent",
+    "derived.forecast.min_pct": "percent",
+    "derived.forecast.avg_pct": "percent",
+    "derived.forecast.max_pct": "percent",
 }

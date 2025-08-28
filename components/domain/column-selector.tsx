@@ -3,7 +3,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Header} from "@/lib/metadata/defaults";
-import {getLabel} from "@/lib/metadata/labels";
+import {Label} from "@/lib/metadata/labels";
 import {columnGroupPerKey, columnGroupPerPrefix, columnGroups} from "@/lib/metadata/column-groups";
 import {getPrefix, getSuffix} from "@/lib/data";
 import {toNorm} from "@/lib/utils/strings";
@@ -13,6 +13,7 @@ type Props = {
     allKeys: string[]
     columns: Header[]
     setColumns(columns: Header[]): void
+    getLabel: (path: string) => Label
 }
 
 export function ColumnSelector(props: Props) {
@@ -34,12 +35,12 @@ export function ColumnSelector(props: Props) {
 
     function keyMatches(key: string): boolean {
         return toNorm(getSuffix(key)).includes(q) ||
-            toNorm(getLabel(key)?.short).includes(q) ||
-            toNorm(getLabel(key)?.long).includes(q)
+            toNorm(props.getLabel(key)?.short).includes(q) ||
+            toNorm(props.getLabel(key)?.long).includes(q)
     }
 
     function prefixSelfMatches(prefix: string): boolean {
-        const label = getLabel(prefix)
+        const label = props.getLabel(prefix)
         return toNorm(prefix).includes(q) ||
             toNorm(label?.short).includes(q) ||
             toNorm(label?.long).includes(q)
@@ -103,7 +104,8 @@ export function ColumnSelector(props: Props) {
             <Accordion type="multiple" value={openValues} onValueChange={(v: string[]) => setOpenValues(v)}>
                 {filteredGroups.map(group => {
                     const groupPrefixes = (prefixesOfGroup.get(group) ?? []).filter(p => filteredPrefixes.includes(p))
-                    return ColumnGroup(group, groupPrefixes, filteredKeys, groupNameMatched, prefixNameMatched, groupOfKey, selectedKeys, props)
+                    return ColumnGroup(group, groupPrefixes, filteredKeys, groupNameMatched, prefixNameMatched,
+                        groupOfKey, selectedKeys, props)
                 })}
             </Accordion>
         </div>
@@ -140,7 +142,8 @@ function ColumnGroup(
     </AccordionItem>;
 }
 
-function ColumnPrefix(prefix: string, keys: string[], allKeysForPrefix: string[], groupOfKey: Map<string, string>, selectedKeys: Set<string>, props: Props) {
+function ColumnPrefix(prefix: string, keys: string[], allKeysForPrefix: string[], groupOfKey: Map<string, string>,
+                      selectedKeys: Set<string>, props: Props) {
 
     const selectedCount = allKeysForPrefix.filter(k => selectedKeys.has(k)).length
     const checkedState = selectedCount === 0 ? false : (selectedCount === allKeysForPrefix.length ? true : "indeterminate")
@@ -149,12 +152,16 @@ function ColumnPrefix(prefix: string, keys: string[], allKeysForPrefix: string[]
         props.setColumns(updateSelection(checked, props.columns, allKeysForPrefix, groupOfKey))
     }
 
+    let label = props.getLabel(prefix);
     return <AccordionItem key={prefix} value={prefix} className="border-b-0">
         <AccordionTrigger className="pt-0">
             <div className="flex items-center gap-2">
                 <Checkbox checked={checkedState} onCheckedChange={onToggle}
                           onClick={(e) => e.stopPropagation()}/>
-                <span className="text-sm">{getLabel(prefix).short}</span>
+                <div>
+                    <div className="text-sm">{label.short}</div>
+                    <div className="text-xs text-muted-foreground">{label.long}</div>
+                </div>
             </div>
         </AccordionTrigger>
         <AccordionContent>
@@ -171,15 +178,11 @@ function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: S
         props.setColumns(updateSelection(checked, props.columns, [key], groupOfKey))
     }
 
-    const label = getLabel(key)
+    const label = props.getLabel(key)
     return <label key={getSuffix(key)} className="flex items-center gap-2 cursor-pointer">
         <Checkbox checked={selectedKeys.has(key)} onCheckedChange={onToggle}/>
-        <span className="text-sm font-mono">
-            {label.short}
-        </span>
-        <span className="text-xs text-muted-foreground">
-            {label.long}
-        </span>
+        <span className="text-sm font-mono">{label.short}</span>
+        <span className="text-xs text-muted-foreground">{label.long}</span>
     </label>;
 }
 

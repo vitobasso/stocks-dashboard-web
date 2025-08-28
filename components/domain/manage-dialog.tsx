@@ -3,8 +3,9 @@ import {Settings, Columns3, Rows2, Import} from "lucide-react"
 import {RowSelector} from "@/components/domain/row-selector";
 import React, {useCallback, useState} from "react";
 import {Data} from "@/lib/data";
-import PositionsImporter from "@/components/domain/positions-importer";
 import {Header} from "@/lib/metadata/defaults";
+import {Label} from "@/lib/metadata/labels";
+import PositionsImporter from "@/components/domain/positions-importer";
 import ColumnOrderer from "@/components/domain/column-orderer";
 import {ColumnSelector} from "@/components/domain/column-selector";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
@@ -15,6 +16,7 @@ type Props = {
     columns: Header[]
     setRows(rows: string[]): void
     setColumns(columns: Header[]): void
+    getLabel: (path: string) => Label
     setPositions(positions: Data): void
 }
 
@@ -52,13 +54,13 @@ export function ManageDialog(props: Props) {
         </Dialog>
 
         <Dialog open={openPanel === "cols"} onOpenChange={(o) => !o && close()}>
-            <DialogContent position="br" hideOverlay className="sm:max-w-[44rem] w-[90vw] max-w-[90vw] p-4">
+            <DialogContent position="br" hideOverlay className="sm:max-w-[34rem] w-[90vw] p-4">
                 <DialogHeader><DialogTitle>Customizar Colunas</DialogTitle></DialogHeader>
                 <div className="flex justify-between gap-4">
-                    <div className="flex-2/3 overflow-auto">
+                    <ColumnSelector {...props}/>
+                    <div className="flex-1/2 overflow-auto">
                         <ColumnOrderer {...props} />
                     </div>
-                    <ColumnSelector {...props}/>
                 </div>
             </DialogContent>
         </Dialog>

@@ -1,52 +1,46 @@
-export type Label = { short: string; long?: string }
+import {getPrefix, getSuffix} from "@/lib/data";
+import {MetadataSource} from "@/lib/data";
+
+export type Label = { short: string; long: string }
 export type Labels = Record<string, Label>;
 
-const labels: Labels = {
-    "ticker": {short: "Ação"},
-
-    "derived_position.total_price": {short: "Tota", long: "Preço Total"},
-    "b3_position.quantity": {short: "Qtd", long: "Quantidade"},
-    "b3_position.average_price": {short: "Med", long: "Preço Médio"},
-
-    "quotes.latest": {short: "Hoje"},
-
-    "yahoo_chart.1mo": {short: "1mo", long: "1 mês"},
-    "yahoo_chart.1y": {short: "1y", long: "1 ano"},
-    "yahoo_chart.5y": {short: "5y", long: "5 anos"},
-
-    "statusinvest.liqmd_millions": {short: "LiqM", long: "Liquidez Média Diária (Milhões)"},
-    "statusinvest.p_l": {short: "P/L", long: "Preço / Lucro"},
-    "statusinvest.p_vp": {short: "P/VP", long: "Preço / Valor Patrimonial"},
-    "statusinvest.ey": {short: "EY", long: "Earning Yield"},
-    "statusinvest.roe": {short: "ROE", long: "Retorno / Patrimônio Líquido"},
-    "statusinvest.roic": {short: "ROIC", long: "Retorno / Capital Investido"},
-    "statusinvest.marg_liquida": {short: "Marg", long: "Margem Líquida"},
-    "statusinvest.div_liq_patri": {short: "Dív", long: "Dívida Líquida / Patrimônio"},
-    "statusinvest.liq_corrente": {short: "LCor", long: "Liquidez Corrente"},
-    "statusinvest.cagr_lucros_5_anos": {short: "Lucro", long: "CAGR Lucros 5 Anos"},
-    "statusinvest.dy": {short: "DY", long: "Dividend Yield"},
-
-    "simplywall.value": {short: "Valu", long: "Value"},
-    "simplywall.future": {short: "Futu", long: "Future"},
-    "simplywall.past": {short: "Past"},
-    "simplywall.health": {short: "Heal", long: "Health"},
-    "simplywall.dividend": {short: "Divi", long: "Dividend"},
-
-    "yahoo_recommendations.strongBuy": {short: "SBuy", long: "Strong Buy"},
-    "yahoo_recommendations.buy": {short: "Buy"},
-    "yahoo_recommendations.hold": {short: "Hold"},
-    "yahoo_recommendations.sell": {short: "Sell"},
-    "yahoo_recommendations.strongSell": {short: "SSell", long: "Strong Sell"},
-
-    "derived_forecast.min_pct": {short: "Min"},
-    "derived_forecast.avg_pct": {short: "Avg"},
-    "derived_forecast.max_pct": {short: "Max"},
+export function makeLabelGetter(metadataKeys: Record<string, Label>,
+                                metadataPrefixes: Record<string, MetadataSource>): (path: string) => Label {
+    return (path: string) => metadataKeys[path] ?? getPrefixLabel(path, metadataPrefixes) ?? generateLabel(path)
 }
 
-export function getLabel(path: string): Label {
-    let basename = path?.split(".").pop()
+function getPrefixLabel(path: string, metadata: Record<string, MetadataSource>): Label | undefined {
+    let source: MetadataSource = metadata[path] ?? metadata[getPrefix(path)] ?? getPrefixLabelByPrefix(path, metadata)
+    return source && {short: source.label, long: source.url}
+}
+
+function getPrefixLabelByPrefix(path: string, metadata: Record<string, MetadataSource>): MetadataSource | undefined {
+    let key = Object.keys(metadata).find((prefix) => path.startsWith(prefix))
+    return key ? metadata[key] : undefined;
+}
+
+const labels: Labels = {
+    "ticker": {short: "Ação", long: "Código da Ação"},
+
+    // from a source other than scraper
+    "quotes.latest": {short: "Hoje", long: "Cotação Hoje"},
+    "b3_position.quantity": {short: "Qtd", long: "Quantidade"},
+    "b3_position.average_price": {short: "PMed", long: "Preço Médio"},
+
+    // derived from other keys
+    "derived.b3_position": {short: "Posição (derivada)", long: "Posição importada e cotação atual"},
+    "derived.b3_position.total_price": {short: "Total", long: "Valor Total (na cotação atual)"},
+    "derived.forecast": {short: "Yahoo Finance %", long: "Yahoo Finance e cotação atual"},
+    "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
+    "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
+    "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},
+    "derived.statusinvest.liqmd_millions": {short: "LiqMD", long: "Liquidez Média Diária (Milhões)"},
+    "derived.statusinvest.ey": {short: "EY", long: "Earning Yield"},
+}
+
+function generateLabel(path: string): Label {
     return labels[path] ?? {
-        short: titleize(basename ?? path),
+        short: titleize(getSuffix(path) ?? path),
     };
 }
 

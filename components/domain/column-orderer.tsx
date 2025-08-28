@@ -11,11 +11,12 @@ import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} f
 import {CSS} from "@dnd-kit/utilities";
 import {GripVertical} from "lucide-react";
 import {Header} from "@/lib/metadata/defaults";
-import {getLabel} from "@/lib/metadata/labels";
+import {Label} from "@/lib/metadata/labels";
 
 type Props = {
     columns: Header[]
     setColumns(value: Header[] | ((prevState: Header[]) => Header[])): void
+    getLabel: (path: string) => Label
 }
 
 export default function ColumnOrderer(props: Props) {
@@ -36,7 +37,7 @@ export default function ColumnOrderer(props: Props) {
             const items = [...group.keys];
             const oldIndex = items.indexOf(String(active.id));
             const newIndex = items.indexOf(String(over.id));
-            next[groupIndex] = { ...group, keys: arrayMove(items, oldIndex, newIndex) };
+            next[groupIndex] = {...group, keys: arrayMove(items, oldIndex, newIndex)};
             return next;
         });
     }
@@ -47,7 +48,7 @@ export default function ColumnOrderer(props: Props) {
             <div className="font-bold p-2">Ordem</div>
             <div className="max-h-124 overflow-auto">
                 {props.columns.map((group) => (
-                    <SortableGroup key={group.group} group={group}/>
+                    <SortableGroup key={group.group} group={group} {...props}/>
                 ))}
             </div>
         </DndContext>
@@ -67,20 +68,16 @@ function SortableRow({id, children}: { id: string; children: React.ReactNode }) 
     );
 }
 
-function SortableGroup({group}: { group: Header }) {
+function SortableGroup({group, getLabel}: { group: Header, getLabel: (path: string) => Label },) {
     return (
         <div className="p-3 space-y-2">
             <div className="font-semibold text-sm">{group.group}</div>
             <SortableContext items={group.keys} strategy={verticalListSortingStrategy}>
                 {group.keys.map((item) => (
-                    <SortableRow key={item} id={item}>{label(item)}</SortableRow>
+                    <SortableRow key={item} id={item}>{getLabel(item).short}</SortableRow>
                 ))}
             </SortableContext>
         </div>
     );
-}
-
-function label(item: string) {
-    return getLabel(item).short
 }
 

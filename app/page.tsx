@@ -1,8 +1,9 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Data} from "@/lib/data";
+import {consolidateData, Data, Metadata} from "@/lib/data";
 import {consolidateSchema} from "@/lib/schema";
+import {Label, makeLabelGetter} from "@/lib/metadata/labels";
 import {ManageDialog} from "@/components/domain/manage-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
@@ -11,7 +12,7 @@ import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
 export default function Page() {
 
     // query results
-    const [metadata, setMetadata] = useState<{schema: string[]} | null>(null);
+    const [metadata, setMetadata] = useState<Metadata | null>(null);
     const [scraped, setScraped] = useState<Data>({});
     const [quotes, setQuotes] = useState<Data>({});
 
@@ -24,6 +25,10 @@ export default function Page() {
         if (metadata) return consolidateSchema(metadata.schema)
     }, [metadata]);
 
+    const getLabel: ((path: string) => Label) | undefined = useMemo(() => {
+        if (metadata) return makeLabelGetter(metadata.labels, metadata.sources)
+    }, [metadata]);
+
     const data: Data = useMemo(() => consolidateData([scraped, quotes, positions]), [scraped, quotes, positions]);
 
     useEffect(() => {
@@ -31,7 +36,7 @@ export default function Page() {
         setColumns(loadColumns(localStorage));
         setPositions(loadPositions(localStorage));
 
-        fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/schema")
+        fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta")
             .then(res => res.json())
             .then(json => setMetadata(json));
     }, []);
@@ -60,14 +65,14 @@ export default function Page() {
         localStorage.setItem("positions", JSON.stringify(positions));
     }, [positions]);
 
-    if (!schema || !rows || !columns) return;
+    if (!rows || !columns || !schema || !getLabel) return;
     return <>
         <div className="flex justify-between p-1">
             <ManageDialog rows={rows} setRows={setRows} columns={columns} setColumns={setColumns}
-                          allKeys={schema} setPositions={setPositions} />
+                          allKeys={schema} getLabel={getLabel} setPositions={setPositions}/>
         </div>
-        <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data}/>
-        <Analytics />
+        <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data} getLabel={getLabel}/>
+        <Analytics/>
     </>
 }
 
