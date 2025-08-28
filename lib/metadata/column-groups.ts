@@ -1,4 +1,5 @@
 import {getPrefix} from "@/lib/data";
+import {indexByFields} from "@/lib/utils/collections";
 
 // associates key prefixes to groups
 export const columnGroups: Record<string, string[]> = {
@@ -12,7 +13,7 @@ export const columnGroups: Record<string, string[]> = {
 }
 
 export function columnGroupPerKey(keys: string[]): Map<string, string> {
-    let patternsToGroups = invertedMap(columnGroups);
+    let patternsToGroups = indexByFields(columnGroups);
     const result: Map<string, string> = new Map();
     for (const key of keys) {
         const prefix = getPrefix(key);
@@ -23,23 +24,13 @@ export function columnGroupPerKey(keys: string[]): Map<string, string> {
 }
 
 export function columnGroupPerPrefix(prefixes: string[]): Map<string, string> {
-    let patternsToGroups = invertedMap(columnGroups);
+    let patternsToGroups = indexByFields(columnGroups);
     const result: Map<string, string> = new Map();
     for (const prefix of prefixes) {
         let group = patternsToGroups.get(prefix) || matchWildcard(prefix, patternsToGroups);
         if (group) result.set(prefix, group);
     }
     return result;
-}
-
-function invertedMap(map: Record<string, string[]>): Map<string, string> {
-    const inverted: Map<string, string> = new Map()
-    for (const [group, values] of Object.entries(map)) {
-        for (const v of values) {
-            inverted.set(v, group);
-        }
-    }
-    return inverted
 }
 
 function matchWildcard(keyPrefix: string, patternsToGroups: Map<string, string>): string | undefined {

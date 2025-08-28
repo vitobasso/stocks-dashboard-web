@@ -7,7 +7,7 @@ import {getLabel} from "@/lib/metadata/labels";
 import {columnGroupPerKey, columnGroupPerPrefix, columnGroups} from "@/lib/metadata/column-groups";
 import {getPrefix, getSuffix} from "@/lib/data";
 import {toNorm} from "@/lib/utils/strings";
-import {invertSubset} from "@/lib/utils/collections";
+import {groupByValues} from "@/lib/utils/collections";
 
 type Props = {
     allKeys: string[]
@@ -30,7 +30,7 @@ export function ColumnSelector(props: Props) {
 
     const groupOfKey = useMemo(() => columnGroupPerKey(props.allKeys), [props.allKeys]) // Map<key, group>
     const groupOfPrefix = useMemo(() => columnGroupPerPrefix(allPrefixes), [allPrefixes]) // Map<prefix, group>
-    const prefixesOfGroup = useMemo(() => invertSubset(groupOfPrefix), [groupOfPrefix]) // Map<group, prefixes>
+    const prefixesOfGroup = useMemo(() => groupByValues(groupOfPrefix), [groupOfPrefix]) // Map<group, prefixes>
 
     function keyMatches(key: string): boolean {
         return toNorm(getSuffix(key)).includes(q) ||
