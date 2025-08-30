@@ -5,8 +5,12 @@ export type Derivations = Record<string, Derivation>;
 
 export const derivations: Derivations = {
     "derived.b3_position.total_price": {
-        function: (args) => Number(args[1]) * Number(args[0]),
+        function: (args) => Number(args[0]) * Number(args[1]),
         arguments: ["b3_position.quantity", "quotes.latest"],
+    },
+    "derived.b3_position.rendimento": {
+        function: (args) => calcChangePct(Number(args[0]), Number(args[1])),
+        arguments: ["b3_position.average_price", "quotes.latest"],
     },
     "derived.forecast.min_pct": {
         function: (args) => calcChangePct(Number(args[1]), Number(args[0])),

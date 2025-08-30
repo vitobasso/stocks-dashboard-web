@@ -29,7 +29,8 @@ const labels: Labels = {
 
     // derived from other keys
     "derived.b3_position": {short: "Posição (derivada)", long: "Posição importada e cotação atual"},
-    "derived.b3_position.total_price": {short: "Total", long: "Valor Total (na cotação atual)"},
+    "derived.b3_position.total_price": {short: "Total", long: "Valor Total na cotação atual"},
+    "derived.b3_position.rendimento": {short: "Rend", long: "Rendimento em %"},
     "derived.forecast": {short: "Yahoo Finance %", long: "Yahoo Finance e cotação atual"},
     "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
