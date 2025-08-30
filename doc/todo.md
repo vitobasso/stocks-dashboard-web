@@ -1,5 +1,4 @@
 ### color rules
-    - populate with LLM
     - allow customizing per key?
 
 ### shortcuts
