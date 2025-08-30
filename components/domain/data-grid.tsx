@@ -16,6 +16,7 @@ type Props = {
     data: Data
     getLabel: (path: string) => Label
     style?: CSSProperties
+    onGroupHeaderClick?: (group: string) => void
 }
 
 type Row = Record<string, any>;
@@ -25,7 +26,7 @@ export function DataGrid(props: Props) {
     let columnStats = calcStats(props.data, formatTextValue);
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
-        name: renderHeader(h.group),
+        name: renderHeader(h.group, true),
         headerCellClass: 'text-center',
         children: h.keys.map(key => ({
             key,
@@ -49,18 +50,21 @@ export function DataGrid(props: Props) {
         return Object.fromEntries(entries);
     });
 
-    function renderHeader(key: string): ReactElement {
+    function renderHeader(key: string, isGroup?: boolean): ReactElement {
         let label = props.getLabel(key)
-        let plainHeader = <span>{label.short}</span>;
+        let content = <span className={isGroup && props.onGroupHeaderClick ? "cursor-pointer" : undefined}
+                             onClick={isGroup && props.onGroupHeaderClick ? () => props.onGroupHeaderClick!(key) : undefined}>
+            {label.short}
+        </span>;
         return label.long ?
             <Tooltip>
-                <TooltipTrigger asChild>{plainHeader}</TooltipTrigger>
+                <TooltipTrigger asChild>{content}</TooltipTrigger>
                 <TooltipContent>
                     {label.long ?? ""}
                 </TooltipContent>
             </Tooltip>
             :
-            plainHeader;
+            content;
     }
 
     function renderValue(key: string, value: any) {

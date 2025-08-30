@@ -17,6 +17,7 @@ type Props = {
     columns: Header[]
     setColumns(value: Header[] | ((prevState: Header[]) => Header[])): void
     getLabel: (path: string) => Label
+    groupFilter?: string
 }
 
 export default function ColumnOrderer(props: Props) {
@@ -42,12 +43,14 @@ export default function ColumnOrderer(props: Props) {
         });
     }
 
+    let baseColumns = props.groupFilter ? props.columns.filter(g => g.group === props.groupFilter) : props.columns;
+
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter}
                     onDragEnd={handleDragEnd}>
             <div className="font-bold p-2">Ordem</div>
             <div className="max-h-124 overflow-auto">
-                {props.columns.map((group) => (
+                {baseColumns.map((group) => (
                     <SortableGroup key={group.group} group={group} {...props}/>
                 ))}
             </div>

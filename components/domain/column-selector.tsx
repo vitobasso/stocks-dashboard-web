@@ -14,6 +14,7 @@ type Props = {
     columns: Header[]
     setColumns(columns: Header[]): void
     getLabel: (path: string) => Label
+    groupFilter?: string
 }
 
 export function ColumnSelector(props: Props) {
@@ -25,6 +26,7 @@ export function ColumnSelector(props: Props) {
     const q = toNorm(search)
 
     const allGroups = Object.keys(columnGroups);
+    const baseGroups = props.groupFilter ? allGroups.filter(g => g === props.groupFilter) : allGroups
     const allPrefixes = useMemo(() => Array.from(new Set(props.allKeys.map(h => getPrefix(h)))), [props.allKeys])
     const selectedKeys = useMemo(() => props.columns.map(h => h.keys).flat()
         .reduce((s, k) => s.add(k), new Set<string>()), [props.columns])
@@ -72,7 +74,7 @@ export function ColumnSelector(props: Props) {
     const filteredPrefixes = isSearching
         ? allPrefixes.filter(p => prefixMatches(p) || groupNameMatched.has(groupOfPrefix.get(p) ?? ""))
         : allPrefixes
-    const filteredGroups = isSearching ? allGroups.filter(groupMatches) : allGroups
+    const filteredGroups = (isSearching ? baseGroups.filter(groupMatches) : baseGroups)
 
     // auto-suggest open values
     useEffect(() => {
@@ -95,6 +97,15 @@ export function ColumnSelector(props: Props) {
         }
         setOpenValues(Array.from(open))
     }, [q])
+
+    // when filtering by group, auto-open that group
+    useEffect(() => {
+        if (!props.groupFilter) return
+        const open = new Set<string>([props.groupFilter])
+        const prefixes = prefixesOfGroup.get(props.groupFilter)
+        if (prefixes) prefixes.forEach(p => open.add(p))
+        setOpenValues(Array.from(open))
+    }, [props.groupFilter, prefixesOfGroup])
 
     return <div className="w-full">
         <Input className="mb-2"

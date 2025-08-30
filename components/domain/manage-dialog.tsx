@@ -19,14 +19,19 @@ type Props = {
     setColumns(columns: Header[]): void
     getLabel: (path: string) => Label
     setPositions(positions: Data): void
+    openPanel?: MenuItem
+    setOpenPanel?: (m: MenuItem) => void
+    groupFilter?: string
 }
 
-type MenuItem = null | "rows" | "cols" | "import";
+export type MenuItem = null | "rows" | "cols" | "import";
 
 export function ManageDialog(props: Props) {
 
-    const [openPanel, setOpenPanel] = useState<MenuItem>(null)
-    const close = useCallback(() => setOpenPanel(null), [])
+    const [internalOpen, setInternalOpen] = useState<MenuItem>(null)
+    const openPanel = props.openPanel ?? internalOpen
+    const setOpenPanel = props.setOpenPanel ?? setInternalOpen
+    const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
 
     function trigger(item: MenuItem, close: () => void) {
         return () => { setOpenPanel(item); close(); }
@@ -71,7 +76,7 @@ export function ManageDialog(props: Props) {
             <DialogContent position="br" hideOverlay className="sm:max-w-[34rem] w-[90vw] p-4">
                 <DialogHeader><DialogTitle>Customizar Colunas</DialogTitle></DialogHeader>
                 <div className="flex justify-between gap-4">
-                    <ColumnSelector {...props}/>
+                    <ColumnSelector {...props} />
                     <div className="flex-1/2 overflow-auto">
                         <ColumnOrderer {...props} />
                     </div>
