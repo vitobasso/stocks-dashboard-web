@@ -3,7 +3,7 @@ import {indexByFields} from "@/lib/utils/collections";
 
 // associates key prefixes to groups
 export const columnGroups: Record<string, string[]> = {
-    "Perfil": ["ticker", "*cadastral", "*financeiro"],
+    "Perfil": ["ticker", "*cadastral", "*financeiro", "*listagem"],
     "Posição": ["*b3_position"],
     "Preço": ["quotes", "yahoo_chart", "*rentabilidade"],
     "Fundamentos": ["*fundamentos", "statusinvest"],
