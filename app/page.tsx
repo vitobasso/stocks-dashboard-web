@@ -4,7 +4,7 @@ import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Metadata} from "@/lib/data";
 import {consolidateSchema} from "@/lib/schema";
 import {Label, makeLabelGetter} from "@/lib/metadata/labels";
-import {ManageDialog} from "@/components/domain/manage-dialog";
+import {ManageDialog, MenuItem} from "@/components/domain/manage-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
 import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
@@ -67,13 +67,30 @@ export default function Page() {
         localStorage.setItem("positions", JSON.stringify(positions));
     }, [positions]);
 
+    // ui
+    const [openPanel, setOpenPanel] = useState<"rows" | "cols" | "import" | null>(null)
+    const [groupFilter, setGroupFilter] = useState<string | undefined>(undefined)
+
+    function onOpenPanelChange(m: MenuItem) {
+        setOpenPanel(m);
+        if (!m) setTimeout(() => setGroupFilter(undefined), 250); // wait for fade-out
+    }
+
+    function onGroupHeaderClick(g: string) {
+        setGroupFilter(g);
+        setOpenPanel("cols");
+    }
+
     if (!rows || !columns || !schema || !getLabel) return;
     return <>
         <div className="flex justify-between p-1">
             <ManageDialog rows={rows} setRows={setRows} columns={columns} setColumns={setColumns}
-                          allKeys={schema} getLabel={getLabel} setPositions={setPositions}/>
+                          allKeys={schema} getLabel={getLabel} setPositions={setPositions}
+                          openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}
+            />
         </div>
-        <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data} getLabel={getLabel}/>
+        <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data} getLabel={getLabel}
+                  onGroupHeaderClick={onGroupHeaderClick}/>
         <Analytics/>
     </>
 }
