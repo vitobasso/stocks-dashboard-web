@@ -11,22 +11,22 @@ type Props = {
 
 export function RowSelector(props: Props) {
 
-    let [newTicker, setNewTicker] = useState("");
+    const [newTicker, setNewTicker] = useState("");
 
     function addTicker(newTicker: string) {
         newTicker = newTicker.toUpperCase();
         if (props.rows.includes(newTicker)) return;
-        let updatedTickers = [...props.rows, newTicker];
+        const updatedTickers = [...props.rows, newTicker];
         props.setRows(updatedTickers);
     }
 
     function removeTicker(ticker: string) {
-        let updatedTickers = props.rows.filter(item => item !== ticker)
+        const updatedTickers = props.rows.filter(item => item !== ticker)
         props.setRows(updatedTickers);
     }
 
-    function handleEnterKey(arg: any) {
-        if (arg.code == "Enter") {
+    function handleEnterKey(arg: React.KeyboardEvent<HTMLInputElement>) {
+        if (arg.code === "Enter") {
             addTicker(newTicker)
         }
     }

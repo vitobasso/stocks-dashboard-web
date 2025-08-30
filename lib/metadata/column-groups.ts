@@ -13,21 +13,21 @@ export const columnGroups: Record<string, string[]> = {
 }
 
 export function columnGroupPerKey(keys: string[]): Map<string, string> {
-    let patternsToGroups = indexByFields(columnGroups);
+    const patternsToGroups = indexByFields(columnGroups);
     const result: Map<string, string> = new Map();
     for (const key of keys) {
         const prefix = getPrefix(key);
-        let group = patternsToGroups.get(key) || patternsToGroups.get(prefix) || matchWildcard(prefix, patternsToGroups);
+        const group = patternsToGroups.get(key) || patternsToGroups.get(prefix) || matchWildcard(prefix, patternsToGroups);
         if (group) result.set(key, group);
     }
     return result;
 }
 
 export function columnGroupPerPrefix(prefixes: string[]): Map<string, string> {
-    let patternsToGroups = indexByFields(columnGroups);
+    const patternsToGroups = indexByFields(columnGroups);
     const result: Map<string, string> = new Map();
     for (const prefix of prefixes) {
-        let group = patternsToGroups.get(prefix) || matchWildcard(prefix, patternsToGroups);
+        const group = patternsToGroups.get(prefix) || matchWildcard(prefix, patternsToGroups);
         if (group) result.set(prefix, group);
     }
     return result;

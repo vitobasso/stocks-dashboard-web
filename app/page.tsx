@@ -46,11 +46,11 @@ export default function Page() {
     useEffect(() => {
         localStorage.setItem("rows", JSON.stringify(rows?.toSorted()));
 
-        rows?.length && fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?tickers=${rows.join(",")}`)
+        if (rows?.length) fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?tickers=${rows.join(",")}`)
             .then(res => res.json())
             .then(json => setScraped(json));
 
-        rows?.length && fetch("/api/quotes", {
+        if (rows?.length) fetch("/api/quotes", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({tickers: rows}),
@@ -100,17 +100,17 @@ export default function Page() {
 }
 
 function loadRows(localStorage: Storage): string[] {
-    let rawString = localStorage.getItem("rows");
+    const rawString = localStorage.getItem("rows");
     return rawString?.length && JSON.parse(rawString) || defaultRows;
 }
 
 function loadColumns(localStorage: Storage): Header[] {
-    let rawString = localStorage.getItem("columns");
+    const rawString = localStorage.getItem("columns");
     return rawString?.length && JSON.parse(rawString) || defaultColumns;
 }
 
 function loadPositions(localStorage: Storage): Data {
-    let rawString = localStorage.getItem("positions");
+    const rawString = localStorage.getItem("positions");
     return rawString?.length && JSON.parse(rawString) || [];
 }
 

@@ -1,5 +1,5 @@
 import {Input} from "@/components/ui/input";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Header} from "@/lib/metadata/defaults";
@@ -41,12 +41,12 @@ export function ColumnSelector(props: Props) {
             toNorm(props.getLabel(key)?.long).includes(q)
     }
 
-    function prefixSelfMatches(prefix: string): boolean {
+    const prefixSelfMatches = useCallback((prefix: string): boolean => {
         const label = props.getLabel(prefix)
         return toNorm(prefix).includes(q) ||
             toNorm(label?.short).includes(q) ||
             toNorm(label?.long).includes(q)
-    }
+    }, [props, q]);
 
     function prefixMatches(prefix: string): boolean {
         if (!isSearching) return true
@@ -66,8 +66,8 @@ export function ColumnSelector(props: Props) {
     }
 
     // sets for name matches, used to widen visibility
-    const groupNameMatched = new Set(allGroups.filter(g => toNorm(g).includes(q)))
-    const prefixNameMatched = new Set(allPrefixes.filter(p => prefixSelfMatches(p)))
+    const groupNameMatched = useMemo(() => new Set(allGroups.filter(g => toNorm(g).includes(q))), [allGroups, q])
+    const prefixNameMatched = useMemo(() => new Set(allPrefixes.filter(p => prefixSelfMatches(p))), [allPrefixes, prefixSelfMatches])
 
     // filtered after search
     const filteredKeys = isSearching ? props.allKeys.filter(keyMatches) : props.allKeys
@@ -96,7 +96,7 @@ export function ColumnSelector(props: Props) {
             if (p) open.add(p)
         }
         setOpenValues(Array.from(open))
-    }, [q])
+    }, [q, filteredKeys, groupNameMatched, groupOfKey, groupOfPrefix, isSearching, prefixNameMatched])
 
     // when filtering by group, auto-open that group
     useEffect(() => {
@@ -163,7 +163,7 @@ function ColumnPrefix(prefix: string, keys: string[], allKeysForPrefix: string[]
         props.setColumns(updateSelection(checked, props.columns, allKeysForPrefix, groupOfKey))
     }
 
-    let label = props.getLabel(prefix);
+    const label = props.getLabel(prefix);
     return <AccordionItem key={prefix} value={prefix} className="border-b-0">
         <AccordionTrigger className="pt-0">
             <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import {extractData} from "@/lib/b3-position"
-import {Data} from "@/lib/data";
+import {Data, DataEntry} from "@/lib/data";
 
 type Props = {
     setPositions(data: Data): void
@@ -18,8 +18,8 @@ export default function PositionsImporter(props: Props) {
             const workbook = XLSX.read(buffer, {type: "binary"});
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
-            const json = XLSX.utils.sheet_to_json(worksheet);
-            const data = extractData(json)
+            const json: DataEntry[] = XLSX.utils.sheet_to_json(worksheet);
+            const data: Data = extractData(json)
             props.setPositions(data)
         };
         reader.readAsArrayBuffer(file);
@@ -29,8 +29,8 @@ export default function PositionsImporter(props: Props) {
         <div className="text-xs text-muted-foreground">
             1. Acesse <a className="underline" href="https://www.investidor.b3.com.br/login" target="_blank"
                          rel="noopener noreferrer"> www.investidor.b3.com.br </a>,
-            selecione "Extratos" no menu à esquerda, "Filtrar", selecione apenas "Compra e Venda" e baixe em formato
-            Excel.
+            selecione &quot;Extratos&quot; no menu à esquerda, &quot;Filtrar&quot;, selecione apenas
+            &quot;Compra e Venda&quot; e baixe em formato Excel.
         </div>
         <div className="text-xs text-muted-foreground">
             2. Depois <label className="underline cursor-pointer">
