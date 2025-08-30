@@ -1,5 +1,7 @@
-### dark mode
+### color rules
+    - populate with LLM
+    - allow customizing per key?
 
-### allow editing color rules per key
-
-### clicking column group header opens column customizer (only showing that group and it's available keys)
+### shortcuts
+    - clicking column group header opens column customizer (only showing that group and it's available keys)
+    - click "+" below last row to add row
