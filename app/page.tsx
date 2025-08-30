@@ -81,6 +81,10 @@ export default function Page() {
         setOpenPanel("cols");
     }
 
+    function onAddRowClick() {
+        setOpenPanel("rows");
+    }
+
     if (!rows || !columns || !schema || !getLabel) return;
     return <>
         <div className="flex justify-between p-1">
@@ -90,7 +94,7 @@ export default function Page() {
             />
         </div>
         <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data} getLabel={getLabel}
-                  onGroupHeaderClick={onGroupHeaderClick}/>
+                  onGroupHeaderClick={onGroupHeaderClick} onAddRowClick={onAddRowClick}/>
         <Analytics/>
     </>
 }
