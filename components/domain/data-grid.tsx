@@ -8,7 +8,7 @@ import {bgColor, colors, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
-import {formatTextValue, isChart} from "@/lib/metadata/formats";
+import {formatAsText, isChart} from "@/lib/metadata/formats";
 import {Button} from "@/components/ui/button";
 import {Plus} from "lucide-react"
 
@@ -22,11 +22,11 @@ type Props = {
     onAddRowClick?: () => void
 }
 
-type Row = Record<string, any>;
+type Row = Record<string, string | number>;
 
 export function DataGrid(props: Props) {
 
-    let columnStats = calcStats(props.data, formatTextValue);
+    const columnStats = calcStats(props.data, formatAsText);
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
         name: renderHeader(h.group, true),
@@ -45,17 +45,17 @@ export function DataGrid(props: Props) {
     }));
 
     const baseRows: Row[] = props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
-        let entries = props.columns.flatMap(h => h.keys)
+        const entries = props.columns.flatMap(h => h.keys)
             .map((key) => {
-                let value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
+                const value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
                 return [key, value]
             });
         return Object.fromEntries(entries);
     });
 
     function renderHeader(key: string, isGroup?: boolean): ReactElement {
-        let label = props.getLabel(key)
-        let content = <span className={isGroup && props.onGroupHeaderClick ? "cursor-pointer" : undefined}
+        const label = props.getLabel(key)
+        const content = <span className={isGroup && props.onGroupHeaderClick ? "cursor-pointer" : undefined}
                             onClick={isGroup && props.onGroupHeaderClick ? () => props.onGroupHeaderClick!(key) : undefined}>
             {label.short}
         </span>;
@@ -70,15 +70,16 @@ export function DataGrid(props: Props) {
             content;
     }
 
-    function renderValue(key: string, value: any) {
+    function renderValue(key: string, value: unknown) {
         if (key === "ticker" && value === "__add__") return renderAddButton(props)
-        if (isChart(key)) return renderChart(value);
-        return formatTextValue(key, value) ?? "";
+        if (isChart(key)) return renderChart((value as number[]) ?? []);
+        return formatAsText(key, value) ?? "";
     }
 
     function renderChart(data: number[]) {
+        const number = quoteChange(data);
         return <div style={{position: "relative"}}>
-            {data && <span>{quoteChange(data) + "%"}</span>}
+            {Number.isFinite(number) && <span>{number}%</span>}
             <div style={{position: "absolute", inset: -10}}>
                 <Sparklines data={data} width={60} height={39} style={{opacity: 0.25}}>
                     <SparklinesLine color="black" style={{fill: "none"}}/>
@@ -92,36 +93,37 @@ export function DataGrid(props: Props) {
     }
 
     function calcChangePct(start: number, end: number) {
-        let result = Math.floor((end - start) / start * 100);
-        if (!isNaN(result)) return result;
+        const result = Math.floor((end - start) / start * 100);
+        if (isFinite(result)) return result;
     }
 
     function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
-        let cellData = props.row[key as string];
-        let color = getColor(key as string, cellData);
+        const cellData = props.row[key as string];
+        const color = getColor(key as string, cellData);
         return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
     }
 
-    let cssVars = useCssVars([bgColor, red, green])
+    const cssVars = useCssVars([bgColor, red, green])
 
-    function getColor(key: string, data: any): string {
-        let value = isChart(key) ? quoteChange(data) : data;
-        let rule = colors[key];
-        if (!rule || value == null || value === "" || isNaN(value)) return cssVars[bgColor];
-        let cssColors = rule.colors.map(c => cssVars[c]);
+    function getColor(key: string, data: unknown): string {
+        const value = isChart(key) ? quoteChange((data as number[]) ?? []) : data;
+        const rule = colors[key];
+        const numeric = Number(value as number);
+        if (!rule || value == null || value === "" || !isFinite(numeric)) return cssVars[bgColor];
+        const cssColors = rule.colors.map(c => cssVars[c]);
         const scale = chroma.scale(cssColors).domain(rule.domain);
-        return scale(value as number).hex();
+        return scale(numeric).hex();
     }
 
     function cellClass(key: string) {
-        let stats = columnStats.get(key);
-        let textAlign = stats?.maxLength && stats.maxLength > 10 ? 'text-left' : 'text-center';
+        const stats = columnStats.get(key);
+        const textAlign = stats?.maxLength && stats.maxLength > 10 ? 'text-left' : 'text-center';
         return `p-2 ${textAlign}`;
     }
 
     const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
-    function getSortedRows(rows: any[]): any[] {
+    function getSortedRows<T extends Row>(rows: T[]): T[] {
         if (sortColumns.length === 0) return rows;
 
         const {columnKey, direction} = sortColumns[0];
@@ -143,7 +145,7 @@ const paddingPx = 16;
 const defaultWidthPx = 50;
 
 function widthPx(key: string, columnStats: Map<string, ColumnStats>): number {
-    let stats = columnStats.get(key);
+    const stats = columnStats.get(key);
     return stats ? stats.maxLength * charWidthPx + paddingPx : defaultWidthPx;
 }
 
@@ -155,4 +157,5 @@ function renderAddButton(props: Props) {
         </Button>
     </div>;
 }
+
 

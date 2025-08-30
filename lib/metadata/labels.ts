@@ -10,12 +10,12 @@ export function makeLabelGetter(metadataKeys: Record<string, Label>,
 }
 
 function getPrefixLabel(path: string, metadata: Record<string, MetadataSource>): Label | undefined {
-    let source: MetadataSource = metadata[path] ?? metadata[getPrefix(path)] ?? getPrefixLabelByPrefix(path, metadata)
+    const source: MetadataSource = metadata[path] ?? metadata[getPrefix(path)] ?? getPrefixLabelByPrefix(path, metadata)
     return source && {short: source.label, long: source.url}
 }
 
 function getPrefixLabelByPrefix(path: string, metadata: Record<string, MetadataSource>): MetadataSource | undefined {
-    let key = Object.keys(metadata).find((prefix) => path.startsWith(prefix))
+    const key = Object.keys(metadata).find((prefix) => path.startsWith(prefix))
     return key ? metadata[key] : undefined;
 }
 

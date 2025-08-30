@@ -43,7 +43,7 @@ export default function ColumnOrderer(props: Props) {
         });
     }
 
-    let baseColumns = props.groupFilter ? props.columns.filter(g => g.group === props.groupFilter) : props.columns;
+    const baseColumns = props.groupFilter ? props.columns.filter(g => g.group === props.groupFilter) : props.columns;
 
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter}

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import {cn} from "@/lib/utils"
+import {useCallback} from "react";
 
 export type FabPosition = "br" | "bl" | "tr" | "tl"
 export type FabDirection = "up" | "left"
@@ -35,12 +36,14 @@ export function Fab({
   onOpenChange,
   children,
 }: FabProps) {
+
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false)
   const open = openProp ?? uncontrolledOpen
-  const setOpen = (v: boolean) => {
+
+  const setOpen = useCallback((v: boolean) => {
     if (onOpenChange) onOpenChange(v)
     if (openProp === undefined) setUncontrolledOpen(v)
-  }
+  }, [onOpenChange, openProp])
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -60,7 +63,7 @@ export function Fab({
       document.removeEventListener("mousedown", onDocMouseDown)
       document.removeEventListener("keydown", onKey)
     }
-  }, [])
+  }, [setOpen])
 
   const positionClass =
     position === "br" ? "bottom-6 right-6" :

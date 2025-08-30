@@ -13,23 +13,28 @@ export function isChart(key: string): boolean {
   return formats[key] === "chart";
 }
 
-// Precision choice to keep column widths reasonable
-export function trimNumber(num: number): number {
-  if (num >= 100) return Math.round(num);
-  if (num >= 10) return Math.round(num * 10) / 10;
-  return Math.round(num * 100) / 100;
+// Used for both measuring and rendering non-chart cells
+export function formatAsText(key: string, value: unknown): string | undefined {
+  if (isChart(key)) return undefined; // non-textual
+  if (formats[key] === "percent") return formatPercent(value);
+  return formatNumber(value);
 }
 
-// Used for both measuring and rendering non-chart cells
-export function formatTextValue(key: string, value: any): string | undefined {
-  if (isChart(key)) return undefined; // non-textual
-  if (formats[key] === "percent" && value != null && value !== "") {
-    return `${value}%`;
-  }
-  if (Number(value)) {
-    const n = Number(value);
-    if (isNaN(n)) return "";
-    return String(trimNumber(n));
-  }
-  return value ?? "";
+function formatPercent(value: unknown): string {
+    const n: number = Number(value);
+    if (isFinite(n)) return `${trimNumber(n)}%`;
+    return (value ?? "") as string;
+}
+
+function formatNumber(value: unknown): string {
+    const n: number = Number(value);
+    if (isFinite(n)) return String(trimNumber(n));
+    return (value ?? "") as string;
+}
+
+// Precision choice to keep column widths reasonable
+function trimNumber(num: number): number {
+    if (num >= 100) return Math.round(num);
+    if (num >= 10) return Math.round(num * 10) / 10;
+    return Math.round(num * 100) / 100;
 }

@@ -17,7 +17,7 @@ export const schema = [
     "b3_position.average_price",
 ]
 
-export function extractData(rows: any[]): Data {
+export function extractData(rows: Record<string, unknown>[]): Data {
     const trades: Trade[] = rows.map(getTrade);
     const positions: Map<string, StockPosition> = calculatePositions(trades);
     return standardizeData(positions);
@@ -28,8 +28,8 @@ function calculatePositions(trades: Trade[]): Map<string, StockPosition> {
     for (const t of trades) {
         const prev = positions.get(t.ticker) || {quantity: 0, averagePrice: 0};
         if (t.side === "buy") {
-            let totalPrice = prev.averagePrice * prev.quantity + t.quantity * t.unitPrice;
-            let totalQuantity = prev.quantity + t.quantity;
+            const totalPrice = prev.averagePrice * prev.quantity + t.quantity * t.unitPrice;
+            const totalQuantity = prev.quantity + t.quantity;
             prev.averagePrice = totalPrice / totalQuantity;
             prev.quantity += t.quantity;
         } else { // t.side === "buy"
@@ -45,9 +45,9 @@ function calculatePositions(trades: Trade[]): Map<string, StockPosition> {
     return positions;
 }
 
-function getTrade(r: any): Trade {
-    const side = r["Entrada/Saída"] == "Credito" ? "buy" : "sell";
-    const ticker = r["Produto"].split(" - ")[0].trim();
+function getTrade(r: Record<string, unknown>): Trade {
+    const side = String(r["Entrada/Saída"]) == "Credito" ? "buy" : "sell";
+    const ticker = String(r["Produto"]).split(" - ")[0].trim();
     const quantity = Number(r["Quantidade"]);
     const unitPrice = parseFloat(
         String(r["Preço unitário"])
@@ -66,7 +66,7 @@ function standardizeData(map: Map<string, StockPosition>): Data {
 function standardizeRecord(record: DataEntry): DataEntry {
     const newRecord: DataEntry = {};
     for (const [k, v] of Object.entries(record)) {
-        let newKey = "b3_position." + camelToSnake(k);
+        const newKey = "b3_position." + camelToSnake(k);
         newRecord[newKey] = v;
     }
     return newRecord;
