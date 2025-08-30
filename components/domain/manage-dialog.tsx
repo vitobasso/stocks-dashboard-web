@@ -1,5 +1,5 @@
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
-import {Settings, Columns3, Rows2, Import} from "lucide-react"
+import {Settings, Columns3, Rows2, Import, Moon, Sun} from "lucide-react"
 import {RowSelector} from "@/components/domain/row-selector";
 import React, {useCallback, useState} from "react";
 import {Data} from "@/lib/data";
@@ -9,6 +9,7 @@ import PositionsImporter from "@/components/domain/positions-importer";
 import ColumnOrderer from "@/components/domain/column-orderer";
 import {ColumnSelector} from "@/components/domain/column-selector";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
+import {toggleAppliedTheme} from "@/lib/theme";
 
 type Props = {
     allKeys: string[]
@@ -23,11 +24,19 @@ type Props = {
 type MenuItem = null | "rows" | "cols" | "import";
 
 export function ManageDialog(props: Props) {
+
     const [openPanel, setOpenPanel] = useState<MenuItem>(null)
     const close = useCallback(() => setOpenPanel(null), [])
+
     function trigger(item: MenuItem, close: () => void) {
         return () => { setOpenPanel(item); close(); }
     }
+
+    function toggleTheme() {
+        const t = toggleAppliedTheme();
+        try { localStorage.setItem("theme", t); } catch {}
+    }
+
     return <>
         <Fab icon={<Settings className="size-6"/>} position="br" direction="up" label="Abrir menu de ações">
             {({ close }) => <>
@@ -42,6 +51,11 @@ export function ManageDialog(props: Props) {
                 <FabMenuItem onClick={trigger("import", close)}>
                         <Import className="size-4"/>
                     Importar
+                </FabMenuItem>
+                <FabMenuItem onClick={() => { toggleTheme(); close(); }}>
+                    <Sun className="size-4 hidden dark:block"/>
+                    <Moon className="size-4 dark:hidden"/>
+                    Tema
                 </FabMenuItem>
             </>}
         </Fab>

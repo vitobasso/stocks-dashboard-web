@@ -8,6 +8,7 @@ import {ManageDialog} from "@/components/domain/manage-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
 import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
+import {applyTheme, getStoredTheme} from "@/lib/theme";
 
 export default function Page() {
 
@@ -32,6 +33,7 @@ export default function Page() {
     const data: Data = useMemo(() => consolidateData([scraped, quotes, positions]), [scraped, quotes, positions]);
 
     useEffect(() => {
+        applyStoredTheme();
         setRows(loadRows(localStorage));
         setColumns(loadColumns(localStorage));
         setPositions(loadPositions(localStorage));
@@ -89,4 +91,9 @@ function loadColumns(localStorage: Storage): Header[] {
 function loadPositions(localStorage: Storage): Data {
     let rawString = localStorage.getItem("positions");
     return rawString?.length && JSON.parse(rawString) || [];
+}
+
+function applyStoredTheme() {
+    const theme = getStoredTheme(localStorage);
+    if (theme) applyTheme(theme);
 }
