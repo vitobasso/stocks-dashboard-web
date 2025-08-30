@@ -8,6 +8,7 @@ import {bgColor, colors, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
+import {formatTextValue, isChart} from "@/lib/metadata/formats";
 
 type Props = {
     rows: string[]
@@ -21,7 +22,7 @@ type Row = Record<string, any>;
 
 export function DataGrid(props: Props) {
 
-    let columnStats = calcStats(props.data);
+    let columnStats = calcStats(props.data, formatTextValue);
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
         name: renderHeader(h.group),
@@ -63,19 +64,8 @@ export function DataGrid(props: Props) {
     }
 
     function renderValue(key: string, value: any) {
-        if (formats[key] == "chart") return renderChart(value);
-        if (formats[key] == "percent" && value) return value + "%";
-        if (Number(value)) {
-            if (isNaN(value)) return "";
-            return trimPrecision(value);
-        }
-        return value ?? "";
-    }
-
-    function trimPrecision(num: number) {
-        if (num >= 100) return Math.round(num)
-        if (num >= 10) return Math.round(num * 10) / 10
-        return Math.round(num * 100) / 100
+        if (isChart(key)) return renderChart(value);
+        return formatTextValue(key, value) ?? "";
     }
 
     function renderChart(data: number[]) {
@@ -107,7 +97,7 @@ export function DataGrid(props: Props) {
     let cssVars = useCssVars([bgColor, red, green])
 
     function getColor(key: string, data: any): string {
-        let value = formats[key] == "chart" ? quoteChange(data) : data;
+        let value = isChart(key) ? quoteChange(data) : data;
         let rule = colors[key];
         if (!rule || value == null || value === "" || isNaN(value)) return cssVars[bgColor];
         let cssColors = rule.colors.map(c => cssVars[c]);
@@ -117,7 +107,8 @@ export function DataGrid(props: Props) {
 
     function cellClass(key: string) {
         let stats = columnStats.get(key);
-        return stats?.maxLength && stats.maxLength > 10 ? 'text-left' : 'text-center';
+        let textAlign = stats?.maxLength && stats.maxLength > 10 ? 'text-left' : 'text-center';
+        return `p-2 ${textAlign}`;
     }
 
     const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
@@ -138,21 +129,10 @@ export function DataGrid(props: Props) {
 }
 
 const charWidthPx = 8.5;
-const paddingPx = 15;
+const paddingPx = 16;
 const defaultWidthPx = 50;
 
 function widthPx(key: string, columnStats: Map<string, ColumnStats>): number {
-    let stats = columnStats.get(key)
-    return stats ? stats.maxLength * charWidthPx + paddingPx : defaultWidthPx
-}
-
-type Formats = Record<string, "chart" | "percent">;
-const formats: Formats = {
-    "yahoo_chart.1mo": "chart",
-    "yahoo_chart.1y": "chart",
-    "yahoo_chart.5y": "chart",
-    "derived.statusinvest.ey": "percent",
-    "derived.forecast.min_pct": "percent",
-    "derived.forecast.avg_pct": "percent",
-    "derived.forecast.max_pct": "percent",
+    let stats = columnStats.get(key);
+    return stats ? stats.maxLength * charWidthPx + paddingPx : defaultWidthPx;
 }
