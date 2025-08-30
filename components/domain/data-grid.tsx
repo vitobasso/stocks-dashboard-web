@@ -9,6 +9,8 @@ import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
 import {formatTextValue, isChart} from "@/lib/metadata/formats";
+import {Button} from "@/components/ui/button";
+import {Plus} from "lucide-react"
 
 type Props = {
     rows: string[]
@@ -17,6 +19,7 @@ type Props = {
     getLabel: (path: string) => Label
     style?: CSSProperties
     onGroupHeaderClick?: (group: string) => void
+    onAddRowClick?: () => void
 }
 
 type Row = Record<string, any>;
@@ -41,7 +44,7 @@ export function DataGrid(props: Props) {
         }))
     }));
 
-    const rows: Row[] = props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
+    const baseRows: Row[] = props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
         let entries = props.columns.flatMap(h => h.keys)
             .map((key) => {
                 let value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
@@ -53,7 +56,7 @@ export function DataGrid(props: Props) {
     function renderHeader(key: string, isGroup?: boolean): ReactElement {
         let label = props.getLabel(key)
         let content = <span className={isGroup && props.onGroupHeaderClick ? "cursor-pointer" : undefined}
-                             onClick={isGroup && props.onGroupHeaderClick ? () => props.onGroupHeaderClick!(key) : undefined}>
+                            onClick={isGroup && props.onGroupHeaderClick ? () => props.onGroupHeaderClick!(key) : undefined}>
             {label.short}
         </span>;
         return label.long ?
@@ -68,6 +71,7 @@ export function DataGrid(props: Props) {
     }
 
     function renderValue(key: string, value: any) {
+        if (key === "ticker" && value === "__add__") return renderAddButton(props)
         if (isChart(key)) return renderChart(value);
         return formatTextValue(key, value) ?? "";
     }
@@ -128,7 +132,9 @@ export function DataGrid(props: Props) {
         });
     }
 
-    return <ReactDataGrid className={"font-mono"} style={props.style} rows={getSortedRows(rows)} columns={columns}
+    const displayRows = [...(getSortedRows(baseRows)), {ticker: "__add__"}]
+
+    return <ReactDataGrid className={"font-mono"} style={props.style} rows={displayRows} columns={columns}
                           sortColumns={sortColumns} onSortColumnsChange={setSortColumns} renderers={{renderCell}}/>
 }
 
@@ -140,3 +146,13 @@ function widthPx(key: string, columnStats: Map<string, ColumnStats>): number {
     let stats = columnStats.get(key);
     return stats ? stats.maxLength * charWidthPx + paddingPx : defaultWidthPx;
 }
+
+function renderAddButton(props: Props) {
+    return <div className="flex justify-center">
+        <Button size="icon" variant="link" className="cursor-pointer size-4" onClick={props.onAddRowClick}
+                aria-label="Add row">
+            <Plus/>
+        </Button>
+    </div>;
+}
+
