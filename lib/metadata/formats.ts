@@ -3,6 +3,7 @@ const formats: Record<string, "chart" | "percent"> = {
   "yahoo_chart.1mo": "chart",
   "yahoo_chart.1y": "chart",
   "yahoo_chart.5y": "chart",
+  "derived.b3_position.rendimento": "percent",
   "derived.statusinvest.ey": "percent",
   "derived.forecast.min_pct": "percent",
   "derived.forecast.avg_pct": "percent",

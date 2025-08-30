@@ -68,6 +68,7 @@ export const colors: Colors = {
     "investidor10.fundamentos.cagr_receitas_5_anos": {domain: [0, 5, 15, 40], colors: [red, bgColor, bgColor, green]},
     "investidor10.fundamentos.cagr_lucros_5_anos": {domain: [0, 8, 15, 50], colors: [red, bgColor, bgColor, green]},
 
+    "derived.b3_position.rendimento": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
     "derived.statusinvest.ey": {domain: [0, 10], colors: [red, bgColor]},
     "derived.statusinvest.liqmd_millions": {domain: [4, 6], colors: [red, bgColor]},
     "derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
