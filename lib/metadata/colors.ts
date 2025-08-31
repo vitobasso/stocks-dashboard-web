@@ -53,7 +53,7 @@ export const colors: Colors = {
     "investidor10.fundamentos.p_cap_giro": {domain: [0, 5, 10, 20], colors: [green, bgColor, bgColor, red]},
     "investidor10.fundamentos.p_ativo_circ_liq": {domain: [0, 5, 10, 20], colors: [green, bgColor, bgColor, red]},
     "investidor10.fundamentos.dividend_yield_bbdc4": {domain: [7, 20], colors: [bgColor, green]},
-    "investidor10.fundamentos.payout": {domain: [0, 25, 75, 120], colors: [bgColor, bgColor, bgColor, red]},
+    "investidor10.fundamentos.payout": {domain: [75, 120], colors: [bgColor, red]},
     "investidor10.fundamentos.margem_liquida": {domain: [0, 10], colors: [red, bgColor]},
     "investidor10.fundamentos.margem_bruta": {domain: [0, 20], colors: [red, bgColor]},
     "investidor10.fundamentos.margem_ebit": {domain: [0, 15], colors: [red, bgColor]},
@@ -67,6 +67,8 @@ export const colors: Colors = {
     "investidor10.fundamentos.liquidez_corrente": {domain: [0.5, 1], colors: [red, bgColor]},
     "investidor10.fundamentos.cagr_receitas_5_anos": {domain: [0, 5, 15, 40], colors: [red, bgColor, bgColor, green]},
     "investidor10.fundamentos.cagr_lucros_5_anos": {domain: [0, 8, 15, 50], colors: [red, bgColor, bgColor, green]},
+    "investidor10.financeiro.free_float": {domain: [20, 40], colors: [red, bgColor]},
+    "investidor10.financeiro.tag_along": {domain: [80, 100], colors: [red, bgColor]},
 
     "derived.b3_position.rendimento": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
     "derived.statusinvest.ey": {domain: [0, 10], colors: [red, bgColor]},

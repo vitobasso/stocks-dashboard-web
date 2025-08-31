@@ -36,7 +36,7 @@ const keyLabels: Labels = {
     "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
     "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},
-    "derived.statusinvest.liqmd_millions": {short: "LiqMD", long: "Liquidez Média Diária (Milhões)"},
+    "derived.statusinvest.liqmd_millions": {short: "LMD", long: "Liquidez Média Diária (Milhões)"},
     "derived.statusinvest.ey": {short: "EY", long: "Earning Yield"},
 }
 
