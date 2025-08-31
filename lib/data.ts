@@ -1,5 +1,6 @@
 import {derivations, Derivations} from "@/lib/metadata/derivations";
 import {Label} from "@/lib/metadata/labels";
+import {mergeRecords, Rec} from "@/lib/utils/records";
 
 export type Metadata = {
     schema: string[],
@@ -16,18 +17,18 @@ export function getValue(row: DataEntry, key: string): DataValue | undefined {
     return row?.[key];
 }
 
-export function consolidateData(data: Data[]): Data {
-    const merged = data.reduce(mergeData, {});
-    const derived = deriveData(merged, derivations);
-    return mergeData(merged, derived);
+export function getPrefix(path: string) {
+    return path.substring(0, path.lastIndexOf("."));
 }
 
-function mergeData(data1: Data, data2: Data): Data {
-    const entries = Object.keys({...data1, ...data2}).map(key => {
-        const value = {...data1[key], ...data2[key]};
-        return [key, value]
-    });
-    return Object.fromEntries(entries);
+export function getSuffix(path: string) {
+    return path.split(".").pop()
+}
+
+export function consolidateData(data: Data[], assetClass: string): Data {
+    const merged = data.reduce(mergeRecords, {});
+    const derived = deriveData(merged, derivations[assetClass]);
+    return mergeRecords(merged, derived);
 }
 
 function deriveData(data: Data, derivations: Derivations): Data {
@@ -73,10 +74,13 @@ function accStats(key: string, value: unknown, getDisplay: GetDisplay, stats: Ma
     }
 }
 
-export function getPrefix(path: string) {
-    return path.substring(0, path.lastIndexOf("."));
-}
-
-export function getSuffix(path: string) {
-    return path.split(".").pop()
+export function splitByAssetClass(fullData: Data, classOfTicker: Map<string, string>): Rec<Data> {
+    const result: Rec<Data> = {};
+    for (const [ticker, data] of Object.entries(fullData)) {
+        const assetClass = classOfTicker.get(ticker);
+        if (!assetClass) continue;
+        if (!result[assetClass]) result[assetClass] = {};
+        result[assetClass][ticker] = data;
+    }
+    return result;
 }

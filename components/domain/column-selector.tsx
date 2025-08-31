@@ -1,3 +1,4 @@
+"use client";
 import {Input} from "@/components/ui/input";
 import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
@@ -13,8 +14,8 @@ type Props = {
     allKeys: string[]
     columns: Header[]
     setColumns(columns: Header[]): void
-    getLabel: (path: string) => Label
-    groupFilter?: string
+    getLabel(path: string): Label
+    groupFilter: string | null
 }
 
 export function ColumnSelector(props: Props) {
@@ -176,7 +177,7 @@ function ColumnPrefix(prefix: string, keys: string[], allKeysForPrefix: string[]
     const checkedState = selectedCount === 0 ? false : (selectedCount === allKeysForPrefix.length ? true : "indeterminate")
 
     function onToggle(checked: boolean) {
-        props.setColumns(updateSelection(checked, props.columns, allKeysForPrefix, groupOfKey))
+        props.setColumns(updatedSelection(checked, props.columns, allKeysForPrefix, groupOfKey))
     }
 
     const label = props.getLabel(prefix);
@@ -202,7 +203,7 @@ function ColumnPrefix(prefix: string, keys: string[], allKeysForPrefix: string[]
 function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: Set<string>, props: Props) {
 
     function onToggle(checked: boolean) {
-        props.setColumns(updateSelection(checked, props.columns, [key], groupOfKey))
+        props.setColumns(updatedSelection(checked, props.columns, [key], groupOfKey))
     }
 
     const label = props.getLabel(key)
@@ -213,7 +214,7 @@ function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: S
     </label>;
 }
 
-function updateSelection(checked: boolean, columns: Header[], keys: string[], groupOfKey: Map<string, string>): Header[] {
+function updatedSelection(checked: boolean, columns: Header[], keys: string[], groupOfKey: Map<string, string>): Header[] {
     return checked
         ? addKeysToColumns(columns, keys, groupOfKey)
         : removeKeysFromColumns(columns, keys)

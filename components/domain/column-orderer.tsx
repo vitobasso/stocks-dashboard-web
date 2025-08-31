@@ -12,11 +12,12 @@ import {CSS} from "@dnd-kit/utilities";
 import {GripVertical} from "lucide-react";
 import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
+import React from "react";
 
 type Props = {
     columns: Header[]
-    setColumns(value: Header[] | ((prevState: Header[]) => Header[])): void
-    getLabel: (path: string) => Label
+    setColumns(c: React.SetStateAction<Header[]>): void
+    getLabel(path: string): Label
     groupFilter?: string
 }
 

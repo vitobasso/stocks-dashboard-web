@@ -22,7 +22,7 @@ function getPrefixLabelByPrefix(path: string, metadata: Record<string, MetadataS
 }
 
 const keyLabels: Labels = {
-    "ticker": {short: "Ação", long: "Código da Ação"},
+    "ticker": {short: "Ativo", long: "Código do Ativo"},
 
     // from a source other than scraper
     "yahoo_quote.latest": {short: "Hoje", long: "Cotação Hoje"},
@@ -37,7 +37,7 @@ const keyLabels: Labels = {
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
     "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},
     "derived.statusinvest.liqmd_millions": {short: "LMD", long: "Liquidez Média Diária (Milhões)"},
-    "derived.statusinvest.ey": {short: "EY", long: "Earning Yield"},
+    "derived.statusinvest.ey": {short: "EY", long: "Earning Yield (EBIT/EV)"},
 }
 
 const prefixLabels: Record<string, MetadataSource> = {
@@ -48,6 +48,7 @@ const prefixLabels: Record<string, MetadataSource> = {
     // derived from other keys
     "derived.b3_position": {label: "Posição Calculada", url: "Posição calculada com a cotação atual"},
     "derived.forecast": {label: "Yahoo Finance %", url: "Yahoo Finance e cotação atual"},
+    "derived.statusinvest": {label: "Statusinvest, Calculado", url: "Valores calculados apos extração"},
 }
 
 function generateLabel(path: string): Label {

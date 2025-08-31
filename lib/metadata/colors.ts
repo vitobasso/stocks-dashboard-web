@@ -6,9 +6,16 @@ export type Colors = Record<string, ColorRule>;
 export type ColorRule = { domain: number[], colors: string[] }
 
 export const colors: Colors = {
+
+    // common
+
     "yahoo_chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
     "yahoo_chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
     "yahoo_chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
+
+    "derived.b3_position.rendimento": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
+
+    // stock_br
 
     "statusinvest.p_l": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
     "statusinvest.p_vp": {domain: [2, 5], colors: [bgColor, red]},
@@ -45,7 +52,6 @@ export const colors: Colors = {
     "yahoo_recommendations.sell": {domain: [0, 4], colors: [bgColor, red]},
     "yahoo_recommendations.strong_sell": {domain: [0, 2], colors: [bgColor, red]},
 
-    // Investidor10 fundamentals (mirror StatusInvest where applicable)
     "investidor10.fundamentos.p_l": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
     "investidor10.fundamentos.p_vp": {domain: [2, 5], colors: [bgColor, red]},
     "investidor10.fundamentos.p_ebit": {domain: [0, 8, 12, 25], colors: [green, bgColor, bgColor, red]},
@@ -70,11 +76,19 @@ export const colors: Colors = {
     "investidor10.financeiro.free_float": {domain: [20, 40], colors: [red, bgColor]},
     "investidor10.financeiro.tag_along": {domain: [80, 100], colors: [red, bgColor]},
 
-    "derived.b3_position.rendimento": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
     "derived.statusinvest.ey": {domain: [0, 10], colors: [red, bgColor]},
     "derived.statusinvest.liqmd_millions": {domain: [4, 6], colors: [red, bgColor]},
     "derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
     "derived.forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
     "derived.forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
+
+    // reit_br
+    "fundamentus.ffo_yield":        {domain: [0, 5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "fundamentus.dividend_yield":   {domain: [0, 5, 8, 15], colors: [red, bgColor, bgColor, green]},
+    "fundamentus.p_vp":             {domain: [0.95, 1.1], colors: [bgColor, red]},
+    "fundamentus.liquidez":         {domain: [0, 0.7],   colors: [red, bgColor]},
+    "fundamentus.qtd_de_imoveis":   {domain: [0, 4],        colors: [red, bgColor]},
+    "fundamentus.cap_rate":         {domain: [0, 4, 7, 12],     colors: [red, bgColor, bgColor, green]},
+    "fundamentus.vacancia_media":   {domain: [5, 10],   colors: [bgColor, red]},
 
 }

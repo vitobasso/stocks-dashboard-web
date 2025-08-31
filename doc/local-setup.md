@@ -19,6 +19,7 @@ pnpm start
 
 
 #### Enable git hooks
+To auto-run linting before pushing
 
 ```shell
 git config core.hooksPath .githooks
