@@ -16,3 +16,10 @@ This will start the development server on `http://localhost:3000`.
 pnpm build
 pnpm start
 ```
+
+
+#### Enable git hooks
+
+```shell
+git config core.hooksPath .githooks
+```

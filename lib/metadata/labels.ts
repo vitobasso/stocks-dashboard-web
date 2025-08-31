@@ -51,7 +51,7 @@ const prefixLabels: Record<string, MetadataSource> = {
 }
 
 function generateLabel(path: string): Label {
-    let label = titleize(getSuffix(path) ?? path);
+    const label = titleize(getSuffix(path) ?? path);
     return { short: label, long: label };
 }
 
