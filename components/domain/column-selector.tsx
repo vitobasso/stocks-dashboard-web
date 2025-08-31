@@ -41,12 +41,13 @@ export function ColumnSelector(props: Props) {
             toNorm(props.getLabel(key)?.long).includes(q)
     }
 
+    const { getLabel } = props;
     const prefixSelfMatches = useCallback((prefix: string): boolean => {
-        const label = props.getLabel(prefix)
+        const label = getLabel(prefix)
         return toNorm(prefix).includes(q) ||
             toNorm(label?.short).includes(q) ||
             toNorm(label?.long).includes(q)
-    }, [props, q]);
+    }, [getLabel, q]);
 
     function prefixMatches(prefix: string): boolean {
         if (!isSearching) return true
@@ -95,7 +96,10 @@ export function ColumnSelector(props: Props) {
             const p = getPrefix(k)
             if (p) open.add(p)
         }
-        setOpenValues(Array.from(open))
+        const next = Array.from(open)
+        setOpenValues(prev => (
+            prev.length === next.length && prev.every((v, i) => v === next[i])
+        ) ? prev : next)
     }, [q, filteredKeys, groupNameMatched, groupOfKey, groupOfPrefix, isSearching, prefixNameMatched])
 
     // when filtering by group, auto-open that group
