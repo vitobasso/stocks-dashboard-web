@@ -91,6 +91,7 @@ export default function Page() {
             <ManageDialog rows={rows} setRows={setRows} columns={columns} setColumns={setColumns}
                           allKeys={schema} getLabel={getLabel} setPositions={setPositions}
                           openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}
+                          allTickers={metadata?.tickers ?? []}
             />
         </div>
         <DataGrid style={{height: "100vh"}} rows={rows} columns={columns} data={data} getLabel={getLabel}
