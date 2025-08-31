@@ -22,6 +22,7 @@ type Props = {
     openPanel?: MenuItem
     setOpenPanel?: (m: MenuItem) => void
     groupFilter?: string
+    allTickers: string[]
 }
 
 export type MenuItem = null | "rows" | "cols" | "import";

@@ -1,7 +1,12 @@
 import {derivations, Derivations} from "@/lib/metadata/derivations";
 import {Label} from "@/lib/metadata/labels";
 
-export type Metadata = {schema: string[], sources: Record<string, MetadataSource>, labels: Record<string, Label>}
+export type Metadata = {
+    schema: string[],
+    sources: Record<string, MetadataSource>,
+    labels: Record<string, Label>,
+    tickers: string[]
+}
 export type MetadataSource = { label: string, url: string };
 export type Data = Record<string, DataEntry>;
 export type DataEntry = Record<string, DataValue>;
@@ -18,8 +23,8 @@ export function consolidateData(data: Data[]): Data {
 }
 
 function mergeData(data1: Data, data2: Data): Data {
-    const entries = Object.keys({ ...data1, ...data2 }).map(key => {
-        const value = { ...data1[key], ...data2[key] };
+    const entries = Object.keys({...data1, ...data2}).map(key => {
+        const value = {...data1[key], ...data2[key]};
         return [key, value]
     });
     return Object.fromEntries(entries);
