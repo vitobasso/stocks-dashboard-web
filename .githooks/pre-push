@@ -1,0 +1,7 @@
+#!/bin/sh
+echo "Running linter..."
+pnpm tsc --noEmit && pnpm lint --fix
+if [ $? -ne 0 ]; then
+  echo "Lint failed, push aborted."
+  exit 1
+fi
