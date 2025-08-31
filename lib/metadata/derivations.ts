@@ -6,23 +6,23 @@ export type Derivations = Record<string, Derivation>;
 export const derivations: Derivations = {
     "derived.b3_position.total_price": {
         function: (args) => Number(args[0]) * Number(args[1]),
-        arguments: ["b3_position.quantity", "quotes.latest"],
+        arguments: ["b3_position.quantity", "yahoo_quote.latest"],
     },
     "derived.b3_position.rendimento": {
         function: (args) => calcChangePct(Number(args[0]), Number(args[1])),
-        arguments: ["b3_position.average_price", "quotes.latest"],
+        arguments: ["b3_position.average_price", "yahoo_quote.latest"],
     },
     "derived.forecast.min_pct": {
         function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
-        arguments: ["yahoo.forecast.min", "quotes.latest"],
+        arguments: ["yahoo.forecast.min", "yahoo_quote.latest"],
     },
     "derived.forecast.avg_pct": {
         function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
-        arguments: ["yahoo.forecast.avg", "quotes.latest"],
+        arguments: ["yahoo.forecast.avg", "yahoo_quote.latest"],
     },
     "derived.forecast.max_pct": {
         function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
-        arguments: ["yahoo.forecast.max", "quotes.latest"],
+        arguments: ["yahoo.forecast.max", "yahoo_quote.latest"],
     },
     "derived.statusinvest.liqmd_millions": {
         function: (args) => Number(args[0]) / 1000000,

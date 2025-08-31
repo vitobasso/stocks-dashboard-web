@@ -3,7 +3,7 @@ export type Header = { group: string, keys: string[] };
 export const defaultColumns: Header[] = [
     {group: "Perfil", keys: ["ticker", "b3_listagem.setor"]},
     {group: "Posição", keys: ["derived.b3_position.total_price", "b3_position.average_price", "derived.b3_position.rendimento"]},
-    {group: "Preço", keys: ["quotes.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
+    {group: "Preço", keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
     {group: "Fundamentos", keys: ["derived.statusinvest.liqmd_millions", "statusinvest.p_l", "statusinvest.p_vp",
             "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
             "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.cagr_lucros_5_anos",

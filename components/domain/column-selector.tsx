@@ -1,5 +1,5 @@
 import {Input} from "@/components/ui/input";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Header} from "@/lib/metadata/defaults";
@@ -21,9 +21,11 @@ export function ColumnSelector(props: Props) {
 
     const [search, setSearch] = useState("")
     const [openValues, setOpenValues] = useState<string[]>([])
+    const manualOpenRef = useRef(false) // when true, do not auto-suggest open values
 
-    const isSearching = search.trim().length > 0
-    const q = toNorm(search)
+    const deferredSearch = useDeferredValue(search)
+    const isSearching = deferredSearch.trim().length > 0
+    const q = useMemo(() => toNorm(deferredSearch), [deferredSearch])
 
     const allGroups = Object.keys(columnGroups);
     const baseGroups = props.groupFilter ? allGroups.filter(g => g === props.groupFilter) : allGroups
@@ -77,9 +79,9 @@ export function ColumnSelector(props: Props) {
         : allPrefixes
     const filteredGroups = (isSearching ? baseGroups.filter(groupMatches) : baseGroups)
 
-    // auto-suggest open values
+    // auto-suggest open values in the accordion
     useEffect(() => {
-        if (!isSearching) return
+        if (!isSearching || manualOpenRef.current) return
         const open = new Set<string>()
         // open all matching groups by name
         for (const g of groupNameMatched) open.add(g)
@@ -102,6 +104,11 @@ export function ColumnSelector(props: Props) {
         ) ? prev : next)
     }, [q, filteredKeys, groupNameMatched, groupOfKey, groupOfPrefix, isSearching, prefixNameMatched])
 
+    // reset manual override when search query changes
+    useEffect(() => {
+        manualOpenRef.current = false
+    }, [q])
+
     // when filtering by group, auto-open that group
     useEffect(() => {
         if (!props.groupFilter) return
@@ -111,12 +118,17 @@ export function ColumnSelector(props: Props) {
         setOpenValues(Array.from(open))
     }, [props.groupFilter, prefixesOfGroup])
 
+    const onValueChange = useCallback((v: string[]) => {
+        manualOpenRef.current = true;
+        setOpenValues(v)
+    }, [])
+
     return <div className="w-full">
         <Input className="mb-2"
                placeholder="Buscar..." value={search}
                onChange={e => setSearch(e.target.value)}/>
         <div className="flex-1 max-h-123 p-1 overflow-auto">
-            <Accordion type="multiple" value={openValues} onValueChange={(v: string[]) => setOpenValues(v)}>
+            <Accordion type="multiple" value={openValues} onValueChange={onValueChange}>
                 {filteredGroups.map(group => {
                     const groupPrefixes = (prefixesOfGroup.get(group) ?? []).filter(p => filteredPrefixes.includes(p))
                     return ColumnGroup(group, groupPrefixes, filteredKeys, groupNameMatched, prefixNameMatched,
