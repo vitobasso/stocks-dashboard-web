@@ -53,7 +53,7 @@ export function DataGrid(props: Props) {
     });
 
     function renderHeader(key: string, isGroup?: boolean): ReactElement {
-        const label = props.getLabel(key)
+        const label = isGroup ? { short: key, long: "" } : props.getLabel(key)
         const content =
             <span className={isGroup && props.onGroupHeaderClick ? "cursor-pointer" : undefined}
                   onClick={isGroup && props.onGroupHeaderClick ? () => props.onGroupHeaderClick!(key) : undefined}>
