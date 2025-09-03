@@ -1,5 +1,5 @@
 import {DataValue} from "@/lib/data";
-import {Rec} from "@/lib/utils/records";
+import {mapValues, Rec} from "@/lib/utils/records";
 
 type Derivation = { function: (args: DataValue[]) => DataValue | undefined, arguments: string[] };
 export type Derivations = Rec<Derivation>;
@@ -51,4 +51,4 @@ function calcChangePct(start: number, end: number): number | undefined {
     if (isFinite(result)) return result;
 }
 
-export const schema: string[] = Object.keys(derivations)
+export const schema: Rec<string[]> = mapValues(derivations, (d) => Object.keys(d))

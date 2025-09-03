@@ -18,7 +18,7 @@ type Props = {
     columns: Header[]
     setColumns(c: React.SetStateAction<Header[]>): void
     getLabel(path: string): Label
-    groupFilter?: string
+    groupFilter: string | null
 }
 
 export default function ColumnOrderer(props: Props) {

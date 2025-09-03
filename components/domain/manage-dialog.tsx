@@ -34,7 +34,7 @@ export function ManageDialog(props: Props) {
     const { assetClasses, allKeys } = useMemo(() => {
         if (!props.metadata) return { assetClasses: undefined, allKeys: undefined };
         const assetClasses = Object.keys(props.metadata);
-        const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(props.metadata[ac].schema));
+        const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(props.metadata[ac].schema, ac));
         return { assetClasses, allKeys };
     }, [props.metadata]);
 
@@ -57,25 +57,25 @@ export function ManageDialog(props: Props) {
 
     if (!assetClasses || !allKeys) return;
     return <>
-        <Fab icon={<Settings className="size-6"/>} position="br" direction="up" label="Abrir menu de ações">
+        <Fab icon={<Settings className="size-6"/>} position="br" direction="up" label="Customizar">
             {({close}) => <>
-                {assetClasses.map(ac =>
-                    <div key={ac}>
-                        <FabMenuItem onClick={trigger(`${ac}-rows`, close)}>
+                {assetClasses.map(ac => (
+                    <React.Fragment key={ac}>
+                        <FabMenuItem className="w-46" onClick={trigger(`${ac}-rows`, close)}>
                             <Rows2 className="size-4"/>
                             {props.getLabel[ac](ac).short} - Linhas
                         </FabMenuItem>
-                        <FabMenuItem onClick={trigger(`${ac}-cols`, close)}>
+                        <FabMenuItem className="w-46" onClick={trigger(`${ac}-cols`, close)}>
                             <Columns3 className="size-4"/>
                             {props.getLabel[ac](ac).short} - Colunas
                         </FabMenuItem>
-                    </div>
-                )}
-                <FabMenuItem onClick={trigger("import", close)}>
+                    </React.Fragment>
+                ))}
+                <FabMenuItem className="w-46" onClick={trigger("import", close)}>
                     <Import className="size-4"/>
                     Importar
                 </FabMenuItem>
-                <FabMenuItem onClick={() => { toggleTheme(); close(); }}>
+                <FabMenuItem className="w-46" onClick={() => { toggleTheme(); close(); }}>
                     <Sun className="size-4 hidden dark:block"/>
                     <Moon className="size-4 dark:hidden"/>
                     Tema
@@ -83,11 +83,12 @@ export function ManageDialog(props: Props) {
             </>}
         </Fab>
 
-        {assetClasses.map(ac =>
-            <div key={ac}>
+        {assetClasses.map(ac => {
+            const acLabel = props.getLabel[ac](ac).short
+            return <React.Fragment key={ac}>
                 <Dialog open={openPanel === `${ac}-rows`} onOpenChange={(o) => !o && close()}>
                     <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
-                        <DialogHeader><DialogTitle>Customizar Linhas - {ac}</DialogTitle></DialogHeader>
+                        <DialogHeader><DialogTitle>Customizar Linhas - {acLabel}</DialogTitle></DialogHeader>
                         <RowSelector
                             allTickers={props.metadata[ac].tickers}
                             rows={props.rows[ac]}
@@ -98,7 +99,7 @@ export function ManageDialog(props: Props) {
 
                 <Dialog open={openPanel === `${ac}-cols`} onOpenChange={(o) => !o && close()}>
                     <DialogContent position="br" hideOverlay className="sm:max-w-[34rem] w-[90vw] p-4">
-                        <DialogHeader><DialogTitle>Customizar Colunas - {ac}</DialogTitle></DialogHeader>
+                        <DialogHeader><DialogTitle>Customizar Colunas - {acLabel}</DialogTitle></DialogHeader>
                         <div className="flex justify-between gap-4">
                             <ColumnSelector
                                 allKeys={allKeys[ac]}
@@ -112,13 +113,14 @@ export function ManageDialog(props: Props) {
                                     columns={props.columns[ac]}
                                     setColumns={props.setColumns[ac]}
                                     getLabel={props.getLabel[ac]}
+                                    groupFilter={props.groupFilter}
                                 />
                             </div>
                         </div>
                     </DialogContent>
                 </Dialog>
-            </div>
-        )}
+            </React.Fragment>
+        })}
 
         <Dialog open={openPanel === "import"} onOpenChange={(o) => !o && close()}>
             <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
