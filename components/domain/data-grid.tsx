@@ -1,5 +1,5 @@
 "use client";
-import {CSSProperties, ReactElement, useState} from "react";
+import {ReactElement, useState} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
 import {calcStats, ColumnStats, Data, getValue} from "@/lib/data";
 import chroma from "chroma-js";
@@ -16,9 +16,9 @@ type Props = {
     rows: string[]
     columns: Header[]
     data: Data
-    getLabel: (path: string) => Label
+    getLabel(path: string): Label
     className?: string
-    onGroupHeaderClick?: (group: string) => void
+    onGroupHeaderClick?(group: string): void
 }
 
 type Row = Record<string, string | number>;
