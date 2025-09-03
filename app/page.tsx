@@ -10,6 +10,7 @@ import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
 import {applyTheme, getStoredTheme} from "@/lib/theme";
 import {mapValues, Rec, recordOfKeys, settersByKey} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
 export default function Page() {
 
@@ -80,13 +81,20 @@ export default function Page() {
     }
 
     if (!assetClasses || !metadata || !data || !getLabel || !classOfTicker || !rows || !columns) return;
-    return <>
-        {assetClasses.map(ac => <div key={ac} className="pb-6">
-                <p className="text-xl font-bold p-2">{getLabel[ac](ac).short}</p>
-                <DataGrid className="h-auto"
-                          rows={rows[ac]} columns={columns[ac]} data={data[ac]} getLabel={getLabel[ac]}
-                          onGroupHeaderClick={onGroupHeaderClick(ac)}/>
-            </div>
+    return <div className="flex flex-wrap justify-start">
+        {assetClasses.map(ac =>
+            <Card key={ac} className="m-4">
+                <CardHeader>
+                    <CardTitle>
+                        <p className="text-xl font-bold">{getLabel[ac](ac).short}</p>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <DataGrid className="h-auto"
+                              rows={rows[ac]} columns={columns[ac]} data={data[ac]} getLabel={getLabel[ac]}
+                              onGroupHeaderClick={onGroupHeaderClick(ac)}/>
+                </CardContent>
+            </Card>
         )}
         <ManageDialog metadata={metadata} getLabel={getLabel}
                       rows={rows} setRows={settersByKey(assetClasses, setRows)}
@@ -94,7 +102,7 @@ export default function Page() {
                       setPositions={setPositions} classOfTickers={classOfTicker}
                       openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
         <Analytics/>
-    </>
+    </div>
 }
 
 async function fetchMeta(): Promise<Rec<Metadata>> {
