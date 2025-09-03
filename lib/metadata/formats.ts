@@ -29,7 +29,7 @@ function formatPercent(value: unknown): string {
 
 function formatNumber(value: unknown): string {
     const n: number = Number(value);
-    if (isFinite(n)) return String(trimNumber(n));
+    if (isFinite(n)) return trimNumber(n).toLocaleString('pt-BR', { useGrouping: false }) ;
     return (value ?? "") as string;
 }
 
