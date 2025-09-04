@@ -69,7 +69,7 @@ export const derivations: Rec<Derivations> = {
 }
 
 function calcChangePct(start: number, end: number): number | undefined {
-    const result = Math.floor((end - start) / start * 100);
+    const result = (end - start) / start * 100;
     if (isFinite(result)) return result;
 }
 
