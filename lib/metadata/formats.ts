@@ -24,7 +24,7 @@ export function formatAsText(key: string, value: unknown): string | undefined {
 
 function formatPercent(value: unknown): string {
     const n: number = Number(value);
-    if (isFinite(n)) return `${trimNumber(n)}%`;
+    if (isFinite(n)) return `${trimDecimals(n, 1)}%`;
     return (value ?? "") as string;
 }
 
@@ -36,7 +36,12 @@ function formatNumber(value: unknown): string {
 
 // Precision choice to keep column widths reasonable
 function trimNumber(num: number): number {
-    if (num >= 100) return Math.round(num);
-    if (num >= 10) return Math.round(num * 10) / 10;
-    return Math.round(num * 100) / 100;
+    if (num >= 100) return trimDecimals(num, 0)
+    if (num >= 10) return trimDecimals(num, 1);
+    return trimDecimals(num, 2)
+}
+
+function trimDecimals(num: number, maxDecimals: number = 2): number {
+    const factor = 10 ** maxDecimals
+    return Math.floor(num * factor) / factor
 }
