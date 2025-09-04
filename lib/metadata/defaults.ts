@@ -5,7 +5,8 @@ export type Header = { group: string, keys: string[] };
 export const defaultColumns: Rec<Header[]> = {
     "stock_br": [
         {group: "Perfil", keys: ["ticker", "b3_listagem.setor"]},
-        {group: "Posição", keys: ["derived.b3_position.total_price", "b3_position.average_price", "derived.b3_position.rendimento"]},
+        {group: "Posição", keys: ["derived.b3_position.current_value", "b3_position.average_price",
+                "derived.b3_position.return_with_dividends"]},
         {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
         {group: "Fundamentos", keys: ["derived.statusinvest.liqmd_millions", "statusinvest.p_l", "statusinvest.p_vp",
                 "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
@@ -19,7 +20,8 @@ export const defaultColumns: Rec<Header[]> = {
     ],
     "reit_br": [
         {group: "Perfil", keys: ["ticker"]},
-        {group: "Posição", keys: ["derived.b3_position.total_price", "b3_position.average_price", "derived.b3_position.rendimento"]},
+        {group: "Posição", keys: ["derived.b3_position.current_value", "b3_position.average_price",
+                "derived.b3_position.return_with_dividends"]},
         {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
         {group: "Fundamentos", keys: ["fundamentus.segmento", "fundamentus.p_vp", "fundamentus.liquidez",
                 "fundamentus.dividend_yield", "fundamentus.qtd_de_imoveis","fundamentus.vacancia_media"]},
