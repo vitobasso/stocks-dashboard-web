@@ -27,12 +27,16 @@ const keyLabels: Labels = {
     // from a source other than scraper
     "yahoo_quote.latest": {short: "Hoje", long: "Cotação Hoje"},
     "b3_position": {short: "B3, Posição", long: "Posição importada"},
-    "b3_position.quantity": {short: "Qtd", long: "Quantidade"},
+    "b3_position.quantity": {short: "Qtd", long: "Quantidade de Cotas"},
     "b3_position.average_price": {short: "PMed", long: "Preço Médio"},
+    "b3_position.total_dividends": {short: "DivAc", long: "Dividendos Acumulados"},
 
     // derived from other keys
-    "derived.b3_position.total_price": {short: "Total", long: "Valor Total"},
-    "derived.b3_position.rendimento": {short: "Rend", long: "Rendimento em %"},
+    "derived.b3_position.current_value": {short: "Total", long: "Valor Atual (Qtd × Cotação Hoje)"},
+    "derived.b3_position.current_value_plus_dividends": {short: "TotalD", long: "Valor Atual + Dividendos Acumulados"},
+    "derived.b3_position.invested_value": {short: "TotalI", long: "Valor Investido (Qtd × Preço Médio)"},
+    "derived.b3_position.return": {short: "Rend", long: "Rendimento (Preço Médio vs. Cotação Hoje)"},
+    "derived.b3_position.return_with_dividends": {short: "RendD", long: "Rendimento incluindo Dividendos (Valor Investido vs. Valor Atual + Dividendos)"},
     "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
     "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},

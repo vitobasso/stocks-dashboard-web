@@ -1,9 +1,9 @@
 "use client";
 import * as XLSX from "xlsx";
-import {extractData} from "@/lib/b3-position"
 import {Data, DataEntry, splitByAssetClass} from "@/lib/data";
 import {Rec} from "@/lib/utils/records";
 import React from "react";
+import {extractData} from "@/lib/b3-import";
 
 type Props = {
     setPositions(p: React.SetStateAction<Rec<Data>>): void

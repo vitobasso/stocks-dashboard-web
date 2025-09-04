@@ -13,7 +13,8 @@ export const colors: Colors = {
     "yahoo_chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
     "yahoo_chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
 
-    "derived.b3_position.rendimento": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
+    "derived.b3_position.return": {domain: [-60, 0, 40], colors: [red, bgColor, green]},
+    "derived.b3_position.return_with_dividends": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
 
     // stock_br
 
