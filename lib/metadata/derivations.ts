@@ -61,6 +61,7 @@ export const derivations: Rec<Derivations> = {
     },
     "reit_br": {
         "derived.b3_position.current_value": common.currentValue,
+        "derived.b3_position.current_value_plus_dividends": common.currentValuePlusDividends,
         "derived.b3_position.invested_value": common.investedValue,
         "derived.b3_position.return": common.returnPct,
         "derived.b3_position.return_with_dividends": common.returnWithDividendsPct,
