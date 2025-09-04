@@ -32,11 +32,11 @@ const keyLabels: Labels = {
     "b3_position.total_dividends": {short: "DivAc", long: "Dividendos Acumulados"},
 
     // derived from other keys
-    "derived.b3_position.current_value": {short: "Total", long: "Valor Atual da Posição (Qtd × Cotação Hoje)"},
-    "derived.b3_position.current_value_plus_dividends": {short: "TotalD", long: "Valor Atual mais Dividendos (Qtd × Cotação + Dividendos)"},
-    "derived.b3_position.invested_value": {short: "TotalI", long: "Valor Investido (Qtd × Preço Médio)"},
-    "derived.b3_position.return": {short: "Rend", long: "Rendimento (Preço Médio vs. Cotação Hoje)"},
-    "derived.b3_position.return_with_dividends": {short: "RendD", long: "Rendimento com Dividendos (Valor Investido vs. Valor Atual + Dividendos)"},
+    "derived.b3_position.invested_value": {short: "VInves", long: "Valor Investido (Qtd × Preço Médio)"},
+    "derived.b3_position.current_value": {short: "VAtual", long: "Valor Atual da Posição (Qtd × Cotação Hoje)"},
+    "derived.b3_position.total_value": {short: "Total", long: "Valor Total (Qtd × Cotação + Dividendos)"},
+    "derived.b3_position.price_variation": {short: "Var", long: "Variação (Preço Médio → Cotação Hoje)"},
+    "derived.b3_position.cumulative_return": {short: "Ret", long: "Retorno Acumulado (Valor Investido → Valor Total)"},
     "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
     "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},

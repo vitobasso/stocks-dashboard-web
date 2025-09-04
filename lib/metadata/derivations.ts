@@ -17,11 +17,11 @@ const common: Derivations = {
         function: (args) => Number(args[0]) * Number(args[1]),
         arguments: ["b3_position.quantity", "b3_position.average_price"],
     },
-    returnPct: {
+    priceVariation: {
         function: (args) => calcChangePct(Number(args[0]), Number(args[1])),
         arguments: ["b3_position.average_price", "yahoo_quote.latest"],
     },
-    returnWithDividendsPct: {
+    cumulativeReturn: {
         function: (args) => {
             const investedValue = Number(args[0]) * Number(args[1])
             const currentValuePlusDividends = Number(args[0]) * Number(args[2]) + Number(args[3])
@@ -34,10 +34,10 @@ const common: Derivations = {
 export const derivations: Rec<Derivations> = {
     "stock_br": {
         "derived.b3_position.current_value": common.currentValue,
-        "derived.b3_position.current_value_plus_dividends": common.currentValuePlusDividends,
+        "derived.b3_position.total_value": common.currentValuePlusDividends,
         "derived.b3_position.invested_value": common.investedValue,
-        "derived.b3_position.return": common.returnPct,
-        "derived.b3_position.return_with_dividends": common.returnWithDividendsPct,
+        "derived.b3_position.price_variation": common.priceVariation,
+        "derived.b3_position.cumulative_return": common.cumulativeReturn,
         "derived.forecast.min_pct": {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
             arguments: ["yahoo.forecast.min", "yahoo_quote.latest"],
@@ -61,10 +61,10 @@ export const derivations: Rec<Derivations> = {
     },
     "reit_br": {
         "derived.b3_position.current_value": common.currentValue,
-        "derived.b3_position.current_value_plus_dividends": common.currentValuePlusDividends,
+        "derived.b3_position.total_value": common.currentValuePlusDividends,
         "derived.b3_position.invested_value": common.investedValue,
-        "derived.b3_position.return": common.returnPct,
-        "derived.b3_position.return_with_dividends": common.returnWithDividendsPct,
+        "derived.b3_position.price_variation": common.priceVariation,
+        "derived.b3_position.cumulative_return": common.cumulativeReturn,
     },
 }
 
