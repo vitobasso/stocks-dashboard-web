@@ -132,7 +132,7 @@ function getTicker(r: Record<string, unknown>) {
 }
 
 function parsePrice(raw: unknown): number {
-    let normalized = String(raw)
+    const normalized = String(raw)
         .replace(/[^\d,.-]/g, "") // remove "R$"
         .replace(",", ".");
     return parseFloat(normalized)
