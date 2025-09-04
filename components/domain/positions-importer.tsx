@@ -14,6 +14,7 @@ export default function PositionsImporter(props: Props) {
 
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        e.currentTarget.value = ""
         if (!file) return;
 
         const reader = new FileReader();
@@ -40,18 +41,16 @@ export default function PositionsImporter(props: Props) {
                         <li>Selecione "Extratos" no menu à esquerda</li>
                         <li>Clique em "Filtrar"</li>
                         <li>Lembre de selecionar o período</li>
-                        <li>Em "Tipo de Movimentação" selecione apenas "Compra e Venda"</li>
                         <li>Baixe em formato Excel</li>
                     </ul>
                 </li>
-                <li>Depois
-                    <label className="underline cursor-pointer">
-                        clique aqui para importar.
-                        <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
-                    </label>
+                <li>Depois <label className="underline cursor-pointer">
+                    clique aqui para importar.
+                    <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFile}/>
+                </label>
                 </li>
             </ul>
-            Esses dados ficarão armazenados apenas no cache do seu navegador.
+            Esses dados ficarão armazenados apenas no seu navegador.
         </div>
     </div>
 }
