@@ -32,11 +32,11 @@ const keyLabels: Labels = {
     "b3_position.total_dividends": {short: "DivAc", long: "Dividendos Acumulados"},
 
     // derived from other keys
-    "derived.b3_position.current_value": {short: "Total", long: "Valor Atual (Qtd × Cotação Hoje)"},
-    "derived.b3_position.current_value_plus_dividends": {short: "TotalD", long: "Valor Atual + Dividendos Acumulados"},
+    "derived.b3_position.current_value": {short: "Total", long: "Valor Atual da Posição (Qtd × Cotação Hoje)"},
+    "derived.b3_position.current_value_plus_dividends": {short: "TotalD", long: "Valor Atual mais Dividendos (Qtd × Cotação + Dividendos)"},
     "derived.b3_position.invested_value": {short: "TotalI", long: "Valor Investido (Qtd × Preço Médio)"},
     "derived.b3_position.return": {short: "Rend", long: "Rendimento (Preço Médio vs. Cotação Hoje)"},
-    "derived.b3_position.return_with_dividends": {short: "RendD", long: "Rendimento incluindo Dividendos (Valor Investido vs. Valor Atual + Dividendos)"},
+    "derived.b3_position.return_with_dividends": {short: "RendD", long: "Rendimento com Dividendos (Valor Investido vs. Valor Atual + Dividendos)"},
     "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
     "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},
@@ -50,7 +50,7 @@ const prefixLabels: Record<string, MetadataSource> = {
     "yahoo_quote": {label: "Yahoo Finance API, tempo real", url: "https://github.com/gadicc/yahoo-finance2"},
 
     // derived from other keys
-    "derived.b3_position": {label: "Posição Calculada", url: "Posição calculada com a cotação atual"},
+    "derived.b3_position": {label: "Posição Calculada", url: "Valores calculados a partir dos dados importados da B3"},
     "derived.forecast": {label: "Yahoo Finance %", url: "Yahoo Finance e cotação atual"},
     "derived.statusinvest": {label: "Statusinvest, Calculado", url: "Valores calculados após extração"},
 }
