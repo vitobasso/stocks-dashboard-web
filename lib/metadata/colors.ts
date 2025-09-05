@@ -78,7 +78,7 @@ export const colors: Colors = {
     "investidor10.financeiro.tag_along": {domain: [80, 100], colors: [red, bgColor]},
 
     "derived.statusinvest.ey": {domain: [0, 10], colors: [red, bgColor]},
-    "derived.statusinvest.liqmd_millions": {domain: [4, 6], colors: [red, bgColor]},
+    "statusinvest.liquidez_media_diaria": {domain: [4, 6], colors: [red, bgColor]},
     "derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
     "derived.forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
     "derived.forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},

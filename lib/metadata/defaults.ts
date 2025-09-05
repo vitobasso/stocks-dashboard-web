@@ -8,7 +8,7 @@ export const defaultColumns: Rec<Header[]> = {
         {group: "Posição", keys: ["derived.b3_position.current_value", "b3_position.average_price",
                 "derived.b3_position.cumulative_return"]},
         {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
-        {group: "Fundamentos", keys: ["derived.statusinvest.liqmd_millions", "statusinvest.p_l", "statusinvest.p_vp",
+        {group: "Fundamentos", keys: ["statusinvest.liquidez_media_diaria", "statusinvest.p_l", "statusinvest.p_vp",
                 "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
                 "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.cagr_lucros_5_anos",
                 "statusinvest.dy"]
