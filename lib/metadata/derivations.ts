@@ -58,6 +58,10 @@ export const derivations: Rec<Derivations> = {
             function: (args) => Math.round(100 / Number(args[0])),
             arguments: ["statusinvest.ev_ebit"],
         },
+        "derived.statusinvest.intrinsic_value": {
+            function: (args) => Math.sqrt(22.5 * Number(args[0]) * Number(args[1])),
+            arguments: ["statusinvest.lpa", "statusinvest.vpa"],
+        },
     },
     "reit_br": {
         "derived.b3_position.current_value": common.currentValue,
