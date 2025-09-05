@@ -24,24 +24,27 @@ export function formatAsText(key: string, value: unknown): string | undefined {
 
 function formatPercent(value: unknown): string {
     const n: number = Number(value);
-    if (isFinite(n)) return `${trimDecimals(n, 1)}%`;
+    if (isFinite(n)) return `${trimDigits(n, 2)}%`;
     return (value ?? "") as string;
 }
 
 function formatNumber(value: unknown): string {
     const n: number = Number(value);
-    if (isFinite(n)) return trimNumber(n).toLocaleString('pt-BR', { useGrouping: false }) ;
+    if (isFinite(n)) return trimDigits(n, 3).toLocaleString('pt-BR', { useGrouping: false }) ;
     return (value ?? "") as string;
 }
 
-// Precision choice to keep column widths reasonable
-function trimNumber(num: number): number {
-    if (num >= 100) return trimDecimals(num, 0)
-    if (num >= 10) return trimDecimals(num, 1);
-    return trimDecimals(num, 2)
+// To keep column widths reasonable
+export function trimDigits(num: number, maxDigits: number): number {
+    const integerDigits = Math.max(Math.floor(Math.log10(Math.abs(num))), 0) + 1
+    if (integerDigits >= maxDigits) {
+        return Math.round(num)
+    } else {
+        return trimDecimals(num, maxDigits - integerDigits)
+    }
 }
 
-function trimDecimals(num: number, maxDecimals: number = 2): number {
+function trimDecimals(num: number, maxDecimals: number): number {
     const factor = 10 ** maxDecimals
-    return Math.floor(num * factor) / factor
+    return Math.round(num * factor) / factor
 }
