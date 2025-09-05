@@ -50,10 +50,6 @@ export const derivations: Rec<Derivations> = {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
             arguments: ["yahoo.forecast.max", "yahoo_quote.latest"],
         },
-        "derived.statusinvest.liqmd_millions": { //TODO make it part of normalization
-            function: (args) => Number(args[0]) / 1000000,
-            arguments: ["statusinvest.liquidez_media_diaria"],
-        },
         "derived.statusinvest.ey": {
             function: (args) => Math.round(100 / Number(args[0])),
             arguments: ["statusinvest.ev_ebit"],
