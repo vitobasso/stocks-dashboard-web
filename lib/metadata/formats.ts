@@ -17,7 +17,7 @@ export function isChart(key: string): boolean {
 
 // Used for both measuring and rendering non-chart cells
 export function formatAsText(key: string, value: unknown): string | undefined {
-  if (isChart(key)) return undefined; // non-textual
+  if (isChart(key) || value === null || value === undefined) return undefined;
   if (formats[key] === "percent") return formatPercent(value);
   return formatNumber(value);
 }
