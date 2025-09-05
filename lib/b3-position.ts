@@ -1,3 +1,5 @@
+import {Rec} from "@/lib/utils/records";
+
 type Event = {
     ticker: string;
     type: "credit" | "debit" | "update";
@@ -10,12 +12,12 @@ export type AssetPosition = {
     averagePrice: number;
 };
 
-export function extractPositions(rows: Record<string, unknown>[]): Map<string, AssetPosition> {
+export function extractPositions(rows: Rec<unknown>[], oldNames: Rec<string>): Map<string, AssetPosition> {
     const events: Event[] = rows.filter(isPositionEvent).map(getEvent).reverse();
-    return calculatePositions(events);
+    return calculatePositions(events, oldNames);
 }
 
-function calculatePositions(events: Event[]): Map<string, AssetPosition> {
+function calculatePositions(events: Event[], oldNames: Rec<string>): Map<string, AssetPosition> {
     const positions = new Map<string, AssetPosition>();
     for (const t of events) {
         const prev = positions.get(t.ticker) || {quantity: 0, averagePrice: 0};
@@ -40,7 +42,7 @@ function calculatePositions(events: Event[]): Map<string, AssetPosition> {
                 if (!positions.has(t.ticker)) {
                     // renamed ticker being populated with total quantity from old name
                     prev.quantity = t.quantity;
-                    const oldTicker = oldName[t.ticker];
+                    const oldTicker = oldNames[t.ticker];
                     const oldAvgPrice = oldTicker ? positions.get(oldTicker)?.averagePrice : undefined;
                     prev.averagePrice = oldAvgPrice ?? 0
                 }
@@ -56,7 +58,7 @@ function calculatePositions(events: Event[]): Map<string, AssetPosition> {
     return positions;
 }
 
-function isPositionEvent(r: Record<string, unknown>): boolean {
+function isPositionEvent(r: Rec<unknown>): boolean {
     /**
      "Transferência - Liquidação"
      - credit or debit from regular buy and sell
@@ -86,13 +88,13 @@ function isPositionEvent(r: Record<string, unknown>): boolean {
     return filteredTypes.includes(String(r["Movimentação"]));
 }
 
-function getEvent(r: Record<string, unknown>): Event {
+function getEvent(r: Rec<unknown>): Event {
     if (String(r["Movimentação"]) === "Direitos de Subscrição - Exercido") return getSubscriptionEvent(r)
     if (String(r["Movimentação"]) === "Atualização") return getUpdateEvent(r)
     else return getDefaultEvent(r)
 }
 
-function getDefaultEvent(r: Record<string, unknown>): Event {
+function getDefaultEvent(r: Rec<unknown>): Event {
     return {
         ticker: getTicker(r),
         type: String(r["Entrada/Saída"]) === "Credito" ? "credit" : "debit",
@@ -101,7 +103,7 @@ function getDefaultEvent(r: Record<string, unknown>): Event {
     };
 }
 
-function getSubscriptionEvent(r: Record<string, unknown>): Event {
+function getSubscriptionEvent(r: Rec<unknown>): Event {
     return {
         ticker: getTicker(r).replace(/12$/, "11"),
         type: "credit",
@@ -110,7 +112,7 @@ function getSubscriptionEvent(r: Record<string, unknown>): Event {
     };
 }
 
-function getUpdateEvent(r: Record<string, unknown>): Event {
+function getUpdateEvent(r: Rec<unknown>): Event {
     return {
         ticker: getTicker(r),
         type: "update",
@@ -119,7 +121,7 @@ function getUpdateEvent(r: Record<string, unknown>): Event {
     };
 }
 
-function getTicker(r: Record<string, unknown>) {
+function getTicker(r: Rec<unknown>) {
     return String(r["Produto"]).split(" - ")[0].trim();
 }
 
@@ -130,24 +132,3 @@ function parsePrice(raw: unknown): number {
     return parseFloat(normalized)
 }
 
-/**
- * Manually maintained history of known ticker renames.
- */
-const oldName: Record<string, string> = {
-    "PMLL11": "MALL11", // 23/07/2025
-    "NATU3": "NTCO3",   // 02/07/2025
-    "TOKY3": "MBLY3",   // 03/06/2025
-    "MOTV3": "CCRO3",   // 02/05/2025
-    "CTAX3": "ATMP3",   // 08/05/2025
-    "FYTO11": "NCHB11", // 10/03/2025
-    "VPPR11": "XPPR11", // 05/02/2025
-    "FTCA11": "NCRA11", // ??/02/2025
-    "REAG3": "GNJN3",   // 28/01/2025
-    "ISAE4": "TRPL4",   // 19/11/2024
-    "AURE3": "AESB3",   // 31/10/2024
-    "GARE11": "GALG11", // 08/02/2024
-    "TVRI11": "BBPO11", // 02/10/2023
-    "CSUD3": "CARD3",   // 15/09/2022
-    "AESB3": "TIET11",  // 29/03/2021
-
-}
