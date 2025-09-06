@@ -40,15 +40,15 @@ export const derivations: Rec<Derivations> = {
         "derived.b3_position.cumulative_return": common.cumulativeReturn,
         "derived.forecast.min_pct": {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
-            arguments: ["yahoo.forecast.min", "yahoo_quote.latest"],
+            arguments: ["yahoo_target.min", "yahoo_quote.latest"],
         },
         "derived.forecast.avg_pct": {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
-            arguments: ["yahoo.forecast.avg", "yahoo_quote.latest"],
+            arguments: ["yahoo_target.avg", "yahoo_quote.latest"],
         },
         "derived.forecast.max_pct": {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
-            arguments: ["yahoo.forecast.max", "yahoo_quote.latest"],
+            arguments: ["yahoo_target.max", "yahoo_quote.latest"],
         },
         "derived.statusinvest.ey": {
             function: (args) => Math.round(100 / Number(args[0])),
