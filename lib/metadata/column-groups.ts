@@ -8,8 +8,8 @@ export const columnGroups: Record<string, string[]> = {
     "Cotação": ["yahoo_quote", "yahoo_chart", "*rentabilidade"],
     "Fundamentos": ["*fundamentos", "*statusinvest", "*fundamentus"],
     "Score": ["simplywall"],
-    "Recomendação": ["*rating", "yahoo_recommendations"],
-    "Previsão": ["*forecast"],
+    "Recomendação": ["*rating", "yahoo_recom"],
+    "Previsão": ["*forecast", "yahoo_target"],
 }
 
 export function columnGroupPerKey(keys: string[]): Map<string, string> {

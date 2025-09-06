@@ -7,7 +7,8 @@ export const defaultColumns: Rec<Header[]> = {
         {group: "Perfil", keys: ["ticker", "b3_listagem.setor"]},
         {group: "Posição", keys: ["derived.b3_position.current_value", "b3_position.average_price",
                 "derived.b3_position.cumulative_return"]},
-        {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
+        {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo_series", "yahoo_chart.1y_series",
+                "yahoo_chart.5y_series"]},
         {group: "Fundamentos", keys: ["statusinvest.liquidez_media_diaria", "statusinvest.p_l", "statusinvest.p_vp",
                 "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
                 "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.cagr_lucros_5_anos",
@@ -15,14 +16,15 @@ export const defaultColumns: Rec<Header[]> = {
         },
         {group: "Score", keys: []},
         {group: "Recomendação", keys: ["strong_buy", "buy", "hold", "sell", "strong_sell"]
-                .map(s => `yahoo_recommendations.${s}`)},
+                .map(s => `yahoo_recom.${s}`)},
         {group: "Previsão", keys: ["min_pct", "avg_pct", "max_pct"].map(s => `derived.forecast.${s}`)},
     ],
     "reit_br": [
         {group: "Perfil", keys: ["ticker"]},
         {group: "Posição", keys: ["derived.b3_position.current_value", "b3_position.average_price",
                 "derived.b3_position.cumulative_return"]},
-        {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]},
+        {group: "Cotação", keys: ["yahoo_quote.latest", "yahoo_chart.1mo_series", "yahoo_chart.1y_series",
+                "yahoo_chart.5y_series"]},
         {group: "Fundamentos", keys: ["fundamentus.segmento", "fundamentus.p_vp", "fundamentus.liquidez",
                 "fundamentus.dividend_yield", "fundamentus.qtd_de_imoveis","fundamentus.vacancia_media"]},
     ]

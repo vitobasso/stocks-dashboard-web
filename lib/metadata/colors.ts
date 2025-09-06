@@ -9,9 +9,9 @@ export const colors: Colors = {
 
     // common
 
-    "yahoo_chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
-    "yahoo_chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
-    "yahoo_chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
+    "yahoo_chart.1mo_series": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "yahoo_chart.1y_series": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
+    "yahoo_chart.5y_series": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
 
     "derived.b3_position.price_variation": {domain: [-60, 0, 40], colors: [red, bgColor, green]},
     "derived.b3_position.cumulative_return": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
@@ -47,11 +47,11 @@ export const colors: Colors = {
     "simplywall.health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
     "simplywall.dividend": {domain: [3, 6], colors: [bgColor, green]},
 
-    "yahoo_recommendations.strong_buy": {domain: [1, 10], colors: [bgColor, green]},
-    "yahoo_recommendations.buy": {domain: [2, 20], colors: [bgColor, green]},
-    "yahoo_recommendations.hold": {domain: [4, 15], colors: [bgColor, red]},
-    "yahoo_recommendations.sell": {domain: [0, 4], colors: [bgColor, red]},
-    "yahoo_recommendations.strong_sell": {domain: [0, 2], colors: [bgColor, red]},
+    "yahoo_recom.strong_buy": {domain: [1, 10], colors: [bgColor, green]},
+    "yahoo_recom.buy": {domain: [2, 20], colors: [bgColor, green]},
+    "yahoo_recom.hold": {domain: [4, 15], colors: [bgColor, red]},
+    "yahoo_recom.sell": {domain: [0, 4], colors: [bgColor, red]},
+    "yahoo_recom.strong_sell": {domain: [0, 2], colors: [bgColor, red]},
 
     "investidor10.fundamentos.p_l": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
     "investidor10.fundamentos.p_vp": {domain: [2, 5], colors: [bgColor, red]},
