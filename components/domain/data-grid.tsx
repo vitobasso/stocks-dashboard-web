@@ -126,8 +126,15 @@ export function DataGrid(props: Props) {
         if (sortColumns.length === 0) return rows;
         const {columnKey, direction} = sortColumns[0];
         return [...rows].sort((a, b) => {
-            if (a[columnKey] < b[columnKey]) return direction === 'ASC' ? -1 : 1;
-            if (a[columnKey] > b[columnKey]) return direction === 'ASC' ? 1 : -1;
+            const av = a[columnKey];
+            const bv = b[columnKey];
+
+            if (av == null && bv == null) return 0;
+            if (av == null) return direction === 'ASC' ? -1 : 1; // put null/undefined first
+            if (bv == null) return direction === 'ASC' ? 1 : -1;
+
+            if (av < bv) return direction === 'ASC' ? -1 : 1;
+            if (av > bv) return direction === 'ASC' ? 1 : -1;
             return 0;
         });
     }
