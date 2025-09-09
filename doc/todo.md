@@ -1,6 +1,4 @@
 
-### bug: col ordering confused when some values are missing
-
 ### show loading placeholders
 
 ### links to sources: yahoo/ticker, etc
@@ -9,7 +7,7 @@
 
 ### re-order column groups
 
-### highlight row and color while hovering cell
+### highlight row and column while hovering cell
 
 ### color rules
     - allow customizing per key?
