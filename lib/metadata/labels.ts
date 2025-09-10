@@ -52,7 +52,7 @@ const prefixLabels: Record<string, MetadataSource> = {
 
     // derived from other keys
     "derived.b3_position": {label: "Posição Calculada", url: "Valores calculados a partir dos dados importados da B3"},
-    "derived.forecast": {label: "Yahoo Finance %", url: "Yahoo Finance e cotação atual"},
+    "derived.forecast": {label: "Yahoo Finance %", url: "Calculado a partirde Yahoo Finance e cotação atual"},
     "derived.statusinvest": {label: "Statusinvest, Calculado", url: "Valores calculados após extração"},
 }
 
