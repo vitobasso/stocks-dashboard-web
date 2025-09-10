@@ -1,6 +1,4 @@
 
-### show loading placeholders
-
 ### links to sources: yahoo/ticker, etc
 
 ### click "ativo" to add rows
