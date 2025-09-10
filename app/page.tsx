@@ -3,6 +3,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Metadata, splitByAssetClass} from "@/lib/data";
 import {makeLabelGetter} from "@/lib/metadata/labels";
+import {Skeleton} from "@/components/ui/skeleton";
 import {ManageDialog} from "@/components/domain/manage-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
@@ -80,7 +81,7 @@ export default function Page() {
         }
     }
 
-    if (!assetClasses || !metadata || !data || !getLabel || !classOfTicker || !rows || !columns) return;
+    if (!assetClasses || !metadata || !data || !getLabel || !classOfTicker || !rows || !columns) return skeleton();
     return <div className="flex flex-wrap justify-start">
         {assetClasses.map(ac =>
             <Card key={ac} className="m-4">
@@ -150,4 +151,19 @@ function loadPositions(localStorage: Storage): Rec<Data> {
 function applyStoredTheme() {
     const theme = getStoredTheme(localStorage);
     if (theme) applyTheme(theme);
+}
+
+function skeleton() {
+    return [1, 2].map(x =>
+        <Card key={x} className="m-4">
+            <CardHeader>
+                <CardTitle>
+                    <Skeleton className="h-10 w-40 mb-4"/>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-64 w-full rounded-lg"/>
+            </CardContent>
+        </Card>
+    )
 }
