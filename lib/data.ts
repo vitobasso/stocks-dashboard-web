@@ -8,7 +8,7 @@ export type Metadata = {
     labels: Record<string, Label>,
     tickers: string[]
 }
-export type MetadataSource = { label: string, url: string };
+export type MetadataSource = { label: string, url: string, updated_at?: string | undefined };
 export type Data = Record<string, DataEntry>;
 export type DataEntry = Record<string, DataValue>;
 export type DataValue = string | number | number[];
