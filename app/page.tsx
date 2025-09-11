@@ -102,32 +102,48 @@ export default function Page() {
     }
 
     if (!assetClasses || !metadata || !data || !getLabel || !classOfTicker || !rows || !columns) return skeleton();
-    return <div className="flex flex-wrap justify-start">
-        {assetClasses.map(ac =>
-            <Card key={ac} className="m-4">
-                <CardHeader>
-                    <CardTitle>
-                        <p className="text-xl font-bold">{getLabel[ac](ac).short}</p>
-                        <div className="text-sm font-light text-muted-foreground">
-                            <p>Fonte: {sources(ac)}</p>
-                            <p>Última atualização: {lastUpdated(ac)}</p>
-                        </div>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DataGrid className="h-auto"
-                              rows={rows[ac]} columns={columns[ac]} data={data[ac]} getLabel={getLabel[ac]}
-                              onGroupHeaderClick={onGroupHeaderClick(ac)}/>
-                </CardContent>
-            </Card>
-        )}
-        <ManageDialog metadata={metadata} getLabel={getLabel}
-                      rows={rows} setRows={settersByKey(assetClasses, setRows)}
-                      columns={columns} setColumns={settersByKey(assetClasses, setColumns)}
-                      setPositions={setPositions} classOfTickers={classOfTicker}
-                      openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
-        <Analytics/>
+    return <div className="flex flex-col min-h-screen">
+        <div className="flex-grow">
+            <div className="flex flex-wrap justify-start">
+                {assetClasses.map(ac =>
+                    <Card key={ac} className="m-4">
+                        <CardHeader>
+                            <CardTitle>
+                                <p className="text-xl font-bold">{getLabel[ac](ac).short}</p>
+                                <div className="text-xs font-light text-muted-foreground">
+                                    <p>Fonte: {sources(ac)}</p>
+                                    <p>Última atualização: {lastUpdated(ac)}</p>
+                                </div>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <DataGrid className="h-auto"
+                                      rows={rows[ac]} columns={columns[ac]} data={data[ac]} getLabel={getLabel[ac]}
+                                      onGroupHeaderClick={onGroupHeaderClick(ac)}/>
+                        </CardContent>
+                    </Card>
+                )}
+                <ManageDialog metadata={metadata} getLabel={getLabel}
+                              rows={rows} setRows={settersByKey(assetClasses, setRows)}
+                              columns={columns} setColumns={settersByKey(assetClasses, setColumns)}
+                              setPositions={setPositions} classOfTickers={classOfTicker}
+                              openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
+                <Analytics/>
+            </div>
+        </div>
+        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
+            <p>
+                Sugestões:{" "}
+                <a href="mailto:monitor.de.acoes.br@gmail.com" className="hover:underline">
+                    monitor.de.acoes.br@gmail.com
+                </a>
+            </p>
+            <p className="mt-2">
+                As informações fornecidas neste site são apenas para fins informativos e não constituem aconselhamento financeiro. Use por sua conta e risco.
+            </p>
+        </footer>
     </div>
+
 }
 
 async function fetchMeta(): Promise<Rec<Metadata>> {
