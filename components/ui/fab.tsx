@@ -108,7 +108,7 @@ export function FabMenuItem({ className, ...props }: FabMenuItemProps) {
     <button
       type="button"
       className={cn(
-        "bg-sidebar text-foreground border border-border rounded-md px-3 py-2 shadow-sm flex items-center gap-2 hover:bg-sidebar-accent",
+        "bg-sidebar text-foreground border border-border rounded-md px-3 py-2 shadow-md shadow-gray-400 flex items-center gap-2 hover:bg-sidebar-accent",
         className,
       )}
       {...props}
