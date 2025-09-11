@@ -133,7 +133,7 @@ export default function Page() {
         </div>
         <footer className="border-t border-border mx-6 py-6 text-center text-xs text-muted-foreground">
             <p>
-                Sugestões:{" "}
+                Sugestões, enviar para:{" "}
                 <a href="mailto:monitor.de.acoes.br@gmail.com" className="hover:underline">
                     monitor.de.acoes.br@gmail.com
                 </a>
