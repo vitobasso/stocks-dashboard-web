@@ -131,7 +131,7 @@ export default function Page() {
                 <Analytics/>
             </div>
         </div>
-        <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
+        <footer className="border-t border-border mx-6 py-6 text-center text-xs text-muted-foreground">
             <p>
                 Sugestões:{" "}
                 <a href="mailto:monitor.de.acoes.br@gmail.com" className="hover:underline">

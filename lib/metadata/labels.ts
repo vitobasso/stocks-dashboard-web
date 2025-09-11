@@ -26,7 +26,7 @@ const keyLabels: Labels = {
 
     // from a source other than scraper
     "yahoo_quote.latest": {short: "Hoje", long: "Cotação Hoje"},
-    "b3_position": {short: "B3, Posição", long: "Posição importada"},
+    "b3_position": {short: "B3, Posição", long: "Valores importados pelo usuário"},
     "b3_position.quantity": {short: "Qtd", long: "Quantidade de Cotas"},
     "b3_position.average_price": {short: "PMed", long: "Preço Médio"},
     "b3_position.total_dividends": {short: "DivAc", long: "Dividendos Acumulados"},
