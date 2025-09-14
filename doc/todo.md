@@ -1,8 +1,6 @@
 
 ### icon
 
-### highlight row and column while hovering cell
-
 ### click "ativo" to add rows
 
 ### re-order column groups

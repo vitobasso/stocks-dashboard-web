@@ -1,4 +1,5 @@
 export const bgColor = "--background";
+export const fgColor = "--foreground";
 export const red = "--chart-1";
 export const green = "--chart-2";
 

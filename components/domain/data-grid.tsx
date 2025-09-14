@@ -1,16 +1,17 @@
 "use client";
-import {ReactElement, useState} from "react";
+import {ReactElement, useCallback, useState} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
 import {calcStats, ColumnStats, Data, getValue} from "@/lib/data";
-import chroma from "chroma-js";
+import chroma, {Color} from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
-import {bgColor, colors, green, red} from "@/lib/metadata/colors";
+import {bgColor, colors, fgColor, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
 import {formatAsText, isChart} from "@/lib/metadata/formats";
 import {cn} from "@/lib/utils";
+import {getAppliedTheme} from "@/lib/theme";
 
 type Props = {
     rows: string[]
@@ -24,8 +25,14 @@ type Props = {
 type Row = Record<string, string | number>;
 
 export function DataGrid(props: Props) {
-
+    const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+    const [hoveredCol, setHoveredCol] = useState<string | null>(null);
     const columnStats = calcStats(props.data, formatAsText);
+
+    const handleCellHover = useCallback((row: Row, columnKey: string, isHovered: boolean) => {
+        setHoveredRow(isHovered ? row.ticker as string : null);
+        setHoveredCol(isHovered ? columnKey : null);
+    }, []);
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
         name: renderHeader(h.group, true),
@@ -35,7 +42,7 @@ export function DataGrid(props: Props) {
             name: renderHeader(key),
             frozen: key == "ticker",
             sortable: true,
-            headerCellClass: 'text-center',
+            headerCellClass: cn('text-center', hoveredCol === key && 'bg-foreground/5'),
             cellClass: cellClass(key),
             minWidth: widthPx(key, columnStats),
             width: widthPx(key, columnStats),
@@ -98,13 +105,22 @@ export function DataGrid(props: Props) {
 
     function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
         const cellData = props.row[key as string];
-        const color = getColor(key as string, cellData);
-        return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color}}/>;
+        const color = getHoveredColor(key as string, props.row.ticker, cellData);
+        return <Cell key={key} {...props} className="text-center" style={{backgroundColor: color.hex()}}
+                     onMouseEnter={() => handleCellHover(props.row, key as string, true)}
+                     onMouseLeave={() => handleCellHover(props.row, key as string, false)}/>;
     }
 
-    const cssVars = useCssVars([bgColor, red, green])
+    const cssVars = useCssVars([bgColor, fgColor, red, green])
 
-    function getColor(key: string, data: unknown): string {
+    function getHoveredColor(key: string, ticker: string | number, data: string | number): Color {
+        const baseColor = getBaseColor(key as string, data);
+        const isHovered = hoveredCol === key || hoveredRow === ticker;
+        const ratio = getAppliedTheme() == "light" ? 0.1 : 0.01;
+        return isHovered ? chroma.mix(baseColor, cssVars[fgColor], ratio) : chroma(baseColor);
+    }
+
+    function getBaseColor(key: string, data: unknown): string {
         const value = isChart(key) ? quoteChange((data as number[]) ?? []) : data;
         const rule = colors[key];
         const numeric = Number(value as number);
