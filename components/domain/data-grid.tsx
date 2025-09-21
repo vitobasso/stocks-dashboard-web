@@ -1,7 +1,7 @@
 "use client";
 import {ReactElement, useCallback, useState} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
-import {calcStats, ChartData, ColumnStats, Data, getValue} from "@/lib/data";
+import {calcStats, ChartData, ColumnStats, Data, DataValue, getValue} from "@/lib/data";
 import chroma, {Color} from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
@@ -9,7 +9,7 @@ import {bgColor, colors, fgColor, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
-import {formatAsText, getAsNumber, getAsSortable, isChart} from "@/lib/metadata/formats";
+import {getAsNumber, getAsSortable, getAsText, isChart} from "@/lib/metadata/formats";
 import {cn} from "@/lib/utils";
 import {getAppliedTheme} from "@/lib/theme";
 
@@ -27,7 +27,7 @@ type Row = Record<string, string | number>;
 export function DataGrid(props: Props) {
     const [hoveredRow, setHoveredRow] = useState<string | null>(null);
     const [hoveredCol, setHoveredCol] = useState<string | null>(null);
-    const columnStats = calcStats(props.data, formatAsText);
+    const columnStats = calcStats(props.data, getAsText);
 
     const handleCellHover = useCallback((row: Row, columnKey: string, isHovered: boolean) => {
         setHoveredRow(isHovered ? row.ticker as string : null);
@@ -77,17 +77,16 @@ export function DataGrid(props: Props) {
             content;
     }
 
-    function renderValue(key: string, value: unknown) {
+    function renderValue(key: string, value: DataValue) {
         if (isChart(key)) return renderChart(key, value);
-        return formatAsText(key, value) ?? "";
+        return getAsText(key, value) ?? "";
     }
 
-    function renderChart(key: string, data: unknown) {
+    function renderChart(key: string, data: DataValue) {
         const chart = data as ChartData
         if (!chart) return undefined
-        let text = formatAsText(key, chart.variation * 100);
         return <div style={{position: "relative"}}>
-            <span>{text}</span>
+            <span>{getAsText(key, data)}</span>
             <div style={{position: "absolute", inset: -10}}>
                 <Sparklines data={chart.series} width={60} height={39} style={{opacity: 0.25}}>
                     <SparklinesLine color="black" style={{fill: "none"}}/>
@@ -113,7 +112,7 @@ export function DataGrid(props: Props) {
         return isHovered ? chroma.mix(baseColor, cssVars[fgColor], ratio) : chroma(baseColor);
     }
 
-    function getBaseColor(key: string, data: unknown): string {
+    function getBaseColor(key: string, data: DataValue): string {
         const number = getAsNumber(key, data);
         const rule = colors[key];
         if (!rule || !number) return cssVars[bgColor];

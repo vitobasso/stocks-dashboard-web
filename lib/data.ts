@@ -53,7 +53,7 @@ function deriveEntry(data: DataEntry, derivations: Derivations): Data {
 }
 
 export type ColumnStats = { maxLength: number };
-type GetDisplay = (key: string, value: unknown) => string | undefined;
+type GetDisplay = (key: string, value: DataValue) => string | undefined;
 
 export function calcStats(data: Data, getDisplay: GetDisplay): Map<string, ColumnStats> {
     const stats = new Map<string, ColumnStats>();
@@ -66,7 +66,7 @@ export function calcStats(data: Data, getDisplay: GetDisplay): Map<string, Colum
     return stats
 }
 
-function accStats(key: string, value: unknown, getDisplay: GetDisplay, stats: Map<string, ColumnStats>) {
+function accStats(key: string, value: DataValue, getDisplay: GetDisplay, stats: Map<string, ColumnStats>) {
     const length = getDisplay(key, value)?.length;
     if (length) {
         const currentMax = stats.get(key)?.maxLength || 0;

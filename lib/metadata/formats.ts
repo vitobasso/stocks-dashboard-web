@@ -1,4 +1,4 @@
-import {ChartData} from "@/lib/data";
+import {ChartData, DataValue} from "@/lib/data";
 
 const formats: Record<string, "chart" | "percent"> = {
   "derived.yahoo_chart.1mo_chart": "chart",
@@ -16,28 +16,24 @@ export function isChart(key: string): boolean {
   return formats[key] === "chart";
 }
 
-export function getAsNumber(key: string, data: unknown): number | undefined {
+export function getAsNumber(key: string, data: DataValue): number | undefined {
     if (isChart(key)) return chartAsNumber(data);
     if (data == null || data === "" || !isFinite(Number(data))) return undefined;
     return Number(data);
 }
 
-export function getAsSortable(key: string, data: unknown): number | string | undefined {
+export function getAsSortable(key: string, data: DataValue): number | string | undefined {
     if (isChart(key)) return chartAsNumber(data);
     if (data == null || data === "") return undefined;
     if (typeof data === "string") return data;
     if (isFinite(Number(data))) return Number(data);
 }
 
-function chartAsNumber(data: unknown): number | undefined {
-    const chart = data as ChartData
-    return chart ? chart.variation * 100 : undefined;
-}
-
 // Used for both measuring and rendering non-chart cells
-export function formatAsText(key: string, value: unknown): string | undefined {
+export function getAsText(key: string, value: DataValue): string | undefined {
   if (value === null || value === undefined) return undefined;
-  if (isChart(key) || formats[key] === "percent") return formatPercent(value);
+  if (isChart(key)) return formatPercent(chartAsNumber(value));
+  if (formats[key] === "percent") return formatPercent(value);
   return formatNumber(value);
 }
 
@@ -66,4 +62,9 @@ export function trimDigits(num: number, maxDigits: number): number {
 function trimDecimals(num: number, maxDecimals: number): number {
     const factor = 10 ** maxDecimals
     return Math.round(num * factor) / factor
+}
+
+function chartAsNumber(data: unknown): number | undefined {
+    const chart = data as ChartData
+    return chart ? chart.variation * 100 : undefined;
 }
