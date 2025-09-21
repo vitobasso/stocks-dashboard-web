@@ -5,7 +5,7 @@ import {indexByFields} from "@/lib/utils/collections";
 export const columnGroups: Record<string, string[]> = {
     "Perfil": ["ticker", "*cadastral", "*financeiro", "*listagem"],
     "Posição": ["*b3_position"],
-    "Cotação": ["yahoo_quote", "yahoo_chart", "*rentabilidade"],
+    "Cotação": ["yahoo_quote", "*yahoo_chart", "*rentabilidade"],
     "Fundamentos": ["*fundamentos", "*statusinvest", "*fundamentus"],
     "Score": ["simplywall"],
     "Recomendação": ["*rating", "yahoo_recom"],

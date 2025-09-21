@@ -1,7 +1,7 @@
 "use client";
 import {ReactElement, useCallback, useState} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
-import {calcStats, ColumnStats, Data, getValue} from "@/lib/data";
+import {calcStats, ChartData, ColumnStats, Data, getValue} from "@/lib/data";
 import chroma, {Color} from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
@@ -9,7 +9,7 @@ import {bgColor, colors, fgColor, green, red} from "@/lib/metadata/colors";
 import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
-import {formatAsText, isChart} from "@/lib/metadata/formats";
+import {formatAsText, getAsNumber, getAsSortable, isChart} from "@/lib/metadata/formats";
 import {cn} from "@/lib/utils";
 import {getAppliedTheme} from "@/lib/theme";
 
@@ -78,29 +78,22 @@ export function DataGrid(props: Props) {
     }
 
     function renderValue(key: string, value: unknown) {
-        if (isChart(key)) return renderChart((value as number[]) ?? []);
+        if (isChart(key)) return renderChart(key, value);
         return formatAsText(key, value) ?? "";
     }
 
-    function renderChart(data: number[]) {
-        const number = quoteChange(data);
+    function renderChart(key: string, data: unknown) {
+        const chart = data as ChartData
+        if (!chart) return undefined
+        let text = formatAsText(key, chart.variation * 100);
         return <div style={{position: "relative"}}>
-            {Number.isFinite(number) && <span>{number}%</span>}
+            <span>{text}</span>
             <div style={{position: "absolute", inset: -10}}>
-                <Sparklines data={data} width={60} height={39} style={{opacity: 0.25}}>
+                <Sparklines data={chart.series} width={60} height={39} style={{opacity: 0.25}}>
                     <SparklinesLine color="black" style={{fill: "none"}}/>
                 </Sparklines>
             </div>
         </div>
-    }
-
-    function quoteChange(data: number[]) {
-        return data && calcChangePct(data[0], data[data.length - 1]);
-    }
-
-    function calcChangePct(start: number, end: number) {
-        const result = Math.floor((end - start) / start * 100);
-        if (isFinite(result)) return result;
     }
 
     function renderCell(key: React.Key, props: CellRendererProps<Row, unknown>) {
@@ -121,13 +114,12 @@ export function DataGrid(props: Props) {
     }
 
     function getBaseColor(key: string, data: unknown): string {
-        const value = isChart(key) ? quoteChange((data as number[]) ?? []) : data;
+        const number = getAsNumber(key, data);
         const rule = colors[key];
-        const numeric = Number(value as number);
-        if (!rule || value == null || value === "" || !isFinite(numeric)) return cssVars[bgColor];
+        if (!rule || !number) return cssVars[bgColor];
         const cssColors = rule.colors.map(c => cssVars[c]);
         const scale = chroma.scale(cssColors).domain(rule.domain);
-        return scale(numeric).hex();
+        return scale(number).hex();
     }
 
     function cellClass(key: string) {
@@ -142,8 +134,8 @@ export function DataGrid(props: Props) {
         if (sortColumns.length === 0) return rows;
         const {columnKey, direction} = sortColumns[0];
         return [...rows].sort((a, b) => {
-            const av = a[columnKey];
-            const bv = b[columnKey];
+            const av = getAsSortable(columnKey, a[columnKey]);
+            const bv = getAsSortable(columnKey, b[columnKey]);
 
             if (av == null && bv == null) return 0;
             if (av == null) return direction === 'ASC' ? -1 : 1; // put null/undefined first
