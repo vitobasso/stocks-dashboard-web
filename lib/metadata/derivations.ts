@@ -1,4 +1,4 @@
-import {ChartData, DataValue} from "@/lib/data";
+import {DataValue} from "@/lib/data";
 import {mapValues, Rec} from "@/lib/utils/records";
 
 type Derivation = { function: (args: DataValue[]) => DataValue | undefined, arguments: string[] };
@@ -29,18 +29,6 @@ const common: Derivations = {
         },
         arguments: ["b3_position.quantity", "b3_position.average_price", "yahoo_quote.latest", "b3_position.total_dividends"],
     },
-    chart1Mo: {
-        function: (args) => assembleChartData(args[0], args[1]),
-        arguments: ["yahoo_chart.1mo_series", "yahoo_chart.1mo_variation"],
-    },
-    chart1Y: {
-        function: (args) => assembleChartData(args[0], args[1]),
-        arguments: ["yahoo_chart.1y_series", "yahoo_chart.1y_variation"],
-    },
-    chart5Y: {
-        function: (args) => assembleChartData(args[0], args[1]),
-        arguments: ["yahoo_chart.5y_series", "yahoo_chart.5y_variation"],
-    },
 }
 
 export const derivations: Rec<Derivations> = {
@@ -50,9 +38,6 @@ export const derivations: Rec<Derivations> = {
         "derived.b3_position.invested_value": common.investedValue,
         "derived.b3_position.price_variation": common.priceVariation,
         "derived.b3_position.cumulative_return": common.cumulativeReturn,
-        "derived.yahoo_chart.1mo_chart": common.chart1Mo,
-        "derived.yahoo_chart.1y_chart": common.chart1Y,
-        "derived.yahoo_chart.5y_chart": common.chart5Y,
         "derived.forecast.min_pct": {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
             arguments: ["yahoo_target.min", "yahoo_quote.latest"],
@@ -80,22 +65,12 @@ export const derivations: Rec<Derivations> = {
         "derived.b3_position.invested_value": common.investedValue,
         "derived.b3_position.price_variation": common.priceVariation,
         "derived.b3_position.cumulative_return": common.cumulativeReturn,
-        "derived.yahoo_chart.1mo_chart": common.chart1Mo,
-        "derived.yahoo_chart.1y_chart": common.chart1Y,
-        "derived.yahoo_chart.5y_chart": common.chart5Y,
     },
 }
 
 function calcChangePct(start: number, end: number): number | undefined {
     const result = (end - start) / start * 100;
     if (isFinite(result)) return result;
-}
-
-function assembleChartData(series: DataValue, rawVariation: DataValue): ChartData | undefined {
-    if (!series || !Array.isArray(series) || series.length == 0) return undefined
-    const variation = Number(rawVariation)
-    if (!variation || !isFinite(variation)) return undefined
-    return { series, variation }
 }
 
 export const schema: Rec<string[]> = mapValues(derivations, (d) => Object.keys(d))

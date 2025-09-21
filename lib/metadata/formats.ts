@@ -1,9 +1,9 @@
 import {ChartData, DataValue} from "@/lib/data";
 
 const formats: Record<string, "chart" | "percent"> = {
-  "derived.yahoo_chart.1mo_chart": "chart",
-  "derived.yahoo_chart.1y_chart": "chart",
-  "derived.yahoo_chart.5y_chart": "chart",
+  "yahoo_chart.1mo": "chart",
+  "yahoo_chart.1y": "chart",
+  "yahoo_chart.5y": "chart",
   "derived.b3_position.price_variation": "percent",
   "derived.b3_position.cumulative_return": "percent",
   "derived.statusinvest.ey": "percent",
