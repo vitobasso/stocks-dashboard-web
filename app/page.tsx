@@ -104,6 +104,10 @@ export default function Page() {
         }
     }
 
+    function onTickerHeaderClick(assetClass: string) {
+        return () => setOpenPanel(`${assetClass}-rows`);
+    }
+
     if (!assetClasses || !metadata || !data || !getLabel || !classOfTicker || !rows || !columns) return skeleton();
     return <>
         <>
@@ -121,7 +125,8 @@ export default function Page() {
                     <CardContent>
                         <DataGrid className="h-auto"
                                   rows={rows[ac]} columns={columns[ac]} data={data[ac]} getLabel={getLabel[ac]}
-                                  onGroupHeaderClick={onGroupHeaderClick(ac)}/>
+                                  onGroupHeaderClick={onGroupHeaderClick(ac)}
+                                  onTickerHeaderClick={onTickerHeaderClick(ac)}/>
                     </CardContent>
                 </Card>
             )}

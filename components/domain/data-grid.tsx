@@ -20,6 +20,7 @@ type Props = {
     getLabel(path: string): Label
     className?: string
     onGroupHeaderClick?(group: string): void
+    onTickerHeaderClick?(): void
 }
 
 type Row = Record<string, string | number>;
@@ -35,13 +36,13 @@ export function DataGrid(props: Props) {
     }, []);
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
-        name: renderHeader(h.group, true),
+        name: renderGroupHeader(h),
         headerCellClass: 'text-center',
         children: h.keys.map(key => ({
             key,
-            name: renderHeader(key),
-            frozen: key == "ticker",
-            sortable: true,
+            name: isTicker(key) ? renderTickerHeader(key) : renderHeader(key, props.getLabel),
+            frozen: isTicker(key),
+            sortable: !isTicker(key),
             headerCellClass: cn('text-center', hoveredCol === key && 'bg-foreground/5'),
             cellClass: cellClass(key),
             minWidth: widthPx(key, columnStats),
@@ -59,22 +60,27 @@ export function DataGrid(props: Props) {
         return Object.fromEntries(entries);
     });
 
-    function renderHeader(key: string, isGroup?: boolean): ReactElement {
-        const label = isGroup ? { short: key, long: "" } : props.getLabel(key)
-        const content =
-            <span className={isGroup && props.onGroupHeaderClick ? "cursor-pointer" : undefined}
-                  onClick={isGroup && props.onGroupHeaderClick ? () => props.onGroupHeaderClick!(key) : undefined}>
-                {label.short}
-            </span>;
-        return label.long ?
-            <Tooltip>
-                <TooltipTrigger asChild>{content}</TooltipTrigger>
-                <TooltipContent>
-                    {label.long ?? ""}
-                </TooltipContent>
-            </Tooltip>
-            :
-            content;
+    function renderHeader(key: string, getLabel: (key: string) => Label, onClick?: (e: React.MouseEvent) => void): ReactElement {
+        const label = getLabel(key);
+        const content = onClick ?
+            <span className={"cursor-pointer"} onClick={onClick}>{label.short}</span> : <span>{label.short}</span>;
+        if (!label.long) return content;
+        return <Tooltip>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipContent>{label.long}</TooltipContent>
+        </Tooltip>
+    }
+
+    function renderTickerHeader(key: string) {
+        const onClick = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            props.onTickerHeaderClick?.();
+        };
+        return renderHeader(key, props.getLabel, onClick);
+    }
+
+    function renderGroupHeader(h: Header) {
+        return renderHeader(h.group, (key) => ({short: key, long: ""}), () => props.onGroupHeaderClick?.(h.group))
     }
 
     function renderValue(key: string, value: DataValue) {
@@ -150,6 +156,10 @@ export function DataGrid(props: Props) {
                           rows={getSortedRows(baseRows)} columns={columns}
                           sortColumns={sortColumns} onSortColumnsChange={setSortColumns}
                           renderers={{renderCell}}/>
+}
+
+function isTicker(key: string) {
+    return key === "ticker";
 }
 
 const charWidthPx = 8.5;
