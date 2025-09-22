@@ -50,7 +50,10 @@ export default function Page() {
         if (!rows) return;
         localStorage.setItem("rows", JSON.stringify(mapValues(rows, (v) => v.toSorted())));
         fetchScraped(rows).then(setScraped);
-        if (!classOfTicker) return;
+    }, [rows]);
+
+    useEffect(() => {
+        if (!rows || !classOfTicker) return;
         fetchQuotes(rows, classOfTicker).then(setQuotes);
     }, [rows, classOfTicker]);
 
