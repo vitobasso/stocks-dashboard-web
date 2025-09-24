@@ -7,6 +7,10 @@ export function mapValues<A, B>(record: Rec<A>, fn: (value: A) => B): Rec<B> {
     return Object.fromEntries(entries)
 }
 
+export function allKeys(...records: Rec<unknown>[]): Set<string> {
+    return new Set(records.flatMap(Object.keys));
+}
+
 export function recordOfKeys<T>(keys: string[], fn: (key: string) => T): Rec<T> {
     return Object.fromEntries(keys?.map(k => [k, fn(k)]) || [])
 }
