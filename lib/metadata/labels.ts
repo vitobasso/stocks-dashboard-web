@@ -40,6 +40,7 @@ const keyLabels: Labels = {
     "yahoo_chart.1mo": {short: "1M", long: "Último Mês"},
     "yahoo_chart.1y": {short: "1A", long: "Último Ano"},
     "yahoo_chart.5y": {short: "5A", long: "Últimos 5 Anos"},
+    "derived.yahoo_chart.1mo": {short: "1M", long: "Último Mês (+ Cotação Hoje)"},
     "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
     "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
     "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},
@@ -55,7 +56,8 @@ const prefixLabels: Record<string, MetadataSource> = {
 
     // derived from other keys
     "derived.b3_position": {label: "Posição Calculada", url: "Valores calculados a partir dos dados importados da B3"},
-    "derived.forecast": {label: "Yahoo Finance %", url: "Calculado a partirde Yahoo Finance e cotação atual"},
+    "derived.forecast": {label: "Yahoo Finance %", url: "Calculado a partir de Yahoo Finance e cotação atual"},
+    "derived.yahoo_chart": {label: "Yahoo Finance API", url: "Calculado a partir de Yahoo Finance e cotação atual"},
     "derived.statusinvest": {label: "Statusinvest, Calculado", url: "Valores calculados após extração"},
 }
 
