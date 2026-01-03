@@ -26,7 +26,6 @@ const keyLabels: Labels = {
 
     // from a source other than scraper
     "yahoo_quote.latest": {short: "Hoje", long: "Cotação Hoje"},
-    "b3_position": {short: "B3, Posição", long: "Valores importados pelo usuário"},
     "b3_position.quantity": {short: "Qtd", long: "Quantidade de Cotas"},
     "b3_position.average_price": {short: "PMed", long: "Preço Médio"},
     "b3_position.total_dividends": {short: "DivAc", long: "Dividendos Acumulados"},
@@ -52,13 +51,14 @@ const keyLabels: Labels = {
 const prefixLabels: Record<string, MetadataSource> = {
 
     // from a source other than scraper
-    "yahoo_quote": {label: "Yahoo Finance API, tempo real", url: "https://github.com/gadicc/yahoo-finance2"},
+    "b3_position": {label: "B3, Posição", url: "https://investidor.b3.com.br (importado manualmente)"},
+    "yahoo_quote": {label: "Yahoo Finance, tempo real", url: "https://finance.yahoo.com/"},
 
     // derived from other keys
-    "derived.b3_position": {label: "Posição Calculada", url: "Valores calculados a partir dos dados importados da B3"},
-    "derived.forecast": {label: "Yahoo Finance %", url: "Calculado a partir de Yahoo Finance e cotação atual"},
-    "derived.yahoo_chart": {label: "Yahoo Finance API", url: "Calculado a partir de Yahoo Finance e cotação atual"},
-    "derived.statusinvest": {label: "Statusinvest, Calculado", url: "Valores calculados após extração"},
+    "derived.b3_position": {label: "Calculados", url: "Usando B3"},
+    "derived.forecast": {label: "Calculados", url: "Usando Yahoo Finance"},
+    "derived.yahoo_chart": {label: "Calculados", url: "Usando Yahoo Finance"},
+    "derived.statusinvest": {label: "Calculados", url: "Usando StatusInvest"},
 }
 
 function generateLabel(path: string): Label {
