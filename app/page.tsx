@@ -10,7 +10,6 @@ import {Analytics} from "@vercel/analytics/next"
 import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
 import {applyTheme, getStoredTheme} from "@/lib/theme";
 import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys, settersByKey} from "@/lib/utils/records";
-import {timeAgo} from "@/lib/utils/datetime";
 import {indexByFields} from "@/lib/utils/collections";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
@@ -70,24 +69,6 @@ export default function Page() {
         if (assetClasses) return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
     }, [scraped, quotes, positions, assetClasses]);
 
-    function sources(ac: string) {
-        if (!metadata) return;
-        const normalized = Object.values(metadata[ac].sources)
-            .filter((v) => v.url)
-            .map((v) => v.url.replace("https://", "").replace("www.", ""))
-        const unique = Array.from(new Set(normalized));
-        return unique.toSorted().join(", ")
-    }
-
-    function lastUpdated(ac: string) {
-        if (!metadata) return;
-        const latestTimestamp = Object.values(metadata[ac].sources)
-            .filter((v) => v.updated_at)
-            .map((v) => v.updated_at)
-            .toSorted().pop()
-        if (!latestTimestamp) return;
-        return timeAgo(new Date(latestTimestamp))
-    }
 
     // ui
     const [openPanel, setOpenPanel] = useState<string | null>(null)
@@ -117,10 +98,6 @@ export default function Page() {
                     <CardHeader>
                         <CardTitle>
                             <p className="text-xl font-bold">{getLabel[ac](ac).short}</p>
-                            <div className="text-xs font-light text-muted-foreground">
-                                <p>Fonte: {sources(ac)}</p>
-                                <p>Última atualização: {lastUpdated(ac)}</p>
-                            </div>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>

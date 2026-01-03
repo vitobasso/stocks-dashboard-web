@@ -14,7 +14,7 @@ export function timeAgo(date: Date): string {
     for (const [unit, secondsInUnit] of units) {
         if (Math.abs(diff) >= secondsInUnit || unit === "second") {
             const value = Math.round(diff / secondsInUnit);
-            return new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" }).format(
+            return new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto", style: "short" }).format(
                 value,
                 unit
             );

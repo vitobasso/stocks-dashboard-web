@@ -11,8 +11,9 @@ export type Metadata = {
 export type MetadataSource = { label: string, url: string, updated_at?: string | undefined };
 export type Data = Record<string, DataEntry>;
 export type DataEntry = Record<string, DataValue>;
-export type DataValue = string | number | number[] | ChartData;
+export type DataValue = string | number | number[] | ChartData | SpecificMetadata;
 export type ChartData = { series: number[], variation: number }
+export type SpecificMetadata = { source: string | undefined, updated_at: string | undefined }
 
 export function getValue(row: DataEntry, key: string): DataValue | undefined {
     return row?.[key];

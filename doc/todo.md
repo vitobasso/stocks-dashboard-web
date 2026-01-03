@@ -1,8 +1,4 @@
 
-### click cell 
-    - link to source
-    - last updated
-
 ### click ticker
     - list of links
 
