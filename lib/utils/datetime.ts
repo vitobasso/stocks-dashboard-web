@@ -1,4 +1,6 @@
-export function timeAgo(date: Date): string {
+export function timeAgo(date: Date): string | undefined {
+    if (!date || isNaN(date.getTime())) return undefined
+
     const now = new Date();
     const diff = (date.getTime() - now.getTime()) / 1000; // in seconds
 
@@ -14,7 +16,7 @@ export function timeAgo(date: Date): string {
     for (const [unit, secondsInUnit] of units) {
         if (Math.abs(diff) >= secondsInUnit || unit === "second") {
             const value = Math.round(diff / secondsInUnit);
-            return new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto", style: "short" }).format(
+            return new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto", style: "long" }).format(
                 value,
                 unit
             );

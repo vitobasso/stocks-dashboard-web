@@ -193,6 +193,7 @@ export function DataGrid(props: Props) {
         const renderedValue = renderValue(key, row[key])
         if (meta?.source || meta?.updated_at) {
             const open = clickedCell?.ticker === ticker && clickedCell?.key === key;
+            const updatedAt = meta?.updated_at ? timeAgo(new Date(meta.updated_at)) : undefined
             return <Tooltip open={open}>
                 <TooltipTrigger asChild>
                     <div className="w-full h-full cursor-pointer">{renderedValue}</div>
@@ -204,7 +205,7 @@ export function DataGrid(props: Props) {
                                 {meta.source}
                             </a>
                         </p>}
-                        {meta?.updated_at && <p>Atualizado {timeAgo(new Date(meta.updated_at))}</p>}
+                        {updatedAt && <p>Atualizado {updatedAt}</p>}
                     </div>
                 </TooltipContent>
             </Tooltip>
