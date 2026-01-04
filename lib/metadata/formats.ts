@@ -1,16 +1,20 @@
 import {ChartData, DataValue} from "@/lib/data";
 
 const formats: Record<string, "chart" | "percent"> = {
-  "yahoo_chart.1mo": "chart",
-  "yahoo_chart.1y": "chart",
-  "yahoo_chart.5y": "chart",
-  "derived.yahoo_chart.1mo": "chart",
-  "derived.b3_position.price_variation": "percent",
-  "derived.b3_position.cumulative_return": "percent",
-  "derived.statusinvest.ey": "percent",
-  "derived.forecast.min_pct": "percent",
-  "derived.forecast.avg_pct": "percent",
-  "derived.forecast.max_pct": "percent",
+    "yahoo_chart.1mo": "chart",
+    "yahoo_chart.1y": "chart",
+    "yahoo_chart.5y": "chart",
+    "derived.yahoo_chart.1mo": "chart",
+    "derived.b3_position.price_variation": "percent",
+    "derived.b3_position.cumulative_return": "percent",
+    "derived.statusinvest.ey": "percent",
+    "derived.forecast.min_pct": "percent",
+    "derived.forecast.avg_pct": "percent",
+    "derived.forecast.max_pct": "percent",
+
+    // dummy keys for unit testing
+    "chart": "chart",
+    "percent": "percent",
 };
 
 export function isChart(key: string): boolean {
@@ -18,13 +22,13 @@ export function isChart(key: string): boolean {
 }
 
 export function getAsNumber(key: string, data: DataValue): number | undefined {
-    if (isChart(key)) return chartAsNumber(data);
+    if (formats[key] === "chart") return chartAsNumber(data);
     if (data == null || data === "" || !isFinite(Number(data))) return undefined;
     return Number(data);
 }
 
 export function getAsSortable(key: string, data: DataValue): number | string | undefined {
-    if (isChart(key)) return chartAsNumber(data);
+    if (formats[key] === "chart") return chartAsNumber(data);
     if (data == null || data === "") return undefined;
     if (typeof data === "string") return data;
     if (isFinite(Number(data))) return Number(data);
@@ -32,20 +36,19 @@ export function getAsSortable(key: string, data: DataValue): number | string | u
 
 // Used for both measuring and rendering non-chart cells
 export function getAsText(key: string, value: DataValue): string | undefined {
-  if (value === null || value === undefined) return undefined;
-  if (isChart(key)) return formatPercent(chartAsNumber(value));
-  if (formats[key] === "percent") return formatPercent(value) ?? formatString(value);
+  if (formats[key] === "chart") return formatPercent(chartAsNumber(value));
+  if (formats[key] === "percent") return formatPercent(value);
   return formatNumber(value) ?? formatString(value);
 }
 
 function formatPercent(value: unknown): string | undefined {
     const n: number = Number(value);
-    if (isFinite(n)) return `${trimDigits(n, 2)}%`;
+    if (isFinite(n)) return `${trimDigits(n, 2).toLocaleString('pt-BR', { useGrouping: false })}%`;
 }
 
 function formatNumber(value: unknown): string | undefined {
     const n: number = Number(value);
-    if (isFinite(n)) return trimDigits(n, 3).toLocaleString('pt-BR', { useGrouping: false }) ;
+    if (isFinite(n)) return trimDigits(n, 3).toLocaleString('pt-BR', { useGrouping: false })
 }
 
 const lengthLimit = 18

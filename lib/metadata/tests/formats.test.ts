@@ -1,4 +1,4 @@
-import { trimDigits } from '../formats';
+import {getAsText, trimDigits} from '../formats';
 import { describe, test, expect } from '@jest/globals';
 
 describe('trimDigits', () => {
@@ -40,5 +40,40 @@ describe('trimDigits', () => {
         expect(trimDigits(0.12345, 1)).toBe(0);
         expect(trimDigits(0.01234, 3)).toBe(0.01);
         expect(trimDigits(0.01234, 2)).toBe(0);
+    });
+});
+
+describe('getAsText', () => {
+    test('numbers', () => {
+        expect(getAsText("", 123)).toBe("123");
+        expect(getAsText("", 12.3)).toBe("12,3");
+        expect(getAsText("", "123")).toBe("123");
+        expect(getAsText("", "12.3")).toBe("12,3");
+        expect(getAsText("", "12,3")).toBe("12,3");
+        expect(getAsText("", "")).toBe("0");
+    });
+    test('strings', () => {
+        expect(getAsText("", "abc")).toBe("abc");
+        expect(getAsText("", "1/0")).toBe("1/0");
+        expect(getAsText("", "NaN")).toBe("NaN");
+    });
+    test('percent', () => {
+        expect(getAsText("percent", 123)).toBe("123%");
+        expect(getAsText("percent", 12.3)).toBe("12%");
+        expect(getAsText("percent", 1.2)).toBe("1,2%");
+        expect(getAsText("percent", "1.2")).toBe("1,2%");
+    });
+    test('chart', () => {
+        expect(getAsText("chart", { series: [], variation: 0.1 })).toBe("10%");
+    });
+    test('invalid', () => {
+        expect(getAsText("", 1/0)).toBe("");
+        expect(getAsText("", NaN)).toBe("");
+        expect(getAsText("", { series: [], variation: 123 })).toBe("");
+        expect(getAsText("percent", 1/0)).toBe(undefined);
+        expect(getAsText("percent", NaN)).toBe(undefined);
+        expect(getAsText("percent", { series: [], variation: 123 })).toBe(undefined);
+        expect(getAsText("chart", 123)).toBe(undefined);
+        expect(getAsText("chart", "123")).toBe(undefined);
     });
 });
