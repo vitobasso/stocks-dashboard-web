@@ -34,20 +34,27 @@ export function getAsSortable(key: string, data: DataValue): number | string | u
 export function getAsText(key: string, value: DataValue): string | undefined {
   if (value === null || value === undefined) return undefined;
   if (isChart(key)) return formatPercent(chartAsNumber(value));
-  if (formats[key] === "percent") return formatPercent(value);
-  return formatNumber(value);
+  if (formats[key] === "percent") return formatPercent(value) ?? formatString(value);
+  return formatNumber(value) ?? formatString(value);
 }
 
-function formatPercent(value: unknown): string {
+function formatPercent(value: unknown): string | undefined {
     const n: number = Number(value);
     if (isFinite(n)) return `${trimDigits(n, 2)}%`;
-    return (value ?? "") as string;
 }
 
-function formatNumber(value: unknown): string {
+function formatNumber(value: unknown): string | undefined {
     const n: number = Number(value);
     if (isFinite(n)) return trimDigits(n, 3).toLocaleString('pt-BR', { useGrouping: false }) ;
-    return (value ?? "") as string;
+}
+
+const lengthLimit = 18
+function formatString(value: unknown): string {
+    if (typeof value === "string") {
+        if (value.length <= lengthLimit) return value
+        else return value.slice(0, lengthLimit-1) + "…"
+    }
+    else return ""
 }
 
 // To keep column widths reasonable
