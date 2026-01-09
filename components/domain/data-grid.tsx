@@ -214,10 +214,15 @@ export function DataGrid(props: Props) {
         }
     }
 
-    function specificMetadata(ticker: string, key: string): SpecificMetadata {
-        const prefix = getPrefix(key)
-        const metaKey = prefix + ".meta"
-        return props.data[ticker][metaKey] as SpecificMetadata
+    function specificMetadata(ticker: string, key: string): SpecificMetadata | undefined {
+        let prefix = getPrefix(key)
+        while (prefix) {
+            const metaKey = prefix + ".meta"
+            const found = props.data[ticker]?.[metaKey];
+            if (found) return found as SpecificMetadata
+            prefix = getPrefix(prefix)
+        }
+        return undefined
     }
 
     return <ReactDataGrid className={cn("font-mono", props.className)}
