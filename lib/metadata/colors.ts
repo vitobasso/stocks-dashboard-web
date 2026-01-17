@@ -43,11 +43,11 @@ export const colors: Colors = {
     "statusinvest.cagr_receitas_5_anos": {domain: [0, 5, 15, 40], colors: [red, bgColor, bgColor, green]},
     "statusinvest.dy": {domain: [7, 20], colors: [bgColor, green]},
 
-    "simplywall.value": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "simplywall.future": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "simplywall.past": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "simplywall.health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
-    "simplywall.dividend": {domain: [3, 6], colors: [bgColor, green]},
+    "simplywall.score.value": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywall.score.future": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywall.score.past": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywall.score.health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
+    "simplywall.score.dividend": {domain: [3, 6], colors: [bgColor, green]},
 
     "yahoo_recom.strong_buy": {domain: [1, 10], colors: [bgColor, green]},
     "yahoo_recom.buy": {domain: [2, 20], colors: [bgColor, green]},

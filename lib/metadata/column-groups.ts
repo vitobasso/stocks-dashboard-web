@@ -7,7 +7,7 @@ export const columnGroups: Record<string, string[]> = {
     "Posição": ["*b3_position"],
     "Cotação": ["yahoo_quote", "*yahoo_chart", "*rentabilidade"],
     "Fundamentos": ["*fundamentos", "*statusinvest", "*fundamentus"],
-    "Score": ["simplywall"],
+    "Score": ["simplywall.score"],
     "Recomendação": ["*rating", "yahoo_recom"],
     "Previsão": ["*forecast", "yahoo_target"],
 }
