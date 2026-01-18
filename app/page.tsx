@@ -97,7 +97,7 @@ export default function Page() {
                 <Card key={ac} className="m-4 min-w-0">
                     <CardHeader>
                         <CardTitle>
-                            <p className="text-xl font-bold">{getLabel[ac](ac).short}</p>
+                            <p className="text-xl font-bold text-center">{getLabel[ac](ac).short}</p>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
