@@ -27,18 +27,3 @@ export const defaultColumns: Rec<Header[]> = {
                 "fundamentus.dividend_yield", "fundamentus.qtd_de_imoveis","fundamentus.vacancia_media"]},
     ]
 };
-
-export const defaultRows = {
-    "stock_br": [
-        "VALE3",
-        "ITUB4",
-        "PETR4",
-        "BBDC4",
-    ],
-    "reit_br": [
-        "KNCR11",
-        "KNIP11",
-        "XPML11",
-        "HGLG11",
-    ],
-}

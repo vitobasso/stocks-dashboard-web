@@ -21,7 +21,6 @@ type Props = {
     getLabel(path: string): Label
     className?: string
     onGroupHeaderClick?(group: string): void
-    onTickerHeaderClick?(): void
 }
 
 type Row = Record<string, string | number>;
@@ -41,7 +40,7 @@ export function DataGrid(props: Props) {
         headerCellClass: 'text-center',
         children: h.keys.map(key => ({
             key,
-            name: isTicker(key) ? renderTickerHeader(key) : renderHeader(key, props.getLabel),
+            name: renderHeader(key, props.getLabel),
             frozen: isTicker(key),
             sortable: !isTicker(key),
             headerCellClass: cn('text-center', hoveredCol === key && 'bg-foreground/5'),
@@ -70,14 +69,6 @@ export function DataGrid(props: Props) {
             <TooltipTrigger asChild>{content}</TooltipTrigger>
             <TooltipContent>{label.long}</TooltipContent>
         </Tooltip>
-    }
-
-    function renderTickerHeader(key: string) {
-        const onClick = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            props.onTickerHeaderClick?.();
-        };
-        return renderHeader(key, props.getLabel, onClick);
     }
 
     function renderGroupHeader(h: Header) {

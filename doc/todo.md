@@ -1,16 +1,24 @@
-### upgrade node and friends
-
-### hide card (acoes/fiis) when empty
-
-### better settings menu
-- organize rows, cols vs asset_classes
-
-### calc previsao: aggregate yahoo + tradingview
-
-### click cell on derived values should explain the calc (and give multiple links if needed)
+### quick change lists
+classe: ações, fiis
+linhas (listas): carteira, radar (watchlist), perenes, cíclicas,
+colunas (lentes): resumo (overview), preço, qualidade (checklist), fundamentos, análise, posição,
+edit, rename, duplicate, delete
 
 ### click ticker
 - list of links
+
+### click cell on derived values should explain the calc (and give multiple links if needed)
+
+### upgrade node and friends
+
+### [bug] zeros not being colored red
+tag along, simplywall score
+
+### [bug] showing "0" instead of "-"
+
+### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
+
+### calc previsao: aggregate yahoo + tradingview
 
 ### import b3 automatically
 
@@ -18,7 +26,6 @@
 
 ### order by multi cols
 
-### re-order column groups
+### customize: color rules ?
 
-### color rules
-- allow customizing per key?
+### customize: calculated columns ?

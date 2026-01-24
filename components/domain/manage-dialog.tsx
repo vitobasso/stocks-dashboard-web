@@ -19,8 +19,6 @@ type Props = {
     metadata: Rec<Metadata>
     getLabel: Rec<(path: string) => Label>
     classOfTickers: Map<string, string>
-    rows: Rec<string[]>
-    setRows: Rec<StateSetter<string[]>>
     columns: Rec<Header[]>
     setColumns: Rec<StateSetter<Header[]>>
     setPositions(p: React.SetStateAction<Rec<Data>>): void
@@ -61,10 +59,6 @@ export function ManageDialog(props: Props) {
             {({close}) => <>
                 {assetClasses.map(ac => (
                     <React.Fragment key={ac}>
-                        <FabMenuItem className="w-46" onClick={trigger(`${ac}-rows`, close)}>
-                            <Rows2 className="size-4"/>
-                            {props.getLabel[ac](ac).short} - Linhas
-                        </FabMenuItem>
                         <FabMenuItem className="w-46" onClick={trigger(`${ac}-cols`, close)}>
                             <Columns3 className="size-4"/>
                             {props.getLabel[ac](ac).short} - Colunas
@@ -86,17 +80,6 @@ export function ManageDialog(props: Props) {
         {assetClasses.map(ac => {
             const acLabel = props.getLabel[ac](ac).short
             return <React.Fragment key={ac}>
-                <Dialog open={openPanel === `${ac}-rows`} onOpenChange={(o) => !o && close()}>
-                    <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
-                        <DialogHeader><DialogTitle>Customizar Linhas - {acLabel}</DialogTitle></DialogHeader>
-                        <RowSelector
-                            allTickers={props.metadata[ac].tickers}
-                            rows={props.rows[ac]}
-                            setRows={props.setRows[ac]}
-                        />
-                    </DialogContent>
-                </Dialog>
-
                 <Dialog open={openPanel === `${ac}-cols`} onOpenChange={(o) => !o && close()}>
                     <DialogContent position="br" hideOverlay className="sm:max-w-[34rem] w-[90vw] p-4">
                         <DialogHeader><DialogTitle>Customizar Colunas - {acLabel}</DialogTitle></DialogHeader>

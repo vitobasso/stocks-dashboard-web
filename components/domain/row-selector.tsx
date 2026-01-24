@@ -59,13 +59,10 @@ export function RowSelector(props: Props) {
 
     return <div className="dialog p-1 space-y-4">
         <div className="flex relative">
-            <Input id="input-ticker" inputMode="text" placeholder="Adicionar..." value={newTicker} className="flex-1"
+            <Input id="input-ticker" inputMode="text" placeholder="Buscar..." value={newTicker} className="flex-1"
                    autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} aria-autocomplete="list"
                    onChange={e => { setNewTicker(e.target.value); setHighlight(0); }}
                    onKeyDown={onKeyDown}/>
-            <Button size="icon" className="size-8 ml-2 mr-1" onClick={() => addTicker(newTicker)}>
-                <PlusIcon/>
-            </Button>
             {newTicker && suggestions.length > 0 && (
                 <div className="absolute left-0 right-12 top-full mt-1 z-20 max-h-40 overflow-auto rounded-md border bg-background shadow">
                     {suggestions.map((t, i) => (
