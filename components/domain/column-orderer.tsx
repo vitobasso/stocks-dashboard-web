@@ -1,24 +1,15 @@
 "use client";
-import {
-    closestCenter,
-    DndContext,
-    DragEndEvent,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from "@dnd-kit/core";
+import {closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors,} from "@dnd-kit/core";
 import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
-import {GripVertical} from "lucide-react";
-import {Header} from "@/lib/metadata/defaults";
+import {GripVertical, XIcon} from "lucide-react";
 import {Label} from "@/lib/metadata/labels";
 import React from "react";
 
 type Props = {
-    columns: Header[]
-    setColumns(c: React.SetStateAction<Header[]>): void
+    columns: string[]
+    setColumns(c: React.SetStateAction<string[]>): void
     getLabel(path: string): Label
-    groupFilter: string | null
 }
 
 export default function ColumnOrderer(props: Props) {
@@ -28,35 +19,30 @@ export default function ColumnOrderer(props: Props) {
         const {active, over} = event;
         if (!over || active.id === over.id) return;
 
-        // Only reorder within the same group
-        const groupIndex = props.columns.findIndex((g) => g.keys.includes(String(active.id)));
-        const overGroupIndex = props.columns.findIndex((g) => g.keys.includes(String(over.id)));
-        if (groupIndex === -1 || overGroupIndex === -1 || groupIndex !== overGroupIndex) return;
-
         props.setColumns((prev) => {
-            const next = [...prev];
-            const group = next[groupIndex];
-            const items = [...group.keys];
-            const oldIndex = items.indexOf(String(active.id));
-            const newIndex = items.indexOf(String(over.id));
-            next[groupIndex] = {...group, keys: arrayMove(items, oldIndex, newIndex)};
-            return next;
+            const oldIndex = prev.indexOf(String(active.id));
+            const newIndex = prev.indexOf(String(over.id));
+            return arrayMove(prev, oldIndex, newIndex);
         });
     }
 
-    const baseColumns = props.groupFilter ? props.columns.filter(g => g.group === props.groupFilter) : props.columns;
+    function handleRemove(item: string) {
+        props.setColumns(() => props.columns.filter(v => v != item))
+    }
 
-    return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}>
-            <div className="font-bold p-2">Ordem</div>
-            <div className="max-h-124 overflow-auto">
-                {baseColumns.map((group) => (
-                    <SortableGroup key={group.group} group={group} {...props}/>
-                ))}
-            </div>
-        </DndContext>
-    );
+    return <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <div className="font-bold p-2">Ordem</div>
+        <SortableContext items={props.columns} strategy={verticalListSortingStrategy}>
+            {props.columns.map((item) => (
+                <SortableRow key={item} id={item}>
+                    <div className="flex w-full items-center">
+                        <div className="flex-1">{props.getLabel(item).short}</div>
+                        <XIcon className="size-4" onClick={() => handleRemove(item)}/>
+                    </div>
+                </SortableRow>
+            ))}
+        </SortableContext>
+    </DndContext>
 }
 
 function SortableRow({id, children}: { id: string; children: React.ReactNode }) {
@@ -72,16 +58,4 @@ function SortableRow({id, children}: { id: string; children: React.ReactNode }) 
     );
 }
 
-function SortableGroup({group, getLabel}: { group: Header, getLabel: (path: string) => Label },) {
-    return (
-        <div className="p-3 space-y-2">
-            <div className="font-semibold text-sm">{group.group}</div>
-            <SortableContext items={group.keys} strategy={verticalListSortingStrategy}>
-                {group.keys.map((item) => (
-                    <SortableRow key={item} id={item}>{getLabel(item).short}</SortableRow>
-                ))}
-            </SortableContext>
-        </div>
-    );
-}
 

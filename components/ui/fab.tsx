@@ -5,12 +5,10 @@ import {cn} from "@/lib/utils"
 import {useCallback} from "react";
 
 export type FabPosition = "br" | "bl" | "tr" | "tl"
-export type FabDirection = "up" | "left"
 
 export type FabProps = {
   icon: React.ReactNode
   position?: FabPosition
-  direction?: FabDirection
   label?: string
   className?: string
   buttonClassName?: string
@@ -28,7 +26,6 @@ export type FabProps = {
 export function Fab({
   icon,
   position = "br",
-  direction = "up",
   label,
   className,
   buttonClassName,
@@ -71,9 +68,10 @@ export function Fab({
     position === "tr" ? "top-6 right-6" :
     /* tl */             "top-6 left-6"
 
-  const menuPositionClass = direction === "up"
-    ? "absolute -translate-y-2 bottom-14 right-0"
-    : "absolute -translate-x-2 left-14 bottom-0"
+  const menuPositionClass =
+    position === "tr"
+      ? "absolute translate-y-0 top-0 right-16"
+      : "absolute -translate-y-2 bottom-14 right-0"
 
   const renderChildren = typeof children === "function" ? children({ close: () => setOpen(false) }) : children
 
@@ -82,7 +80,7 @@ export function Fab({
       <div className="relative">
         {open && (
           <div className={cn(menuPositionClass, "flex flex-col gap-2")}
-               role="menu" aria-orientation={direction === "up" ? "vertical" : "horizontal"}>
+               role="menu" aria-orientation="vertical">
             {renderChildren}
           </div>
         )}

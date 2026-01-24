@@ -1,196 +1,119 @@
 "use client";
 import {Input} from "@/components/ui/input";
-import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue, forwardRef} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
-import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
-import {columnGroupPerKey, columnGroupPerPrefix, columnGroups} from "@/lib/metadata/column-groups";
 import {getPrefix, getSuffix} from "@/lib/data";
 import {toNorm} from "@/lib/utils/strings";
-import {groupByValues} from "@/lib/utils/collections";
 
 type Props = {
+    columns: string[]
+    setColumns(columns: string[]): void
     allKeys: string[]
-    columns: Header[]
-    setColumns(columns: Header[]): void
     getLabel(path: string): Label
-    groupFilter: string | null
+    autoFocus?: boolean
 }
 
-export function ColumnSelector(props: Props) {
+export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
 
     const [search, setSearch] = useState("")
-    const [openValues, setOpenValues] = useState<string[]>([])
-    const manualOpenRef = useRef(false) // when true, do not auto-suggest open values
+    const [expandedPrefixes, setExpandedPrefixes] = useState<string[]>([])
+    const manualExpandRef = useRef(false) // when true, do not auto-suggest expand values
 
     const deferredSearch = useDeferredValue(search)
     const isSearching = deferredSearch.trim().length > 0
     const q = useMemo(() => toNorm(deferredSearch), [deferredSearch])
 
     const selectedKeys: Set<string> = useMemo(() =>
-            props.columns.flatMap(h => h.keys)
-                .reduce((s, k) => {
-                    s.add(k);
-                    return s
-                }, new Set<string>())
+            props.columns.reduce((s, k) => {
+                s.add(k);
+                return s
+            }, new Set<string>())
         , [props.columns]);
 
-    const {baseGroups, basePrefixes, baseKeys, groupOfKey, groupOfPrefix, prefixesOfGroup} = useMemo(() => {
-
-        const groupOfKey = columnGroupPerKey(props.allKeys) // Map<key, group>
-        const keysOfGroup = groupByValues(groupOfKey); // Map<group, keys>
-
-        const allGroups = Object.keys(columnGroups).filter(g => keysOfGroup.get(g)?.length);
-        const baseGroups = props.groupFilter ? allGroups.filter(g => g === props.groupFilter) : allGroups;
-        const baseKeys = baseGroups.flatMap(g => keysOfGroup.get(g) ?? []);
-        const basePrefixes = Array.from(new Set(baseKeys.map(h => getPrefix(h))));
-
-        const groupOfPrefix = columnGroupPerPrefix(basePrefixes); // Map<prefix, group>
-        const prefixesOfGroup = groupByValues(groupOfPrefix); // Map<group, prefixes>
-
-        return {baseGroups, basePrefixes, baseKeys, groupOfKey, groupOfPrefix, prefixesOfGroup};
-    }, [props.allKeys, props.groupFilter]);
+    const allPrefixes = Array.from(new Set(props.allKeys.map(h => getPrefix(h))))
+        .toSorted((a, b) => props.getLabel(a)?.short.localeCompare(props.getLabel(b)?.short));
 
     function keyMatches(key: string): boolean {
-        return toNorm(getSuffix(key)).includes(q) ||
-            toNorm(props.getLabel(key)?.short).includes(q) ||
+        return toNorm(props.getLabel(key)?.short).includes(q) ||
             toNorm(props.getLabel(key)?.long).includes(q)
     }
 
     const {getLabel} = props;
-    const prefixSelfMatches = useCallback((prefix: string): boolean => {
+    const prefixItselfMatches = useCallback((prefix: string): boolean => {
         const label = getLabel(prefix)
-        return toNorm(prefix).includes(q) ||
-            toNorm(label?.short).includes(q) ||
+        return toNorm(label?.short).includes(q) ||
             toNorm(label?.long).includes(q)
     }, [getLabel, q]);
 
-    function prefixMatches(prefix: string): boolean {
+    function prefixOrChildrenMatch(prefix: string): boolean {
         if (!isSearching) return true
-        if (prefixSelfMatches(prefix)) return true
+        if (prefixItselfMatches(prefix)) return true
         // any key under this prefix matches
-        return baseKeys.some(k => getPrefix(k) === prefix && keyMatches(k))
+        return props.allKeys.some(k => getPrefix(k) === prefix && keyMatches(k))
     }
 
-    function groupMatches(group: string): boolean {
-        if (!isSearching) return true
-        if (toNorm(group).includes(q)) return true
-        // any prefix in this group matches
-        const anyPrefix = basePrefixes.some(p => groupOfPrefix.get(p) === group && prefixMatches(p))
-        if (anyPrefix) return true
-        // any key in this group matches
-        return baseKeys.some(k => groupOfKey.get(k) === group && keyMatches(k))
-    }
-
-    // sets for name matches, used to widen visibility
-    const groupNameMatched = useMemo(() => new Set(baseGroups.filter(g => toNorm(g).includes(q))), [baseGroups, q])
-    const prefixNameMatched = useMemo(() => new Set(basePrefixes.filter(p => prefixSelfMatches(p))), [basePrefixes, prefixSelfMatches])
+    // prefix name matches, used to widen search results
+    const prefixNamesMatching = useMemo(() => new Set(allPrefixes.filter(p => prefixItselfMatches(p))), [allPrefixes, prefixItselfMatches])
 
     // filtered after search
-    const visibleKeys = isSearching ? baseKeys.filter(keyMatches) : baseKeys
+    const visibleKeys = isSearching ? props.allKeys.filter(keyMatches) : props.allKeys
     const visiblePrefixes = isSearching
-        ? basePrefixes.filter(p => prefixMatches(p) || groupNameMatched.has(groupOfPrefix.get(p) ?? ""))
-        : basePrefixes
-    const visibleGroups = (isSearching ? baseGroups.filter(groupMatches) : baseGroups)
+        ? allPrefixes.filter(p => prefixOrChildrenMatch(p))
+        : allPrefixes
 
-    // auto-suggest open values in the accordion
+    // auto-suggest expand values in the accordion
     useEffect(() => {
-        if (!isSearching || manualOpenRef.current) return
-        const open = new Set<string>()
-        // open all matching groups by name
-        for (const g of groupNameMatched) open.add(g)
-        // open all matching prefixes by name and their groups
-        for (const p of prefixNameMatched) {
-            open.add(p)
-            const g = groupOfPrefix.get(p)
-            if (g) open.add(g)
+        if (!isSearching || manualExpandRef.current) return
+        const expand = new Set<string>()
+        // expand all matching prefixes by name
+        for (const p of prefixNamesMatching) {
+            expand.add(p)
         }
-        // open ancestors of matching keys
+        // expand ancestors of matching keys
         for (const k of visibleKeys) {
-            const g = groupOfKey.get(k)
-            if (g) open.add(g)
             const p = getPrefix(k)
-            if (p) open.add(p)
+            if (p) expand.add(p)
         }
-        const next = Array.from(open)
-        setOpenValues(prev => (
+        const next = Array.from(expand)
+        setExpandedPrefixes(prev => (
             prev.length === next.length && prev.every((v, i) => v === next[i])
         ) ? prev : next)
-    }, [q, visibleKeys, groupNameMatched, groupOfKey, groupOfPrefix, isSearching, prefixNameMatched])
+    }, [q, visibleKeys, isSearching, prefixNamesMatching])
 
-    // reset manual override when search query changes
+    // reset manual override of accordion expand/collapse state when search query changes
     useEffect(() => {
-        manualOpenRef.current = false
+        manualExpandRef.current = false
     }, [q])
 
-    // when filtering by group, auto-open that group
-    useEffect(() => {
-        if (!props.groupFilter) return
-        const open = new Set<string>([props.groupFilter])
-        const prefixes = prefixesOfGroup.get(props.groupFilter)
-        if (prefixes) prefixes.forEach(p => open.add(p))
-        setOpenValues(Array.from(open))
-    }, [props.groupFilter, prefixesOfGroup])
-
-    const onValueChange = useCallback((v: string[]) => {
-        manualOpenRef.current = true;
-        setOpenValues(v)
+    const onAccordionChange = useCallback((v: string[]) => {
+        manualExpandRef.current = true;
+        setExpandedPrefixes(v)
     }, [])
 
     return <div className="w-full">
         <Input className="mb-2"
                placeholder="Buscar..." value={search}
-               onChange={e => setSearch(e.target.value)}/>
-        <div className="flex-1 max-h-123 p-1 overflow-auto">
-            <Accordion type="multiple" value={openValues} onValueChange={onValueChange}>
-                {visibleGroups.map(group => {
-                    const keysInGroup = baseKeys.filter(k => groupOfKey.get(k) === group)
-                    const visibleKeysInGroup = visibleKeys.filter(k => groupOfKey.get(k) === group)
-                    const visiblePrefixesInGroup = (prefixesOfGroup.get(group) ?? []).filter(p => visiblePrefixes.includes(p))
-                    return ColumnGroup(group, keysInGroup, visiblePrefixesInGroup, visibleKeysInGroup, groupNameMatched, prefixNameMatched, groupOfKey, selectedKeys, props)
+               onChange={e => setSearch(e.target.value)}
+               ref={ref} autoFocus={props.autoFocus}/>
+        <div className="flex-1 p-1">
+            <Accordion type="multiple" value={expandedPrefixes} onValueChange={onAccordionChange}>
+                {visiblePrefixes.map(prefix => {
+                    const byPrefix = (key: string) => getPrefix(key) === prefix
+                    const allKeysInPrefix = props.allKeys.filter(byPrefix)
+                    const visibleKeysInPrefix = prefixNamesMatching.has(prefix) ? allKeysInPrefix : visibleKeys.filter(byPrefix)
+                    return ColumnPrefix(prefix, allKeysInPrefix, visibleKeysInPrefix, selectedKeys, props)
                 })}
             </Accordion>
         </div>
     </div>
-}
-
-
-function ColumnGroup(
-    group: string,
-    keysInGroup: string[],
-    visiblePrefixesInGroup: string[],
-    visibleKeysInGroup: string[],
-    groupNameMatched: Set<string>,
-    prefixNameMatched: Set<string>,
-    groupOfKey: Map<string, string>,
-    selectedKeys: Set<string>,
-    props: Props,
-) {
-    return <AccordionItem key={group} value={group}>
-        <AccordionTrigger>
-            <span className="font-semibold">{group}</span>
-        </AccordionTrigger>
-        <AccordionContent>
-            <div className="pl-4">
-                {visiblePrefixesInGroup.map(prefix => {
-                    const byPrefix = (key: string) => getPrefix(key) === prefix
-                    const keysInPrefix = keysInGroup.filter(byPrefix)
-                    const visibleKeysInPrefix = (groupNameMatched.has(group) || prefixNameMatched.has(prefix))
-                        ? keysInPrefix
-                        : visibleKeysInGroup.filter(byPrefix)
-                    return ColumnPrefix(prefix, keysInPrefix, visibleKeysInPrefix, groupOfKey, selectedKeys, props)
-                })}
-            </div>
-        </AccordionContent>
-    </AccordionItem>;
-}
+});
 
 function ColumnPrefix(
     prefix: string,
     keysInPrefix: string[],
     visibleKeysInPrefix: string[],
-    groupOfKey: Map<string, string>,
     selectedKeys: Set<string>,
     props: Props
 ) {
@@ -198,7 +121,7 @@ function ColumnPrefix(
     const checkedState = selectedCount === 0 ? false : (selectedCount === keysInPrefix.length ? true : "indeterminate")
 
     function onToggle(checked: boolean) {
-        props.setColumns(updatedSelection(checked, props.columns, keysInPrefix, groupOfKey))
+        props.setColumns(updatedSelection(checked, props.columns, keysInPrefix))
     }
 
     const label = props.getLabel(prefix);
@@ -215,16 +138,16 @@ function ColumnPrefix(
         </AccordionTrigger>
         <AccordionContent>
             <div className="space-y-2 pl-4">
-                {visibleKeysInPrefix.map(key => ColumnKey(key, groupOfKey, selectedKeys, props))}
+                {visibleKeysInPrefix.map(key => ColumnKey(key, selectedKeys, props))}
             </div>
         </AccordionContent>
     </AccordionItem>;
 }
 
-function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: Set<string>, props: Props) {
+function ColumnKey(key: string, selectedKeys: Set<string>, props: Props) {
 
     function onToggle(checked: boolean) {
-        props.setColumns(updatedSelection(checked, props.columns, [key], groupOfKey))
+        props.setColumns(updatedSelection(checked, props.columns, [key]))
     }
 
     const label = props.getLabel(key)
@@ -235,33 +158,17 @@ function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: S
     </label>;
 }
 
-function updatedSelection(checked: boolean, prev: Header[], toggledKeys: string[], groupOfKey: Map<string, string>): Header[] {
+function updatedSelection(checked: boolean, prev: string[], toggledKeys: string[]): string[] {
     return checked
-        ? addKeysToSelection(prev, toggledKeys, groupOfKey)
+        ? addKeysToSelection(prev, toggledKeys)
         : removeKeysFromSelection(prev, toggledKeys)
 }
 
-function addKeysToSelection(selectionState: Header[], toggledKeys: string[], groupOfKey: Map<string, string>): Header[] {
-    for (const k of toggledKeys) {
-        const already = selectionState.some(h => h.keys.includes(k))
-        if (already) continue
-        const g = groupOfKey.get(k) ?? ""
-        const idx = selectionState.findIndex(h => h.group === g)
-        if (idx >= 0) {
-            // group already in selection
-            const h = selectionState[idx]
-            if (!h.keys.includes(k)) {
-                selectionState = selectionState.map((hh, i) => i === idx ? {...hh, keys: [...hh.keys, k]} : hh)
-            }
-        } else {
-            // group newly added to selection
-            selectionState = [...selectionState, {group: g, keys: [k]}]
-        }
-    }
-    return selectionState
+function addKeysToSelection(selectionState: string[], toggledKeys: string[]): string[] {
+    return Array.from(new Set([...selectionState, ...toggledKeys]));
 }
 
-function removeKeysFromSelection(selectionState: Header[], toggledKeys: string[]): Header[] {
+function removeKeysFromSelection(selectionState: string[], toggledKeys: string[]): string[] {
     const removeSet = new Set(toggledKeys)
-    return selectionState.map(h => ({...h, keys: h.keys.filter(k => !removeSet.has(k))}))
+    return selectionState.filter(k => !removeSet.has(k))
 }

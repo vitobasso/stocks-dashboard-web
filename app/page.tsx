@@ -4,14 +4,14 @@ import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Metadata, splitByAssetClass} from "@/lib/data";
 import {makeLabelGetter} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
-import {ManageDialog} from "@/components/domain/manage-dialog";
+import {SettingsDialog} from "@/components/domain/settings-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
-import {defaultColumns, defaultRows, Header} from "@/lib/metadata/defaults";
 import {applyTheme, getStoredTheme} from "@/lib/theme";
-import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys, settersByKey} from "@/lib/utils/records";
+import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {ViewSelector} from "@/components/domain/view-selector";
 
 export default function Page() {
 
@@ -21,14 +21,13 @@ export default function Page() {
     const [quotes, setQuotes] = useState<Rec<Data>>({});
 
     // user defined state
-    const [rows, setRows] = useState<Rec<string[]> | null>(null);
-    const [columns, setColumns] = useState<Rec<Header[]> | null>(null);
+    const [assetClass, setAssetClass] = useState<string | null>(null);
+    const [rows, setRows] = useState<string[] | null>(null);
+    const [columns, setColumns] = useState<string[] | null>(null);
     const [positions, setPositions] = useState<Rec<Data>>({});
 
     useEffect(() => {
         applyStoredTheme();
-        setRows(loadRows(localStorage));
-        setColumns(loadColumns(localStorage));
         setPositions(loadPositions(localStorage));
         fetchMeta().then(setMetadata);
     }, []);
@@ -46,20 +45,15 @@ export default function Page() {
     }, [metadata]);
 
     useEffect(() => {
-        if (!rows) return;
-        localStorage.setItem("rows", JSON.stringify(mapValues(rows, (v) => v.toSorted())));
-        fetchScraped(rows).then(setScraped);
-        return listenScraped(rows, setScraped);
-    }, [rows]);
+        if (!assetClass || !rows) return;
+        fetchScraped(assetClass, rows).then(setScraped);
+        return listenScraped(assetClass, rows, setScraped);
+    }, [assetClass, rows]);
 
     useEffect(() => {
         if (!rows || !classOfTicker) return;
         fetchQuotes(rows, classOfTicker).then(setQuotes);
-    }, [rows, classOfTicker]);
-
-    useEffect(() => {
-        localStorage.setItem("columns", JSON.stringify(columns));
-    }, [columns]);
+    }, [assetClass, rows, classOfTicker]);
 
     useEffect(() => {
         localStorage.setItem("positions", JSON.stringify(positions));
@@ -86,47 +80,37 @@ export default function Page() {
         }
     }
 
-    function onTickerHeaderClick(assetClass: string) {
-        return () => setOpenPanel(`${assetClass}-rows`);
-    }
-
-    if (!assetClasses || !metadata || !data || !getLabel || !classOfTicker || !rows || !columns) return skeleton();
-    return <>
-        <>
-            {assetClasses.map(ac =>
-                <Card key={ac} className="m-4 min-w-0">
-                    <CardHeader>
-                        <CardTitle>
-                            <p className="text-xl font-bold text-center">{getLabel[ac](ac).short}</p>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <DataGrid className="h-auto"
-                                  rows={rows[ac]} columns={columns[ac]} data={data[ac]} getLabel={getLabel[ac]}
-                                  onGroupHeaderClick={onGroupHeaderClick(ac)}
-                                  onTickerHeaderClick={onTickerHeaderClick(ac)}/>
-                    </CardContent>
-                </Card>
-            )}
-            <ManageDialog metadata={metadata} getLabel={getLabel}
-                          rows={rows} setRows={settersByKey(assetClasses, setRows)}
-                          columns={columns} setColumns={settersByKey(assetClasses, setColumns)}
-                          setPositions={setPositions} classOfTickers={classOfTicker}
-                          openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
-            <Analytics/>
-        </>
-        <footer className="border-t border-border mx-6 py-6 text-center text-xs text-muted-foreground">
+    if (!metadata || !assetClasses || !getLabel)
+        return skeleton();
+    return <div className="min-h-screen flex flex-col">
+        <div className="flex flex-col gap-2 m-4">
+            <ViewSelector metadata={metadata} getLabel={getLabel}
+                          setAssetClass={setAssetClass} setRows={setRows} setCols={setColumns} />
+            {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? skeleton() :
+                <>
+                    <DataGrid className="h-auto"
+                              rows={rows} columns={columns} data={data[assetClass]}
+                              getLabel={getLabel[assetClass]}
+                              onGroupHeaderClick={onGroupHeaderClick(assetClass)}/>
+                    <SettingsDialog metadata={metadata} getLabel={getLabel}
+                                    setPositions={setPositions} classOfTickers={classOfTicker}
+                                    openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
+                    <Analytics/>
+                </>
+            }
+        </div>
+        <footer className="mt-auto border-t border-border mx-6 py-6 text-center text-xs text-muted-foreground">
+            <p className="mt-2">
+                As informações fornecidas neste site não constituem aconselhamento financeiro.
+                Use por sua conta e risco.
+            </p>
             <p>
-                Sugestões, enviar para:{" "}
                 <a href="mailto:monitor.de.acoes.br@gmail.com" className="hover:underline">
                     monitor.de.acoes.br@gmail.com
                 </a>
             </p>
-            <p className="mt-2">
-                As informações fornecidas neste site são apenas para fins informativos e não constituem aconselhamento financeiro. Use por sua conta e risco.
-            </p>
         </footer>
-    </>
+    </div>
 
 }
 
@@ -135,27 +119,26 @@ async function fetchMeta(): Promise<Rec<Metadata>> {
     return await res.json();
 }
 
-async function fetchScraped(rows: Rec<string[]>): Promise<Rec<Data>> {
-    const urlParams = scraperParams(rows);
+async function fetchScraped(ac: string, rows: string[]): Promise<Rec<Data>> {
+    const urlParams = scraperParams(ac, rows);
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
     return await res.json();
 }
 
-async function fetchQuotes(rows: Rec<string[]>, classOfTicker: Map<string, string>): Promise<Rec<Data>> {
-    const allTickers = Object.values(rows).flat();
-    if (!allTickers.length) return {};
+async function fetchQuotes(rows: string[], classOfTicker: Map<string, string>): Promise<Rec<Data>> {
+    if (!rows.length) return {};
 
     const res = await fetch("/api/quotes", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({tickers: allTickers})
+        body: JSON.stringify({tickers: rows})
     });
     const data: Data = await res.json();
     return splitByAssetClass(data, classOfTicker);
 }
 
-function listenScraped(rows: Rec<string[]>, setScraped: (value: ((prevState: Rec<Data>) => Rec<Data>)) => void) {
-    const ws = new WebSocket(scraperLiveUrl(rows));
+function listenScraped(ac: string, rows: string[], setScraped: (value: ((prevState: Rec<Data>) => Rec<Data>)) => void) {
+    const ws = new WebSocket(scraperLiveUrl(ac, rows));
 
     ws.onmessage = (event) => {
         try {
@@ -185,29 +168,17 @@ function listenScraped(rows: Rec<string[]>, setScraped: (value: ((prevState: Rec
     };
 }
 
-function scraperParams(rows: Rec<string[]>) {
+function scraperParams(ac: string, rows: string[]) {
     const urlParams = new URLSearchParams();
-    for (const [assetClass, r] of Object.entries(rows)) {
-        if (r.length) urlParams.append(assetClass, r.join(","));
-    }
+    if (rows.length) urlParams.append(ac, rows.join(","));
     return urlParams;
 }
 
-function scraperLiveUrl(rows: Rec<string[]>) {
-    const urlParams = scraperParams(rows);
+function scraperLiveUrl(ac: string, rows: string[]) {
+    const urlParams = scraperParams(ac, rows);
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
     return `${baseUrl}/data-live?${urlParams.toString()}`
-}
-
-function loadRows(localStorage: Storage): Rec<string[]> {
-    const rawString = localStorage.getItem("rows");
-    return rawString?.length && JSON.parse(rawString) || defaultRows;
-}
-
-function loadColumns(localStorage: Storage): Rec<Header[]> {
-    const rawString = localStorage.getItem("columns");
-    return rawString?.length && JSON.parse(rawString) || defaultColumns;
 }
 
 function loadPositions(localStorage: Storage): Rec<Data> {

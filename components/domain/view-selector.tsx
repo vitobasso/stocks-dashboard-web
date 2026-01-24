@@ -1,0 +1,119 @@
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
+import {Rec, recordOfKeys} from "@/lib/utils/records";
+import {Button} from "@/components/ui/button";
+import {Metadata} from "@/lib/data";
+import {ViewsAvailable, viewsCrud, ViewSelection} from "@/lib/views";
+import {ViewSelectorTabs} from "@/components/domain/view-selector-tabs";
+import {RowEditDialog} from "@/components/domain/row-edit-dialog";
+import {ColEditDialog} from "@/components/domain/col-edit-dialog";
+import {Label} from "@/lib/metadata/labels";
+import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
+import {consolidateSchema} from "@/lib/schema";
+import {RowCreateDialog} from "@/components/domain/row-create-dialog";
+import {ColCreateDialog} from "@/components/domain/col-create-dialog";
+import {flattenUnique} from "@/lib/utils/collections";
+import {Str} from "@/lib/utils/strings";
+
+type Props = {
+    metadata: Rec<Metadata>
+    getLabel: Record<string, (key: string) => Label>;
+    setAssetClass: Dispatch<SetStateAction<string | null>>;
+    setRows: Dispatch<SetStateAction<string[] | null>>;
+    setCols: Dispatch<SetStateAction<string[] | null>>;
+};
+
+export function ViewSelector(props: Props) {
+    const [viewsAvailable, setViewsAvailable] = useState<Rec<ViewsAvailable> | null>(null);
+    const [selection, setSelection] = useState<ViewSelection | null>(null);
+
+    useEffect(() => {
+        setViewsAvailable(loadViewsAvailable());
+        setSelection(loadSelection());
+    }, []);
+
+    useEffect(() => {
+        if (viewsAvailable) localStorage.setItem("viewsAvailable", JSON.stringify(viewsAvailable));
+    }, [viewsAvailable]);
+
+    useEffect(() => {
+        if (selection) localStorage.setItem("viewSelection", JSON.stringify(selection));
+    }, [selection]);
+
+    const { assetClasses, allKeys } = useMemo(() => {
+        if (!props.metadata) return { assetClasses: undefined, allKeys: undefined };
+        const assetClasses = Object.keys(props.metadata);
+        const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(props.metadata[ac].schema, ac));
+        return { assetClasses, allKeys };
+    }, [props.metadata]);
+
+    useEffect(() => {
+        if (!viewsAvailable || !selection) return;
+        const ac = selection.assetClass;
+        props.setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
+
+        const selectedRows = selection.rowViewNames[ac]
+            .map(n => viewsAvailable[ac].rowViews.find(v => v.name == n)!)
+            .map(v => v.items)
+        const newRows = flattenUnique(selectedRows);
+        props.setRows(prevRows => prevRows && Str.equals(prevRows, newRows) ? prevRows : newRows);
+
+        const selectedCols = selection.colViewNames[ac]
+            .map(n => viewsAvailable[ac].colViews.find(v => v.name == n)!)
+            .map(v => v.items)
+        const newCols = flattenUnique(selectedCols);
+        props.setCols(prevCols => prevCols && Str.equals(prevCols, newCols) ? prevCols : newCols);
+    }, [viewsAvailable, selection]);
+
+    const crud = viewsCrud(setViewsAvailable, setSelection);
+
+    if (!assetClasses || !allKeys || !viewsAvailable || !selection) return null;
+    const ac = selection.assetClass;
+    return <div className="flex flex-col gap-1">
+        <div className="flex gap-1">
+            {assetClasses.map(assetClass =>
+                <Button
+                    key={assetClass} size="sm" className="font-mono text-sm"
+                    variant={ac === assetClass ? "default" : "outline"}
+                    onClick={() => setSelection({...selection, assetClass})}>
+                    {props.getLabel[assetClass](assetClass).short}
+                </Button>
+            )}
+        </div>
+        <ViewSelectorTabs
+            assetClass={ac} viewsAvailable={viewsAvailable[ac].rowViews}
+            selected={selection.rowViewNames[selection.assetClass]}
+            allKeys={props.metadata[ac].tickers}
+            getLabel={props.getLabel[ac]}
+            onSelectSingle={crud.selectSingle("row")}
+            onSelectToggle={crud.selectToggle("row")}
+            onCreate={crud.create("row", ac)}
+            onEdit={crud.edit("row", ac)}
+            onDelete={crud.delete("row", ac)}
+            CreateDialog={RowCreateDialog}
+            EditDialog={RowEditDialog}
+        />
+        <ViewSelectorTabs
+            assetClass={ac} viewsAvailable={viewsAvailable[ac].colViews}
+            selected={selection.colViewNames[selection.assetClass]}
+            allKeys={allKeys[ac]}
+            getLabel={props.getLabel[ac]}
+            onSelectSingle={crud.selectSingle("col")}
+            onSelectToggle={crud.selectToggle("col")}
+            onCreate={crud.create("col", ac)}
+            onEdit={crud.edit("col", ac)}
+            onDelete={crud.delete("col", ac)}
+            CreateDialog={ColCreateDialog}
+            EditDialog={ColEditDialog}
+        />
+    </div>;
+}
+
+function loadViewsAvailable(): Rec<ViewsAvailable> {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem("viewsAvailable") : null;
+    return stored ? JSON.parse(stored) : defaultViewsAvailable;
+}
+
+function loadSelection(): ViewSelection | null {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem("viewSelection") : null;
+    return stored ? JSON.parse(stored) : defaultSelection;
+}

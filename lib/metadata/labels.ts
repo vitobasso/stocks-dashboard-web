@@ -40,9 +40,9 @@ const keyLabels: Labels = {
     "yahoo_chart.1y": {short: "1A", long: "Último Ano"},
     "yahoo_chart.5y": {short: "5A", long: "Últimos 5 Anos"},
     "derived.yahoo_chart.1mo": {short: "1M", long: "Último Mês (+ Cotação Hoje)"},
-    "derived.forecast.min_pct": {short: "Min", long: "Previsão Mínima em %"},
-    "derived.forecast.avg_pct": {short: "Méd", long: "Previsão Média em %"},
-    "derived.forecast.max_pct": {short: "Máx", long: "Previsão Máxima em %"},
+    "derived.forecast.min_pct": {short: "Min", long: "Projeção Mínima em %"},
+    "derived.forecast.avg_pct": {short: "Méd", long: "Projeção Média em %"},
+    "derived.forecast.max_pct": {short: "Máx", long: "Projeção Máxima em %"},
     "statusinvest.liquidez_media_diaria": {short: "LMD", long: "Liquidez Média Diária (Milhões)"},
     "derived.statusinvest.ey": {short: "EY", long: "Earning Yield (EBIT/EV)"},
     "derived.statusinvest.intrinsic_value": {short: "VI", long: "Valor Intrínseco (Fórmula de Graham)"},
@@ -52,13 +52,13 @@ const prefixLabels: Record<string, MetadataSource> = {
 
     // from a source other than scraper
     "b3_position": {label: "B3, Posição", url: "https://investidor.b3.com.br (importado manualmente)"},
-    "yahoo_quote": {label: "Yahoo Finance, tempo real", url: "https://finance.yahoo.com/"},
+    "yahoo_quote": {label: "Yahoo Finance, Tempo Real", url: "https://finance.yahoo.com/"},
 
     // derived from other keys
-    "derived.b3_position": {label: "Calculados", url: "Usando B3"},
-    "derived.forecast": {label: "Calculados", url: "Usando Yahoo Finance"},
-    "derived.yahoo_chart": {label: "Calculados", url: "Usando Yahoo Finance"},
-    "derived.statusinvest": {label: "Calculados", url: "Usando StatusInvest"},
+    "derived.b3_position": {label: "Valores Calculados: Posição", url: "Usando B3"},
+    "derived.yahoo_chart": {label: "Valores Calculados: Cotação", url: "Usando Yahoo Finance"},
+    "derived.forecast": {label: "Valores Calculados: Projeção", url: "Usando Yahoo Finance"},
+    "derived.statusinvest": {label: "Valores Calculados: Fundamentos", url: "Usando StatusInvest"},
 }
 
 function generateLabel(path: string): Label {
