@@ -85,19 +85,19 @@ export function ViewSelector(props: Props) {
         <div className="flex gap-1">
             {viewsAvailable[ac].rowLists.map((list, i) =>
                 <ButtonGroup key={`${ac}-${i}`}>
-                    <Button size="sm" className="font-mono text-sm"
+                    <Button size="sm" className={`font-mono text-sm ${isRowListSelected(list, selection) ? "pr-0" : ""}`}
                         variant={isRowListSelected(list, selection) ? "default" : "outline"}
                         onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
                         {list.name}
                     </Button>
                     {isRowListSelected(list, selection) &&
                         <>
-                            <Button size="sm"
+                            <Button size="sm" className="w-6"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setOpenPanel(`${ac}-row-${list.name}`);
                                 }}>
-                                <EllipsisVerticalIcon className="w-0"/>
+                                <EllipsisVerticalIcon className="mr-1"/>
                             </Button>
                             <RowListDialog
                                 open={openPanel === `${ac}-row-${list.name}`}
