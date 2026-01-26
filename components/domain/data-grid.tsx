@@ -34,7 +34,7 @@ export function DataGrid(props: Props) {
         setHoveredCol(isHovered ? columnKey : null);
     }, []);
 
-    const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(key => ({
+    const columns: readonly ColumnOrColumnGroup<Row>[] = ["ticker", ...props.columns].map(key => ({
         key,
         name: renderHeader(key, props.getLabel),
         frozen: isTicker(key),
@@ -49,10 +49,10 @@ export function DataGrid(props: Props) {
     const baseRows: Row[] = props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
         const entries = props.columns
             .map((key) => {
-                const value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
+                const value = getValue(props.data[ticker], key)
                 return [key, value]
             });
-        return Object.fromEntries(entries);
+        return {"ticker": ticker, ...Object.fromEntries(entries)};
     });
 
     function renderHeader(key: string, getLabel: (key: string) => Label, onClick?: (e: React.MouseEvent) => void): ReactElement {

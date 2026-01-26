@@ -18,7 +18,6 @@ type Props = {
 export function ViewSelector(props: Props) {
     const [viewsAvailable, setViewsAvailable] = useState<Rec<ViewsAvailable> | null>(null);
     const [selection, setSelection] = useState<ViewSelection | null>(null);
-    const [openPanel, setOpenPanel] = useState<string | null>(null)
 
     useEffect(() => {
         setViewsAvailable(loadViewsAvailable());
@@ -46,7 +45,6 @@ export function ViewSelector(props: Props) {
     }, [viewsAvailable, selection]);
 
     const assetClasses = Object.keys(props.metadata);
-    const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
 
     const createRowList = (ac: string) => (rowList: RowList) => {
         setViewsAvailable(prev => addAvailableRowList(prev, ac, rowList));
