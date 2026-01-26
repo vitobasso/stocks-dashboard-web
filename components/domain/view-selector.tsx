@@ -6,6 +6,7 @@ import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
 import {RowList, ViewsAvailable, ViewSelection} from "@/lib/views";
 import {RowListDialog} from "@/components/domain/row-list-dialog";
+import {cn} from "@/lib/utils";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -84,15 +85,22 @@ export function ViewSelector(props: Props) {
         </div>
         <div className="flex gap-1">
             {viewsAvailable[ac].rowLists.map((list, i) =>
-                <ButtonGroup key={`${ac}-${i}`} className="group">
+                <ButtonGroup key={`${ac}-${i}`}
+                             className={cn(
+                                 "group flex overflow-hidden rounded-md transition-colors shadow-sm",
+                                 isRowListSelected(list, selection)
+                                     ? "bg-primary text-primary-foreground ring-1 ring-primary"
+                                     : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
+                             )}>
                     <Button size="sm"
-                            className="font-mono text-sm pr-0 border-r-0"
-                            variant={isRowListSelected(list, selection) ? "default" : "outline"}
+                            variant="ghost"
+                            className="rounded-r-none bg-transparent hover:bg-transparent text-inherit hover:text-inherit"
                             onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
                         {list.name}
                     </Button>
-                    <Button size="sm" className="w-6"
-                            variant={isRowListSelected(list, selection) ? "default" : "outline"}
+                    <Button size="sm"
+                            variant="ghost"
+                            className="w-6 rounded-l-none bg-transparent hover:bg-transparent text-inherit hover:text-inherit"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenPanel(`${ac}-row-${list.name}`);
