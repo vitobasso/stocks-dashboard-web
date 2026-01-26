@@ -1,18 +1,20 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {Dispatch, SetStateAction, useCallback, useEffect, useState} from "react";
 import {mapValues, Rec} from "@/lib/utils/records";
 import {EllipsisVerticalIcon, PlusIcon} from "lucide-react";
 import {ButtonGroup} from "@/components/ui/button-group";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
-import {RowList, ViewsAvailable, ViewSelection} from "@/lib/views";
+import {ColList, RowList, ViewsAvailable, ViewSelection} from "@/lib/views";
 import {RowListDialog} from "@/components/domain/row-list-dialog";
 import {cn} from "@/lib/utils";
+import {ColListDialog} from "@/components/domain/col-list-dialog";
 
 type Props = {
     metadata: Rec<Metadata>
     getLabel: Record<string, (key: string) => { short: string }>;
-    setAssetClass: React.Dispatch<React.SetStateAction<string | null>>;
-    setRows: React.Dispatch<React.SetStateAction<string[] | null>>;
+    setAssetClass: Dispatch<SetStateAction<string | null>>;
+    setRows: Dispatch<SetStateAction<string[] | null>>;
+    setCols: Dispatch<SetStateAction<string[] | null>>;
 };
 
 export function ViewSelector(props: Props) {
@@ -35,11 +37,14 @@ export function ViewSelector(props: Props) {
 
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
-        const selectedList = viewsAvailable[selection.assetClass].rowLists
+        const selectedRows = viewsAvailable[selection.assetClass].rowLists
             .find(rl => rl.name === selection.rowListNames[selection.assetClass]);
-        if (!selectedList) return;
+        const selectedCols = viewsAvailable[selection.assetClass].colLists
+            .find(cl => cl.name === selection.colListNames[selection.assetClass]);
+        if (!selectedRows || !selectedCols) return;
         props.setAssetClass(selection.assetClass);
-        props.setRows(selectedList.tickers);
+        props.setRows(selectedRows.tickers);
+        props.setCols(selectedCols.keys);
     }, [viewsAvailable, selection]);
 
     const assetClasses = Object.keys(props.metadata);
@@ -70,6 +75,31 @@ export function ViewSelector(props: Props) {
         });
     }
 
+    const createColList = (ac: string) => (colList: ColList) => {
+        setViewsAvailable(prev => addAvailableColList(prev, ac, colList));
+        setSelection(prev => changeSelectedColList(prev, colList.name));
+    }
+
+    const editColList = (ac: string, oldName: string) => (updated: ColList) => {
+        setViewsAvailable(prev => changeAvailableColList(prev, ac, oldName, updated));
+        if (updated.name !== oldName) setSelection(prev => changeSelectedColList(prev, updated.name));
+    }
+
+    const deleteColList = (ac: string, listName: string) => {
+        setViewsAvailable(prev => {
+            if (!prev) return prev;
+            const newLists = prev[ac].colLists.filter(list => list.name !== listName);
+            if (newLists.length === 0) return prev; // Don't delete if it's the last list
+
+            // If the deleted list was selected, select the first available list
+            if (selection?.colListNames[ac] === listName) {
+                setSelection(prev => changeSelectedColList(prev, newLists[0].name))
+            }
+
+            return {...prev, [ac]: {...prev[ac], colLists: newLists}};
+        });
+    }
+
     if (!viewsAvailable || !selection) return null;
     const ac = selection.assetClass;
     return <div className="flex flex-col gap-1">
@@ -87,10 +117,10 @@ export function ViewSelector(props: Props) {
             {viewsAvailable[ac].rowLists.map((list, i) =>
                 <ButtonGroup key={`${ac}-${i}`}
                              className={cn(
-                               "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
-                               isRowListSelected(list, selection)
-                                 ? "bg-primary text-primary-foreground ring-1 ring-primary"
-                                 : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
+                                 "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
+                                 isRowListSelected(list, selection)
+                                     ? "bg-primary text-primary-foreground ring-1 ring-primary"
+                                     : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
                              )}>
                     <Button size="sm"
                             variant="ghost"
@@ -131,10 +161,58 @@ export function ViewSelector(props: Props) {
                 allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
                 onConfirm={createRowList(ac)}/>
         </div>
+        <div className="flex items-center gap-2">
+            {viewsAvailable[ac].colLists.map((list, i) =>
+                <ButtonGroup key={`${ac}-${i}`}
+                             className={cn(
+                                 "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
+                                 isColListSelected(list, selection)
+                                     ? "bg-primary text-primary-foreground ring-1 ring-primary"
+                                     : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
+                             )}>
+                    <Button size="sm"
+                            variant="ghost"
+                            className="p-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
+                            onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
+                        {list.name}
+                    </Button>
+                    <Button size="sm"
+                            variant="ghost"
+                            className="w-0 !px-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenPanel(`${ac}-col-${list.name}`);
+                            }}>
+                        <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
+                    </Button>
+                    <ColListDialog
+                        open={openPanel === `${ac}-col-${list.name}`}
+                        onOpenChange={(o) => !o && close()}
+                        colListToEdit={list}
+                        allKeys={props.metadata[ac].tickers}
+                        allColListNames={viewsAvailable[ac].colLists.map(l => l.name)}
+                        onConfirm={editColList(ac, list.name)}
+                        onDelete={() => deleteColList(ac, list.name)}/>
+                </ButtonGroup>
+            )}
+            <Button size="sm" variant="outline"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenPanel(`${ac}-col-create`);
+                    }}>
+                <PlusIcon className="w-0"/>
+            </Button>
+            <ColListDialog
+                open={openPanel === `${ac}-col-create`}
+                onOpenChange={(o) => !o && close()}
+                allKeys={props.metadata[ac].tickers}
+                allColListNames={viewsAvailable[ac].colLists.map(l => l.name)}
+                onConfirm={createColList(ac)}/>
+        </div>
     </div>;
 }
 
-function isRowListSelected(list: RowList, selection: ViewSelection,): boolean {
+function isRowListSelected(list: RowList, selection: ViewSelection): boolean {
     return selection.rowListNames[selection.assetClass] === list.name
 }
 
@@ -165,6 +243,38 @@ function addAvailableRowList(prev: Rec<ViewsAvailable> | null, ac: string, newRo
     };
 }
 
+function isColListSelected(list: ColList, selection: ViewSelection): boolean {
+    return selection.colListNames[selection.assetClass] === list.name
+}
+
+function changeSelectedColList(prev: ViewSelection | null, listName: string): ViewSelection | null {
+    if (!prev) return prev;
+    return {...prev, colListNames: {...prev.colListNames, [prev.assetClass]: listName}};
+}
+
+function changeAvailableColList(prev: Rec<ViewsAvailable> | null, ac: string, oldName: string, colList: ColList): Rec<ViewsAvailable> | null {
+    if (!prev) return prev;
+    return {
+        ...prev,
+        [ac]: {
+            ...prev[ac],
+            colLists: prev[ac].colLists.map(list => list.name === oldName ? colList : list),
+        }
+    };
+}
+
+function addAvailableColList(prev: Rec<ViewsAvailable> | null, ac: string, newColList: ColList): Rec<ViewsAvailable> | null {
+    if (!prev) return prev;
+    return {
+        ...prev,
+        [ac]: {
+            ...prev[ac],
+            colLists: [...prev[ac].colLists, newColList],
+        }
+    };
+}
+
+
 function loadViewsAvailable(): Rec<ViewsAvailable> {
     const stored = typeof window !== 'undefined' ? localStorage.getItem("viewsAvailable") : null;
     return stored ? JSON.parse(stored) : defaultViewsAvailable;
@@ -194,7 +304,34 @@ const defaultViewsAvailable: Rec<ViewsAvailable> = {
                 name: "Comodities",
                 tickers: ["PETR4", "VALE3", "GOAU4", "PRIO3", "RECV3", "SUZB3", "KLBN4"],
             },
-        ]
+        ],
+        colLists: [
+            {
+                name: "Perfil",
+                keys: ["b3_listagem.setor"],
+            },
+            {
+                name: "Posição",
+                keys: ["derived.b3_position.current_value", "b3_position.average_price",
+                    "derived.b3_position.cumulative_return"],
+            },
+            {
+                name: "Cotação",
+                keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
+            },
+            {
+                name: "Fundamentos",
+                keys: ["statusinvest.liquidez_media_diaria", "statusinvest.p_l", "statusinvest.p_vp",
+                    "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
+                    "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.cagr_lucros_5_anos",
+                    "statusinvest.dy"]
+            },
+            {
+                name: "Recomendação",
+                keys: ["strong_buy", "buy", "hold", "sell", "strong_sell"].map(s => `yahoo_recom.${s}`)
+            },
+            {name: "Previsão", keys: ["min_pct", "avg_pct", "max_pct"].map(s => `derived.forecast.${s}`)},
+        ],
     },
     "reit_br": {
         rowLists: [
@@ -202,11 +339,32 @@ const defaultViewsAvailable: Rec<ViewsAvailable> = {
                 name: "Radar",
                 tickers: ["KNCR11", "KNIP11", "XPML11", "HGLG11", "BTLG11", "KNRI11",],
             },
-        ]
+        ],
+        colLists: [
+            {
+                name: "Perfil",
+                keys: ["ticker"]
+            },
+            {
+                name: "Posição",
+                keys: ["derived.b3_position.current_value", "b3_position.average_price",
+                    "derived.b3_position.cumulative_return"]
+            },
+            {
+                name: "Cotação",
+                keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
+            },
+            {
+                name: "Fundamentos",
+                keys: ["fundamentus.segmento", "fundamentus.p_vp", "fundamentus.liquidez",
+                    "fundamentus.dividend_yield", "fundamentus.qtd_de_imoveis", "fundamentus.vacancia_media"]
+            },
+        ],
     },
 }
 
 const defaultSelection: ViewSelection = {
     assetClass: "stock_br",
-    rowListNames: mapValues(defaultViewsAvailable, (v) => v.rowLists[0].name)
+    rowListNames: mapValues(defaultViewsAvailable, (v) => v.rowLists[0].name),
+    colListNames: mapValues(defaultViewsAvailable, (v) => v.colLists[0].name),
 }

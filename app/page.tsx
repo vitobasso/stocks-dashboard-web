@@ -7,9 +7,8 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {ManageDialog} from "@/components/domain/manage-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
-import {defaultColumns, Header} from "@/lib/metadata/defaults";
 import {applyTheme, getStoredTheme} from "@/lib/theme";
-import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys, settersByKey} from "@/lib/utils/records";
+import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {ViewSelector} from "@/components/domain/view-selector";
@@ -24,12 +23,11 @@ export default function Page() {
     // user defined state
     const [assetClass, setAssetClass] = useState<string | null>(null);
     const [rows, setRows] = useState<string[] | null>(null);
-    const [columns, setColumns] = useState<Rec<Header[]> | null>(null);
+    const [columns, setColumns] = useState<string[] | null>(null);
     const [positions, setPositions] = useState<Rec<Data>>({});
 
     useEffect(() => {
         applyStoredTheme();
-        setColumns(loadColumns(localStorage));
         setPositions(loadPositions(localStorage));
         fetchMeta().then(setMetadata);
     }, []);
@@ -90,16 +88,15 @@ export default function Page() {
         return skeleton();
     return <div className="min-h-screen flex flex-col">
         <div className="flex flex-col gap-2 m-4">
-            <ViewSelector metadata={metadata} getLabel={getLabel} setAssetClass={setAssetClass} setRows={setRows} />
-
+            <ViewSelector metadata={metadata} getLabel={getLabel}
+                          setAssetClass={setAssetClass} setRows={setRows} setCols={setColumns} />
             {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? skeleton() :
                 <>
                     <DataGrid className="h-auto"
-                              rows={rows} columns={columns[assetClass]} data={data[assetClass]}
+                              rows={rows} columns={columns} data={data[assetClass]}
                               getLabel={getLabel[assetClass]}
                               onGroupHeaderClick={onGroupHeaderClick(assetClass)}/>
                     <ManageDialog metadata={metadata} getLabel={getLabel}
-                                  columns={columns} setColumns={settersByKey(assetClasses, setColumns)}
                                   setPositions={setPositions} classOfTickers={classOfTicker}
                                   openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
                     <Analytics/>
@@ -186,11 +183,6 @@ function scraperLiveUrl(ac: string, rows: string[]) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
     return `${baseUrl}/data-live?${urlParams.toString()}`
-}
-
-function loadColumns(localStorage: Storage): Rec<Header[]> {
-    const rawString = localStorage.getItem("columns");
-    return rawString?.length && JSON.parse(rawString) || defaultColumns;
 }
 
 function loadPositions(localStorage: Storage): Rec<Data> {

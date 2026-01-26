@@ -1,5 +1,3 @@
-import {StateSetter} from "@/lib/utils/react";
-
 export type Rec<A> = Record<string, A>;
 
 export function mapValues<A, B>(record: Rec<A>, fn: (value: A) => B): Rec<B> {
@@ -23,23 +21,4 @@ export function mergeRecords<A>(data1: Rec<A>, data2: Rec<A>): Rec<A> {
         return [key, value]
     });
     return Object.fromEntries(entries);
-}
-
-export function settersByKey<T, U>(
-    keys: string[],
-    setter: StateSetter<Rec<T> | U>
-): Rec<StateSetter<T>> {
-    return Object.fromEntries(
-        keys.map(key => [
-            key,
-            (valueOrUpdater: React.SetStateAction<T>) => setter(prev => {
-                const currentRecord = (prev || {}) as Rec<T>;
-                const currentValue = currentRecord[key];
-                const newValue = typeof valueOrUpdater === 'function'
-                    ? (valueOrUpdater as (prev: T | undefined) => T)(currentValue)
-                    : valueOrUpdater;
-                return { ...currentRecord, [key]: newValue };
-            })
-        ])
-    );
 }

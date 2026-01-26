@@ -3,7 +3,6 @@ import {Input} from "@/components/ui/input";
 import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
-import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {columnGroupPerKey, columnGroupPerPrefix, columnGroups} from "@/lib/metadata/column-groups";
 import {getPrefix, getSuffix} from "@/lib/data";
@@ -12,8 +11,8 @@ import {groupByValues} from "@/lib/utils/collections";
 
 type Props = {
     allKeys: string[]
-    columns: Header[]
-    setColumns(columns: Header[]): void
+    columns: string[]
+    setColumns(columns: string[]): void
     getLabel(path: string): Label
     groupFilter: string | null
 }
@@ -29,11 +28,10 @@ export function ColumnSelector(props: Props) {
     const q = useMemo(() => toNorm(deferredSearch), [deferredSearch])
 
     const selectedKeys: Set<string> = useMemo(() =>
-            props.columns.flatMap(h => h.keys)
-                .reduce((s, k) => {
-                    s.add(k);
-                    return s
-                }, new Set<string>())
+            props.columns.reduce((s, k) => {
+                s.add(k);
+                return s
+            }, new Set<string>())
         , [props.columns]);
 
     const {baseGroups, basePrefixes, baseKeys, groupOfKey, groupOfPrefix, prefixesOfGroup} = useMemo(() => {
@@ -148,7 +146,7 @@ export function ColumnSelector(props: Props) {
                     const keysInGroup = baseKeys.filter(k => groupOfKey.get(k) === group)
                     const visibleKeysInGroup = visibleKeys.filter(k => groupOfKey.get(k) === group)
                     const visiblePrefixesInGroup = (prefixesOfGroup.get(group) ?? []).filter(p => visiblePrefixes.includes(p))
-                    return ColumnGroup(group, keysInGroup, visiblePrefixesInGroup, visibleKeysInGroup, groupNameMatched, prefixNameMatched, groupOfKey, selectedKeys, props)
+                    return ColumnGroup(group, keysInGroup, visiblePrefixesInGroup, visibleKeysInGroup, groupNameMatched, prefixNameMatched, selectedKeys, props)
                 })}
             </Accordion>
         </div>
@@ -163,7 +161,6 @@ function ColumnGroup(
     visibleKeysInGroup: string[],
     groupNameMatched: Set<string>,
     prefixNameMatched: Set<string>,
-    groupOfKey: Map<string, string>,
     selectedKeys: Set<string>,
     props: Props,
 ) {
@@ -179,7 +176,7 @@ function ColumnGroup(
                     const visibleKeysInPrefix = (groupNameMatched.has(group) || prefixNameMatched.has(prefix))
                         ? keysInPrefix
                         : visibleKeysInGroup.filter(byPrefix)
-                    return ColumnPrefix(prefix, keysInPrefix, visibleKeysInPrefix, groupOfKey, selectedKeys, props)
+                    return ColumnPrefix(prefix, keysInPrefix, visibleKeysInPrefix, selectedKeys, props)
                 })}
             </div>
         </AccordionContent>
@@ -190,7 +187,6 @@ function ColumnPrefix(
     prefix: string,
     keysInPrefix: string[],
     visibleKeysInPrefix: string[],
-    groupOfKey: Map<string, string>,
     selectedKeys: Set<string>,
     props: Props
 ) {
@@ -198,7 +194,7 @@ function ColumnPrefix(
     const checkedState = selectedCount === 0 ? false : (selectedCount === keysInPrefix.length ? true : "indeterminate")
 
     function onToggle(checked: boolean) {
-        props.setColumns(updatedSelection(checked, props.columns, keysInPrefix, groupOfKey))
+        props.setColumns(updatedSelection(checked, props.columns, keysInPrefix))
     }
 
     const label = props.getLabel(prefix);
@@ -215,16 +211,16 @@ function ColumnPrefix(
         </AccordionTrigger>
         <AccordionContent>
             <div className="space-y-2 pl-4">
-                {visibleKeysInPrefix.map(key => ColumnKey(key, groupOfKey, selectedKeys, props))}
+                {visibleKeysInPrefix.map(key => ColumnKey(key, selectedKeys, props))}
             </div>
         </AccordionContent>
     </AccordionItem>;
 }
 
-function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: Set<string>, props: Props) {
+function ColumnKey(key: string, selectedKeys: Set<string>, props: Props) {
 
     function onToggle(checked: boolean) {
-        props.setColumns(updatedSelection(checked, props.columns, [key], groupOfKey))
+        props.setColumns(updatedSelection(checked, props.columns, [key]))
     }
 
     const label = props.getLabel(key)
@@ -235,33 +231,17 @@ function ColumnKey(key: string, groupOfKey: Map<string, string>, selectedKeys: S
     </label>;
 }
 
-function updatedSelection(checked: boolean, prev: Header[], toggledKeys: string[], groupOfKey: Map<string, string>): Header[] {
+function updatedSelection(checked: boolean, prev: string[], toggledKeys: string[]): string[] {
     return checked
-        ? addKeysToSelection(prev, toggledKeys, groupOfKey)
+        ? addKeysToSelection(prev, toggledKeys)
         : removeKeysFromSelection(prev, toggledKeys)
 }
 
-function addKeysToSelection(selectionState: Header[], toggledKeys: string[], groupOfKey: Map<string, string>): Header[] {
-    for (const k of toggledKeys) {
-        const already = selectionState.some(h => h.keys.includes(k))
-        if (already) continue
-        const g = groupOfKey.get(k) ?? ""
-        const idx = selectionState.findIndex(h => h.group === g)
-        if (idx >= 0) {
-            // group already in selection
-            const h = selectionState[idx]
-            if (!h.keys.includes(k)) {
-                selectionState = selectionState.map((hh, i) => i === idx ? {...hh, keys: [...hh.keys, k]} : hh)
-            }
-        } else {
-            // group newly added to selection
-            selectionState = [...selectionState, {group: g, keys: [k]}]
-        }
-    }
-    return selectionState
+function addKeysToSelection(selectionState: string[], toggledKeys: string[]): string[] {
+    return Array.from(new Set([...selectionState, ...toggledKeys]));
 }
 
-function removeKeysFromSelection(selectionState: Header[], toggledKeys: string[]): Header[] {
+function removeKeysFromSelection(selectionState: string[], toggledKeys: string[]): string[] {
     const removeSet = new Set(toggledKeys)
-    return selectionState.map(h => ({...h, keys: h.keys.filter(k => !removeSet.has(k))}))
+    return selectionState.filter(k => !removeSet.has(k))
 }

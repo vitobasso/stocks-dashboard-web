@@ -1,25 +1,19 @@
 "use client";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
-import {Columns3, Import, Moon, Rows2, Settings, Sun} from "lucide-react"
+import {Import, Moon, Settings, Sun} from "lucide-react"
 import React, {useCallback, useMemo, useState} from "react";
 import {Data, Metadata} from "@/lib/data";
-import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import PositionsImporter from "@/components/domain/positions-importer";
-import ColumnOrderer from "@/components/domain/column-orderer";
-import {ColumnSelector} from "@/components/domain/column-selector";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
 import {toggleAppliedTheme} from "@/lib/theme";
 import {Rec, recordOfKeys} from "@/lib/utils/records";
 import {consolidateSchema} from "@/lib/schema";
-import {StateSetter} from "@/lib/utils/react";
 
 type Props = {
     metadata: Rec<Metadata>
     getLabel: Rec<(path: string) => Label>
     classOfTickers: Map<string, string>
-    columns: Rec<Header[]>
-    setColumns: Rec<StateSetter<Header[]>>
     setPositions(p: React.SetStateAction<Rec<Data>>): void
     openPanel: string | null
     setOpenPanel(o: React.SetStateAction<string | null>): void
@@ -56,14 +50,6 @@ export function ManageDialog(props: Props) {
     return <>
         <Fab icon={<Settings className="size-6"/>} position="tr" label="Customizar">
             {({close}) => <>
-                {assetClasses.map(ac => (
-                    <React.Fragment key={ac}>
-                        <FabMenuItem className="w-46" onClick={trigger(`${ac}-cols`, close)}>
-                            <Columns3 className="size-4"/>
-                            {props.getLabel[ac](ac).short} - Colunas
-                        </FabMenuItem>
-                    </React.Fragment>
-                ))}
                 <FabMenuItem className="w-46" onClick={trigger("import", close)}>
                     <Import className="size-4"/>
                     Importar
@@ -75,35 +61,6 @@ export function ManageDialog(props: Props) {
                 </FabMenuItem>
             </>}
         </Fab>
-
-        {assetClasses.map(ac => {
-            const acLabel = props.getLabel[ac](ac).short
-            return <React.Fragment key={ac}>
-                <Dialog open={openPanel === `${ac}-cols`} onOpenChange={(o) => !o && close()}>
-                    <DialogContent position="br" hideOverlay className="sm:max-w-[34rem] w-[90vw] p-4">
-                        <DialogHeader><DialogTitle>Customizar Colunas - {acLabel}</DialogTitle></DialogHeader>
-                        <div className="flex justify-between gap-4">
-                            <ColumnSelector
-                                allKeys={allKeys[ac]}
-                                getLabel={props.getLabel[ac]}
-                                columns={props.columns[ac]}
-                                setColumns={props.setColumns[ac]}
-                                groupFilter={props.groupFilter}
-                            />
-                            <div className="flex-1/2 overflow-auto">
-                                <ColumnOrderer
-                                    columns={props.columns[ac]}
-                                    setColumns={props.setColumns[ac]}
-                                    getLabel={props.getLabel[ac]}
-                                    groupFilter={props.groupFilter}
-                                />
-                            </div>
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            </React.Fragment>
-        })}
-
         <Dialog open={openPanel === "import"} onOpenChange={(o) => !o && close()}>
             <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
                 <DialogHeader><DialogTitle>Importar Posição</DialogTitle></DialogHeader>

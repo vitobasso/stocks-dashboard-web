@@ -6,7 +6,6 @@ import chroma, {Color} from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 import {bgColor, colors, fgColor, green, red} from "@/lib/metadata/colors";
-import {Header} from "@/lib/metadata/defaults";
 import {Label} from "@/lib/metadata/labels";
 import {useCssVars} from "@/hooks/use-css-vars";
 import {getAsNumber, getAsSortable, getAsText, isChart} from "@/lib/metadata/formats";
@@ -16,7 +15,7 @@ import {timeAgo} from "@/lib/utils/datetime";
 
 type Props = {
     rows: string[]
-    columns: Header[]
+    columns: string[]
     data: Data
     getLabel(path: string): Label
     className?: string
@@ -35,24 +34,20 @@ export function DataGrid(props: Props) {
         setHoveredCol(isHovered ? columnKey : null);
     }, []);
 
-    const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(h => ({
-        name: renderGroupHeader(h),
-        headerCellClass: 'text-center',
-        children: h.keys.map(key => ({
-            key,
-            name: renderHeader(key, props.getLabel),
-            frozen: isTicker(key),
-            sortable: !isTicker(key),
-            headerCellClass: cn('text-center', hoveredCol === key && 'bg-foreground/5'),
-            cellClass: cellClass(key),
-            minWidth: widthPx(key, columnStats),
-            width: widthPx(key, columnStats),
-            renderCell: props => renderCellWithTooltip(key, props.row)
-        }))
-    }));
+    const columns: readonly ColumnOrColumnGroup<Row>[] = props.columns.map(key => ({
+        key,
+        name: renderHeader(key, props.getLabel),
+        frozen: isTicker(key),
+        sortable: !isTicker(key),
+        headerCellClass: cn('text-center', hoveredCol === key && 'bg-foreground/5'),
+        cellClass: cellClass(key),
+        minWidth: widthPx(key, columnStats),
+        width: widthPx(key, columnStats),
+        renderCell: props => renderCellWithTooltip(key, props.row)
+    }))
 
     const baseRows: Row[] = props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
-        const entries = props.columns.flatMap(h => h.keys)
+        const entries = props.columns
             .map((key) => {
                 const value = key === "ticker" ? ticker : getValue(props.data[ticker], key)
                 return [key, value]
@@ -69,10 +64,6 @@ export function DataGrid(props: Props) {
             <TooltipTrigger asChild>{content}</TooltipTrigger>
             <TooltipContent>{label.long}</TooltipContent>
         </Tooltip>
-    }
-
-    function renderGroupHeader(h: Header) {
-        return renderHeader(h.group, (key) => ({short: key, long: ""}), () => props.onGroupHeaderClick?.(h.group))
     }
 
     function renderValue(key: string, value: DataValue) {
