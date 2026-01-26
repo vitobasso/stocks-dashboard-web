@@ -59,13 +59,13 @@ export function ViewSelector(props: Props) {
             if (!prev) return prev;
             const newLists = prev[ac].rowLists.filter(list => list.name !== listName);
             if (newLists.length === 0) return prev; // Don't delete if it's the last list
-            
+
             // If the deleted list was selected, select the first available list
             if (selection?.rowListNames[ac] === listName) {
                 setSelection(prev => changeSelectedRowList(prev, newLists[0].name))
             }
-            
-            return { ...prev, [ac]: { ...prev[ac], rowLists: newLists } };
+
+            return {...prev, [ac]: {...prev[ac], rowLists: newLists}};
         });
     }
 
@@ -84,31 +84,30 @@ export function ViewSelector(props: Props) {
         </div>
         <div className="flex gap-1">
             {viewsAvailable[ac].rowLists.map((list, i) =>
-                <ButtonGroup key={`${ac}-${i}`}>
-                    <Button size="sm" className={`font-mono text-sm ${isRowListSelected(list, selection) ? "pr-0" : ""}`}
-                        variant={isRowListSelected(list, selection) ? "default" : "outline"}
-                        onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
+                <ButtonGroup key={`${ac}-${i}`} className="group">
+                    <Button size="sm"
+                            className="font-mono text-sm pr-0 border-r-0"
+                            variant={isRowListSelected(list, selection) ? "default" : "outline"}
+                            onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
                         {list.name}
                     </Button>
-                    {isRowListSelected(list, selection) &&
-                        <>
-                            <Button size="sm" className="w-6"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenPanel(`${ac}-row-${list.name}`);
-                                }}>
-                                <EllipsisVerticalIcon className="mr-1"/>
-                            </Button>
-                            <RowListDialog
-                                open={openPanel === `${ac}-row-${list.name}`}
-                                onOpenChange={(o) => !o && close()}
-                                rowListToEdit={list}
-                                allTickers={props.metadata[ac].tickers}
-                                allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
-                                onConfirm={editRowList(ac, list.name)}
-                                onDelete={() => deleteRowList(ac, list.name)}/>
-                        </>
-                    }
+                    <Button size="sm" className="w-6"
+                            variant={isRowListSelected(list, selection) ? "default" : "outline"}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenPanel(`${ac}-row-${list.name}`);
+                            }}>
+                        <EllipsisVerticalIcon
+                            className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity"/>
+                    </Button>
+                    <RowListDialog
+                        open={openPanel === `${ac}-row-${list.name}`}
+                        onOpenChange={(o) => !o && close()}
+                        rowListToEdit={list}
+                        allTickers={props.metadata[ac].tickers}
+                        allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
+                        onConfirm={editRowList(ac, list.name)}
+                        onDelete={() => deleteRowList(ac, list.name)}/>
                 </ButtonGroup>
             )}
             <Button size="sm" variant="outline"
@@ -128,7 +127,7 @@ export function ViewSelector(props: Props) {
     </div>;
 }
 
-function isRowListSelected(list: RowList, selection: ViewSelection, ): boolean {
+function isRowListSelected(list: RowList, selection: ViewSelection,): boolean {
     return selection.rowListNames[selection.assetClass] === list.name
 }
 
