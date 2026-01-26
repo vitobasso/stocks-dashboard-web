@@ -8,9 +8,9 @@ import {Button} from "@/components/ui/button";
 
 type Props = {
     allTickers: string[]
-    rowList?: RowList
+    allRowListNames: string[]
+    rowListToEdit?: RowList
     onConfirm(rowList: RowList): void
-    canDelete?: boolean
     onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
@@ -22,10 +22,15 @@ export function RowListDialog(props: Props) {
 
     useEffect(() => {
         if (props.open) {
-            setName(props.rowList?.name ?? "");
-            setTickers([...(props.rowList?.tickers ?? [])]);
+            setName(props.rowListToEdit?.name ?? "");
+            setTickers([...(props.rowListToEdit?.tickers ?? [])]);
         }
-    }, [props.open, props.rowList]);
+    }, [props.open, props.rowListToEdit]);
+
+    function isValid(): boolean {
+        const dupName = props.allRowListNames.filter(n => n !== props.rowListToEdit?.name).includes(name)
+        return !name.trim() || tickers.length === 0 || dupName
+    }
 
     function onSubmit() {
         if (!name.trim() || tickers.length === 0) return;
@@ -33,7 +38,7 @@ export function RowListDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.rowList;
+    const isEditing = !!props.rowListToEdit;
     const title = isEditing ? "Editar lista" : "Criar lista"
     
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -51,16 +56,13 @@ export function RowListDialog(props: Props) {
                 <Field>
                     <FieldLabel>Ativos</FieldLabel>
                     <FieldContent>
-                        <RowSelector
-                            allTickers={props.allTickers}
-                            rows={tickers} setRows={setTickers}
-                        />
+                        <RowSelector allTickers={props.allTickers} rows={tickers} setRows={setTickers}/>
                     </FieldContent>
                 </Field>
             </FieldSet>
             <DialogFooter>
                 {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={!props.canDelete}
+                    <Button title="Excluir lista" variant="destructive" disabled={props.allRowListNames.length <= 0}
                         onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {
@@ -74,7 +76,7 @@ export function RowListDialog(props: Props) {
                 <DialogClose asChild>
                     <Button variant="outline">Cancelar</Button>
                 </DialogClose>
-                <Button type="submit" onClick={onSubmit} disabled={!name.trim() || tickers.length === 0}>
+                <Button type="submit" onClick={onSubmit} disabled={isValid()}>
                     Confirmar
                 </Button>
             </DialogFooter>

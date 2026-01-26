@@ -1,7 +1,6 @@
 "use client";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Columns3, Import, Moon, Rows2, Settings, Sun} from "lucide-react"
-import {RowSelector} from "@/components/domain/row-selector";
 import React, {useCallback, useMemo, useState} from "react";
 import {Data, Metadata} from "@/lib/data";
 import {Header} from "@/lib/metadata/defaults";

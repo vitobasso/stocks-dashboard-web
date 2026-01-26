@@ -102,10 +102,10 @@ export function ViewSelector(props: Props) {
                             <RowListDialog
                                 open={openPanel === `${ac}-row-${list.name}`}
                                 onOpenChange={(o) => !o && close()}
+                                rowListToEdit={list}
                                 allTickers={props.metadata[ac].tickers}
-                                rowList={list}
+                                allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
                                 onConfirm={editRowList(ac, list.name)}
-                                canDelete={viewsAvailable[ac].rowLists.length > 1}
                                 onDelete={() => deleteRowList(ac, list.name)}/>
                         </>
                     }
@@ -122,6 +122,7 @@ export function ViewSelector(props: Props) {
                 open={openPanel === `${ac}-row-create`}
                 onOpenChange={(o) => !o && close()}
                 allTickers={props.metadata[ac].tickers}
+                allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
                 onConfirm={createRowList(ac)}/>
         </div>
     </div>;
