@@ -1,6 +1,6 @@
 "use client";
 import {closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors,} from "@dnd-kit/core";
-import {arrayMove, useSortable,} from "@dnd-kit/sortable";
+import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {GripVertical} from "lucide-react";
 import {Label} from "@/lib/metadata/labels";
@@ -27,14 +27,13 @@ export default function ColumnOrderer(props: Props) {
     }
 
     return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <div className="font-bold p-2">Ordem</div>
-            <div className="max-h-124 overflow-auto">
+            <SortableContext items={props.columns} strategy={verticalListSortingStrategy}>
                 {props.columns.map((item) => (
                     <SortableRow key={item} id={item}>{props.getLabel(item).short}</SortableRow>
                 ))}
-            </div>
+            </SortableContext>
         </DndContext>
     );
 }

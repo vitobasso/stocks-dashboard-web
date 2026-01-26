@@ -45,11 +45,11 @@ export function ColListDialog(props: Props) {
     const title = isEditing ? "Editar lista" : "Criar lista"
     
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-        <DialogContent>
+        <DialogContent className="overflow-auto">
             <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
             </DialogHeader>
-            <FieldSet>
+            <FieldSet className="overflow-auto max-h-[70vh]">
                 <Field>
                     <FieldLabel>Nome da lista</FieldLabel>
                     <FieldContent>
@@ -66,7 +66,7 @@ export function ColListDialog(props: Props) {
                                 allKeys={props.allKeys}
                                 getLabel={props.getLabel}
                             />
-                            <div className="flex-1/2 overflow-auto">
+                            <div className="flex-1/2">
                                 <ColumnOrderer
                                     columns={keys}
                                     setColumns={setKeys}
