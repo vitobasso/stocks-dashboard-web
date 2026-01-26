@@ -100,7 +100,7 @@ export function ViewSelector(props: Props) {
                     </Button>
                     <Button size="sm"
                             variant="ghost"
-                            className="w-4 p-0 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
+                            className="w-0 !px-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenPanel(`${ac}-row-${list.name}`);
