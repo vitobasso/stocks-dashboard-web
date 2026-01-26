@@ -253,10 +253,6 @@ const defaultViewsAvailable: Rec<ViewsAvailable> = {
         ],
         colLists: [
             {
-                name: "Perfil",
-                keys: ["ticker"]
-            },
-            {
                 name: "Posição",
                 keys: ["derived.b3_position.current_value", "b3_position.average_price",
                     "derived.b3_position.cumulative_return"]

@@ -6,6 +6,7 @@ import React, {useCallback, useState} from "react";
 import {ColList, RowList} from "@/lib/views";
 
 type Props<T extends RowList | ColList> = {
+    className?: string;
     assetClass: string;
     listsAvailable: T[]
     selected: string
@@ -30,7 +31,7 @@ export function ViewSelectorTabs<T extends RowList | ColList>(props: Props<T>) {
     const [openPanel, setOpenPanel] = useState<string | null>(null)
     const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
 
-    return <div className="flex items-center gap-2">
+    return <div className={cn("flex items-center gap-2", props.className)}>
         {props.listsAvailable.map((list, i) =>
             <ButtonGroup key={i}
                          className={cn(
