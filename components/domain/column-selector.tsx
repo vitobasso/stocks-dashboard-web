@@ -10,11 +10,10 @@ import {toNorm} from "@/lib/utils/strings";
 import {groupByValues} from "@/lib/utils/collections";
 
 type Props = {
-    allKeys: string[]
     columns: string[]
     setColumns(columns: string[]): void
+    allKeys: string[]
     getLabel(path: string): Label
-    groupFilter: string | null
 }
 
 export function ColumnSelector(props: Props) {
@@ -39,8 +38,7 @@ export function ColumnSelector(props: Props) {
         const groupOfKey = columnGroupPerKey(props.allKeys) // Map<key, group>
         const keysOfGroup = groupByValues(groupOfKey); // Map<group, keys>
 
-        const allGroups = Object.keys(columnGroups).filter(g => keysOfGroup.get(g)?.length);
-        const baseGroups = props.groupFilter ? allGroups.filter(g => g === props.groupFilter) : allGroups;
+        const baseGroups = Object.keys(columnGroups).filter(g => keysOfGroup.get(g)?.length);
         const baseKeys = baseGroups.flatMap(g => keysOfGroup.get(g) ?? []);
         const basePrefixes = Array.from(new Set(baseKeys.map(h => getPrefix(h))));
 
@@ -48,7 +46,7 @@ export function ColumnSelector(props: Props) {
         const prefixesOfGroup = groupByValues(groupOfPrefix); // Map<group, prefixes>
 
         return {baseGroups, basePrefixes, baseKeys, groupOfKey, groupOfPrefix, prefixesOfGroup};
-    }, [props.allKeys, props.groupFilter]);
+    }, [props.allKeys]);
 
     function keyMatches(key: string): boolean {
         return toNorm(getSuffix(key)).includes(q) ||
@@ -121,15 +119,6 @@ export function ColumnSelector(props: Props) {
     useEffect(() => {
         manualOpenRef.current = false
     }, [q])
-
-    // when filtering by group, auto-open that group
-    useEffect(() => {
-        if (!props.groupFilter) return
-        const open = new Set<string>([props.groupFilter])
-        const prefixes = prefixesOfGroup.get(props.groupFilter)
-        if (prefixes) prefixes.forEach(p => open.add(p))
-        setOpenValues(Array.from(open))
-    }, [props.groupFilter, prefixesOfGroup])
 
     const onValueChange = useCallback((v: string[]) => {
         manualOpenRef.current = true;

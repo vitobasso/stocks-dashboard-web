@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button";
 import {EllipsisVerticalIcon, PlusIcon} from "lucide-react";
 import React, {useCallback, useState} from "react";
 import {ColList, RowList} from "@/lib/views";
+import {Label} from "@/lib/metadata/labels";
 
 type Props<T extends RowList | ColList> = {
     className?: string;
@@ -11,6 +12,7 @@ type Props<T extends RowList | ColList> = {
     listsAvailable: T[]
     selected: string
     allKeys: string[]
+    getLabel: (key: string) => Label;
     onSelect: (name: string) => void
     onCreate: (list: T) => void
     onEdit: (oldName: string, list: T) => void
@@ -18,6 +20,7 @@ type Props<T extends RowList | ColList> = {
     Dialog: React.ComponentType<{
         allKeys: string[]
         allListNames: string[]
+        getLabel: (key: string) => Label;
         listToEdit?: T
         onConfirm(list: T): void
         onDelete?: () => void
@@ -60,6 +63,7 @@ export function ViewSelectorTabs<T extends RowList | ColList>(props: Props<T>) {
                     onOpenChange={(o) => !o && close()}
                     listToEdit={list}
                     allKeys={props.allKeys}
+                    getLabel={props.getLabel}
                     allListNames={props.listsAvailable.map(l => l.name)}
                     onConfirm={list => props.onEdit(list.name, list)}
                     onDelete={() => props.onDelete(list.name)}/>
@@ -76,6 +80,7 @@ export function ViewSelectorTabs<T extends RowList | ColList>(props: Props<T>) {
             open={openPanel === "row-create"}
             onOpenChange={(o) => !o && close()}
             allKeys={props.allKeys}
+            getLabel={props.getLabel}
             allListNames={props.listsAvailable.map(l => l.name)}
             onConfirm={props.onCreate}/>
     </div>

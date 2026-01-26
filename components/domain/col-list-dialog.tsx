@@ -4,9 +4,13 @@ import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
+import {ColumnSelector} from "@/components/domain/column-selector";
+import ColumnOrderer from "@/components/domain/column-orderer";
+import {Label} from "@/lib/metadata/labels";
 
 type Props = {
     allKeys: string[]
+    getLabel: (key: string) => Label;
     allListNames: string[]
     listToEdit?: ColList
     onConfirm(colList: ColList): void
@@ -53,9 +57,23 @@ export function ColListDialog(props: Props) {
                     </FieldContent>
                 </Field>
                 <Field>
-                    <FieldLabel>Ativos</FieldLabel>
+                    <FieldLabel>Colunas</FieldLabel>
                     <FieldContent>
-                        {/*<ColSelector allKeys={props.allKeys} cols={keys} setCols={setKeys}/>*/}
+                        <div className="flex justify-between gap-4">
+                            <ColumnSelector
+                                columns={keys}
+                                setColumns={setKeys}
+                                allKeys={props.allKeys}
+                                getLabel={props.getLabel}
+                            />
+                            <div className="flex-1/2 overflow-auto">
+                                <ColumnOrderer
+                                    columns={keys}
+                                    setColumns={setKeys}
+                                    getLabel={props.getLabel}
+                                />
+                            </div>
+                        </div>
                     </FieldContent>
                 </Field>
             </FieldSet>

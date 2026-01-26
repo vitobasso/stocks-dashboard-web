@@ -6,10 +6,11 @@ import {ColList, RowList, ViewsAvailable, ViewSelection} from "@/lib/views";
 import {ViewSelectorTabs} from "@/components/view-selector-tabs";
 import {RowListDialog} from "@/components/domain/row-list-dialog";
 import {ColListDialog} from "@/components/domain/col-list-dialog";
+import {Label} from "@/lib/metadata/labels";
 
 type Props = {
     metadata: Rec<Metadata>
-    getLabel: Record<string, (key: string) => { short: string }>;
+    getLabel: Record<string, (key: string) => Label>;
     setAssetClass: Dispatch<SetStateAction<string | null>>;
     setRows: Dispatch<SetStateAction<string[] | null>>;
     setCols: Dispatch<SetStateAction<string[] | null>>;
@@ -52,7 +53,7 @@ export function ViewSelector(props: Props) {
     }
 
     const editRowList = (ac: string, oldName: string) => (updated: RowList) => {
-        setViewsAvailable(prev => changeAvailableRowList(prev, ac, oldName, updated));
+        setViewsAvailable(prev => changeAvailableRowList(prev, ac, oldName, updated)); // FIXME update name
         if (updated.name !== oldName) setSelection(prev => changeSelectedRowList(prev, updated.name));
     }
 
@@ -113,6 +114,7 @@ export function ViewSelector(props: Props) {
             assetClass={ac} listsAvailable={viewsAvailable[ac].rowLists}
             selected={selection.rowListNames[selection.assetClass]}
             allKeys={props.metadata[ac].tickers}
+            getLabel={props.getLabel[ac]}
             onSelect={(name) => setSelection(prev => changeSelectedRowList(prev, name))}
             onCreate={createRowList(ac)}
             onEdit={(oldName, rowList) => editRowList(ac, oldName)(rowList)}
@@ -122,6 +124,7 @@ export function ViewSelector(props: Props) {
             assetClass={ac} listsAvailable={viewsAvailable[ac].colLists}
             selected={selection.colListNames[selection.assetClass]}
             allKeys={props.metadata[ac].schema}
+            getLabel={props.getLabel[ac]}
             onSelect={(name) => setSelection(prev => changeSelectedColList(prev, name))}
             onCreate={createColList(ac)}
             onEdit={(oldName, colList) => editColList(ac, oldName)(colList)}
