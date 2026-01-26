@@ -7,10 +7,10 @@ import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTi
 import {Button} from "@/components/ui/button";
 
 type Props = {
-    allTickers: string[]
-    allRowListNames: string[]
-    rowListToEdit?: RowList
-    onConfirm(rowList: RowList): void
+    allKeys: string[]
+    allListNames: string[]
+    listToEdit?: RowList
+    onConfirm(list: RowList): void
     onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
@@ -22,13 +22,13 @@ export function RowListDialog(props: Props) {
 
     useEffect(() => {
         if (props.open) {
-            setName(props.rowListToEdit?.name ?? "");
-            setTickers([...(props.rowListToEdit?.tickers ?? [])]);
+            setName(props.listToEdit?.name ?? "");
+            setTickers([...(props.listToEdit?.tickers ?? [])]);
         }
-    }, [props.open, props.rowListToEdit]);
+    }, [props.open, props.listToEdit]);
 
     function isValid(): boolean {
-        const dupName = props.allRowListNames.filter(n => n !== props.rowListToEdit?.name).includes(name)
+        const dupName = props.allListNames.filter(n => n !== props.listToEdit?.name).includes(name)
         return !name.trim() || tickers.length === 0 || dupName
     }
 
@@ -38,7 +38,7 @@ export function RowListDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.rowListToEdit;
+    const isEditing = !!props.listToEdit;
     const title = isEditing ? "Editar lista" : "Criar lista"
     
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -56,13 +56,13 @@ export function RowListDialog(props: Props) {
                 <Field>
                     <FieldLabel>Ativos</FieldLabel>
                     <FieldContent>
-                        <RowSelector allTickers={props.allTickers} rows={tickers} setRows={setTickers}/>
+                        <RowSelector allTickers={props.allKeys} rows={tickers} setRows={setTickers}/>
                     </FieldContent>
                 </Field>
             </FieldSet>
             <DialogFooter>
                 {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={props.allRowListNames.length <= 0}
+                    <Button title="Excluir lista" variant="destructive" disabled={props.allListNames.length <= 0}
                         onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {

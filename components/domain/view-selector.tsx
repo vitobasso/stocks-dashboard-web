@@ -1,12 +1,10 @@
 import React, {Dispatch, SetStateAction, useCallback, useEffect, useState} from "react";
 import {mapValues, Rec} from "@/lib/utils/records";
-import {EllipsisVerticalIcon, PlusIcon} from "lucide-react";
-import {ButtonGroup} from "@/components/ui/button-group";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
 import {ColList, RowList, ViewsAvailable, ViewSelection} from "@/lib/views";
+import {ViewSelectorTabs} from "@/components/view-selector-tabs";
 import {RowListDialog} from "@/components/domain/row-list-dialog";
-import {cn} from "@/lib/utils";
 import {ColListDialog} from "@/components/domain/col-list-dialog";
 
 type Props = {
@@ -113,107 +111,26 @@ export function ViewSelector(props: Props) {
                 </Button>
             )}
         </div>
-        <div className="flex items-center gap-2">
-            {viewsAvailable[ac].rowLists.map((list, i) =>
-                <ButtonGroup key={`${ac}-${i}`}
-                             className={cn(
-                                 "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
-                                 isRowListSelected(list, selection)
-                                     ? "bg-primary text-primary-foreground ring-1 ring-primary"
-                                     : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
-                             )}>
-                    <Button size="sm"
-                            variant="ghost"
-                            className="p-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
-                            onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
-                        {list.name}
-                    </Button>
-                    <Button size="sm"
-                            variant="ghost"
-                            className="w-0 !px-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenPanel(`${ac}-row-${list.name}`);
-                            }}>
-                        <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
-                    </Button>
-                    <RowListDialog
-                        open={openPanel === `${ac}-row-${list.name}`}
-                        onOpenChange={(o) => !o && close()}
-                        rowListToEdit={list}
-                        allTickers={props.metadata[ac].tickers}
-                        allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
-                        onConfirm={editRowList(ac, list.name)}
-                        onDelete={() => deleteRowList(ac, list.name)}/>
-                </ButtonGroup>
-            )}
-            <Button size="sm" variant="outline"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenPanel(`${ac}-row-create`);
-                    }}>
-                <PlusIcon className="w-0"/>
-            </Button>
-            <RowListDialog
-                open={openPanel === `${ac}-row-create`}
-                onOpenChange={(o) => !o && close()}
-                allTickers={props.metadata[ac].tickers}
-                allRowListNames={viewsAvailable[ac].rowLists.map(l => l.name)}
-                onConfirm={createRowList(ac)}/>
-        </div>
-        <div className="flex items-center gap-2">
-            {viewsAvailable[ac].colLists.map((list, i) =>
-                <ButtonGroup key={`${ac}-${i}`}
-                             className={cn(
-                                 "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
-                                 isColListSelected(list, selection)
-                                     ? "bg-primary text-primary-foreground ring-1 ring-primary"
-                                     : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
-                             )}>
-                    <Button size="sm"
-                            variant="ghost"
-                            className="p-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
-                            onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
-                        {list.name}
-                    </Button>
-                    <Button size="sm"
-                            variant="ghost"
-                            className="w-0 !px-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenPanel(`${ac}-col-${list.name}`);
-                            }}>
-                        <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
-                    </Button>
-                    <ColListDialog
-                        open={openPanel === `${ac}-col-${list.name}`}
-                        onOpenChange={(o) => !o && close()}
-                        colListToEdit={list}
-                        allKeys={props.metadata[ac].tickers}
-                        allColListNames={viewsAvailable[ac].colLists.map(l => l.name)}
-                        onConfirm={editColList(ac, list.name)}
-                        onDelete={() => deleteColList(ac, list.name)}/>
-                </ButtonGroup>
-            )}
-            <Button size="sm" variant="outline"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenPanel(`${ac}-col-create`);
-                    }}>
-                <PlusIcon className="w-0"/>
-            </Button>
-            <ColListDialog
-                open={openPanel === `${ac}-col-create`}
-                onOpenChange={(o) => !o && close()}
-                allKeys={props.metadata[ac].tickers}
-                allColListNames={viewsAvailable[ac].colLists.map(l => l.name)}
-                onConfirm={createColList(ac)}/>
-        </div>
+        <ViewSelectorTabs
+            assetClass={ac} listsAvailable={viewsAvailable[ac].rowLists}
+            selected={selection.rowListNames[selection.assetClass]}
+            allKeys={props.metadata[ac].tickers}
+            onSelect={(name) => setSelection(prev => changeSelectedRowList(prev, name))}
+            onCreate={createRowList(ac)}
+            onEdit={(oldName, rowList) => editRowList(ac, oldName)(rowList)}
+            onDelete={(name) => deleteRowList(ac, name)}
+            Dialog={RowListDialog}/>
+        <ViewSelectorTabs
+            assetClass={ac} listsAvailable={viewsAvailable[ac].colLists}
+            selected={selection.colListNames[selection.assetClass]}
+            allKeys={props.metadata[ac].schema}
+            onSelect={(name) => setSelection(prev => changeSelectedColList(prev, name))}
+            onCreate={createColList(ac)}
+            onEdit={(oldName, colList) => editColList(ac, oldName)(colList)}
+            onDelete={(name) => deleteColList(ac, name)}
+            Dialog={ColListDialog}
+        />
     </div>;
-}
-
-function isRowListSelected(list: RowList, selection: ViewSelection): boolean {
-    return selection.rowListNames[selection.assetClass] === list.name
 }
 
 function changeSelectedRowList(prev: ViewSelection | null, listName: string): ViewSelection | null {
@@ -241,10 +158,6 @@ function addAvailableRowList(prev: Rec<ViewsAvailable> | null, ac: string, newRo
             rowLists: [...prev[ac].rowLists, newRowList],
         }
     };
-}
-
-function isColListSelected(list: ColList, selection: ViewSelection): boolean {
-    return selection.colListNames[selection.assetClass] === list.name
 }
 
 function changeSelectedColList(prev: ViewSelection | null, listName: string): ViewSelection | null {

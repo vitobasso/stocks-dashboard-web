@@ -7,8 +7,8 @@ import {Button} from "@/components/ui/button";
 
 type Props = {
     allKeys: string[]
-    allColListNames: string[]
-    colListToEdit?: ColList
+    allListNames: string[]
+    listToEdit?: ColList
     onConfirm(colList: ColList): void
     onDelete?: () => void
     open: boolean;
@@ -21,13 +21,13 @@ export function ColListDialog(props: Props) {
 
     useEffect(() => {
         if (props.open) {
-            setName(props.colListToEdit?.name ?? "");
-            setKeys([...(props.colListToEdit?.keys ?? [])]);
+            setName(props.listToEdit?.name ?? "");
+            setKeys([...(props.listToEdit?.keys ?? [])]);
         }
-    }, [props.open, props.colListToEdit]);
+    }, [props.open, props.listToEdit]);
 
     function isValid(): boolean {
-        const dupName = props.allColListNames.filter(n => n !== props.colListToEdit?.name).includes(name)
+        const dupName = props.allListNames.filter(n => n !== props.listToEdit?.name).includes(name)
         return !name.trim() || keys.length === 0 || dupName
     }
 
@@ -37,7 +37,7 @@ export function ColListDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.colListToEdit;
+    const isEditing = !!props.listToEdit;
     const title = isEditing ? "Editar lista" : "Criar lista"
     
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -61,7 +61,7 @@ export function ColListDialog(props: Props) {
             </FieldSet>
             <DialogFooter>
                 {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={props.allColListNames.length <= 0}
+                    <Button title="Excluir lista" variant="destructive" disabled={props.allListNames.length <= 0}
                         onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {
