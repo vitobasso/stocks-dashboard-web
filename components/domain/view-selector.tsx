@@ -180,11 +180,19 @@ const defaultViewsAvailable: Rec<ViewsAvailable> = {
         rowLists: [
             {
                 name: "Radar",
-                tickers: ["VALE3", "ITUB4", "PETR4", "BBDC4",],
+                tickers: ["ITUB4", "BBDC4", "VALE3", "PETR4", "ABEV3", "BBAS3", "B3SA3", "WEGE3"],
             },
             {
-                name: "Elétricas",
-                tickers: ["CMIG4", "CPFE3", "ISAE4", "NEOE3",],
+                name: "Elétricas e Saneamento",
+                tickers: ["CMIG4", "CPFE3", "EGIE3", "ENGI11", "EQTL3", "ISAE4", "NEOE3", "SAPR4", "SBSP3"],
+            },
+            {
+                name: "Bancos e Seguradoras",
+                tickers: ["BBAS3", "BBDC4", "ITSA$", "ITUB4", "BBSE3", "CXSE3"],
+            },
+            {
+                name: "Comodities",
+                tickers: ["PETR4", "VALE3", "GOAU4", "PRIO3", "RECV3", "SUZB3", "KLBN4"],
             },
         ]
     },
@@ -192,7 +200,7 @@ const defaultViewsAvailable: Rec<ViewsAvailable> = {
         rowLists: [
             {
                 name: "Radar",
-                tickers: ["KNCR11", "KNIP11", "XPML11", "HGLG11",],
+                tickers: ["KNCR11", "KNIP11", "XPML11", "HGLG11", "BTLG11", "KNRI11",],
             },
         ]
     },
