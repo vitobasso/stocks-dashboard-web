@@ -83,30 +83,29 @@ export function ViewSelector(props: Props) {
                 </Button>
             )}
         </div>
-        <div className="flex gap-1">
+        <div className="flex items-center gap-2">
             {viewsAvailable[ac].rowLists.map((list, i) =>
                 <ButtonGroup key={`${ac}-${i}`}
                              className={cn(
-                                 "group flex overflow-hidden rounded-md transition-colors shadow-sm",
-                                 isRowListSelected(list, selection)
-                                     ? "bg-primary text-primary-foreground ring-1 ring-primary"
-                                     : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
+                               "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
+                               isRowListSelected(list, selection)
+                                 ? "bg-primary text-primary-foreground ring-1 ring-primary"
+                                 : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
                              )}>
                     <Button size="sm"
                             variant="ghost"
-                            className="rounded-r-none bg-transparent hover:bg-transparent text-inherit hover:text-inherit"
+                            className="p-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
                             onClick={() => setSelection(prev => changeSelectedRowList(prev, list.name))}>
                         {list.name}
                     </Button>
                     <Button size="sm"
                             variant="ghost"
-                            className="w-6 rounded-l-none bg-transparent hover:bg-transparent text-inherit hover:text-inherit"
+                            className="w-4 p-0 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenPanel(`${ac}-row-${list.name}`);
                             }}>
-                        <EllipsisVerticalIcon
-                            className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity"/>
+                        <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
                     </Button>
                     <RowListDialog
                         open={openPanel === `${ac}-row-${list.name}`}
