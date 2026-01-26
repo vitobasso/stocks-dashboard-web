@@ -54,7 +54,7 @@ export function ManageDialog(props: Props) {
 
     if (!assetClasses || !allKeys) return;
     return <>
-        <Fab icon={<Settings className="size-6"/>} position="br" direction="up" label="Customizar">
+        <Fab icon={<Settings className="size-6"/>} position="tr" label="Customizar">
             {({close}) => <>
                 {assetClasses.map(ac => (
                     <React.Fragment key={ac}>
