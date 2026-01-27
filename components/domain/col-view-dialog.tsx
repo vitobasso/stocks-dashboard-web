@@ -51,7 +51,7 @@ export function ColViewDialog(props: Props) {
             </DialogHeader>
             <FieldSet className="overflow-auto max-h-[70vh]">
                 <Field>
-                    <FieldLabel>Nome da lista</FieldLabel>
+                    <FieldLabel>Nome</FieldLabel>
                     <FieldContent>
                         <Input required value={name} onChange={(e) => setName(e.target.value)}/>
                     </FieldContent>

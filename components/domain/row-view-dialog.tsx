@@ -48,7 +48,7 @@ export function RowViewDialog(props: Props) {
             </DialogHeader>
             <FieldSet>
                 <Field>
-                    <FieldLabel>Nome da lista</FieldLabel>
+                    <FieldLabel>Nome</FieldLabel>
                     <FieldContent>
                         <Input required value={name} onChange={(e) => setName(e.target.value)}/>
                     </FieldContent>
