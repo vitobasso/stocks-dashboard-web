@@ -4,7 +4,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredVal
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/lib/metadata/labels";
-import {columnGroupPerKey, columnGroupPerPrefix, columnGroups} from "@/lib/metadata/column-groups";
+import {columnGroupPerKey, columnGroupPerPrefix, allGroupNames} from "@/lib/metadata/column-groups";
 import {getPrefix, getSuffix} from "@/lib/data";
 import {toNorm} from "@/lib/utils/strings";
 import {groupByValues} from "@/lib/utils/collections";
@@ -38,7 +38,7 @@ export function ColumnSelector(props: Props) {
         const groupOfKey = columnGroupPerKey(props.allKeys) // Map<key, group>
         const keysOfGroup = groupByValues(groupOfKey); // Map<group, keys>
 
-        const baseGroups = Object.keys(columnGroups).filter(g => keysOfGroup.get(g)?.length);
+        const baseGroups = allGroupNames.filter(g => keysOfGroup.get(g)?.length);
         const baseKeys = baseGroups.flatMap(g => keysOfGroup.get(g) ?? []);
         const basePrefixes = Array.from(new Set(baseKeys.map(h => getPrefix(h))));
 
