@@ -52,13 +52,13 @@ const prefixLabels: Record<string, MetadataSource> = {
 
     // from a source other than scraper
     "b3_position": {label: "B3, Posição", url: "https://investidor.b3.com.br (importado manualmente)"},
-    "yahoo_quote": {label: "Yahoo Finance, tempo real", url: "https://finance.yahoo.com/"},
+    "yahoo_quote": {label: "Yahoo Finance, Tempo Real", url: "https://finance.yahoo.com/"},
 
     // derived from other keys
-    "derived.b3_position": {label: "Calculados", url: "Usando B3"},
-    "derived.forecast": {label: "Calculados", url: "Usando Yahoo Finance"},
-    "derived.yahoo_chart": {label: "Calculados", url: "Usando Yahoo Finance"},
-    "derived.statusinvest": {label: "Calculados", url: "Usando StatusInvest"},
+    "derived.b3_position": {label: "Valores Calculados: Posição", url: "Usando B3"},
+    "derived.yahoo_chart": {label: "Valores Calculados: Cotação", url: "Usando Yahoo Finance"},
+    "derived.forecast": {label: "Valores Calculados: Projeção", url: "Usando Yahoo Finance"},
+    "derived.statusinvest": {label: "Valores Calculados: Fundamentos", url: "Usando StatusInvest"},
 }
 
 function generateLabel(path: string): Label {
