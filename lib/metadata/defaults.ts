@@ -43,11 +43,11 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
                     "statusinvest.dy"]
             },
             {
-                name: "Recomendação",
+                name: "Consenso",
                 items: ["strong_buy", "buy", "hold", "sell", "strong_sell"].map(s => `yahoo_recom.${s}`)
             },
             {
-                name: "Previsão",
+                name: "Projeção",
                 items: ["min_pct", "avg_pct", "max_pct"].map(s => `derived.forecast.${s}`)
             },
         ],
