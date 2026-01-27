@@ -4,6 +4,13 @@ linhas (listas): carteira, radar (watchlist), perenes, cíclicas,
 colunas (lentes): resumo (overview), preço, qualidade (checklist), fundamentos, análise, posição,
 edit, rename, duplicate, delete
 
+### fix dark theme
+selected view should not highlight
+other views should highlight
+green/red colors should be toned down
+shadows should be toned down
+    slight blue/purple tint?
+
 ### click ticker
 - list of links
 

@@ -70,7 +70,7 @@ export function Fab({
 
   const menuPositionClass =
     position === "tr"
-      ? "absolute translate-y-2 top-14 right-0"
+      ? "absolute translate-y-0 top-0 right-16"
       : "absolute -translate-y-2 bottom-14 right-0"
 
   const renderChildren = typeof children === "function" ? children({ close: () => setOpen(false) }) : children

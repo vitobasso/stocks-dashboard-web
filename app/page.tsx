@@ -4,7 +4,7 @@ import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data, Metadata, splitByAssetClass} from "@/lib/data";
 import {makeLabelGetter} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
-import {ManageDialog} from "@/components/domain/manage-dialog";
+import {SettingsDialog} from "@/components/domain/settings-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
 import {Analytics} from "@vercel/analytics/next"
 import {applyTheme, getStoredTheme} from "@/lib/theme";
@@ -96,9 +96,9 @@ export default function Page() {
                               rows={rows} columns={columns} data={data[assetClass]}
                               getLabel={getLabel[assetClass]}
                               onGroupHeaderClick={onGroupHeaderClick(assetClass)}/>
-                    <ManageDialog metadata={metadata} getLabel={getLabel}
-                                  setPositions={setPositions} classOfTickers={classOfTicker}
-                                  openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
+                    <SettingsDialog metadata={metadata} getLabel={getLabel}
+                                    setPositions={setPositions} classOfTickers={classOfTicker}
+                                    openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
                     <Analytics/>
                 </>
             }

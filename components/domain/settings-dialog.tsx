@@ -6,7 +6,7 @@ import {Data, Metadata} from "@/lib/data";
 import {Label} from "@/lib/metadata/labels";
 import PositionsImporter from "@/components/domain/positions-importer";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
-import {toggleAppliedTheme} from "@/lib/theme";
+import {getAppliedTheme, toggleAppliedTheme} from "@/lib/theme";
 import {Rec} from "@/lib/utils/records";
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
     groupFilter: string | null
 }
 
-export function ManageDialog(props: Props) {
+export function SettingsDialog(props: Props) {
 
     const [internalOpen, setInternalOpen] = useState<string | null>(null)
     const openPanel = props.openPanel ?? internalOpen
@@ -39,22 +39,22 @@ export function ManageDialog(props: Props) {
     }
 
     return <>
-        <Fab icon={<Settings className="size-6"/>} position="tr" label="Customizar">
+        <Fab icon={<Settings className="size-6"/>} position="tr" label="Configurações">
             {({close}) => <>
                 <FabMenuItem className="w-46" onClick={trigger("import", close)}>
                     <Import className="size-4"/>
-                    Importar
+                    Importar B3
                 </FabMenuItem>
                 <FabMenuItem className="w-46" onClick={() => { toggleTheme(); close(); }}>
                     <Sun className="size-4 hidden dark:block"/>
                     <Moon className="size-4 dark:hidden"/>
-                    Tema
+                    {getAppliedTheme() == "light" ? "Tema Escuro" : "Tema Claro"}
                 </FabMenuItem>
             </>}
         </Fab>
         <Dialog open={openPanel === "import"} onOpenChange={(o) => !o && close()}>
-            <DialogContent position="br" hideOverlay className="sm:max-w-[28rem] p-4">
-                <DialogHeader><DialogTitle>Importar Posição</DialogTitle></DialogHeader>
+            <DialogContent position="tr" hideOverlay className="sm:max-w-[28rem] p-4">
+                <DialogHeader><DialogTitle>Importar Posição B3</DialogTitle></DialogHeader>
                 <PositionsImporter
                     setPositions={props.setPositions}
                     classOfTickers={props.classOfTickers}
