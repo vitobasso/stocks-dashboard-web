@@ -1,13 +1,14 @@
-import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
-import {Rec} from "@/lib/utils/records";
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
+import {Rec, recordOfKeys} from "@/lib/utils/records";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
-import {viewsCrud, ViewsAvailable, ViewSelection} from "@/lib/views";
+import {ViewsAvailable, viewsCrud, ViewSelection} from "@/lib/views";
 import {ViewSelectorTabs} from "@/components/view-selector-tabs";
 import {RowViewDialog} from "@/components/domain/row-view-dialog";
 import {ColViewDialog} from "@/components/domain/col-view-dialog";
 import {Label} from "@/lib/metadata/labels";
 import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
+import {consolidateSchema} from "@/lib/schema";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -34,6 +35,13 @@ export function ViewSelector(props: Props) {
         if (selection) localStorage.setItem("viewSelection", JSON.stringify(selection));
     }, [selection]);
 
+    const { assetClasses, allKeys } = useMemo(() => {
+        if (!props.metadata) return { assetClasses: undefined, allKeys: undefined };
+        const assetClasses = Object.keys(props.metadata);
+        const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(props.metadata[ac].schema, ac));
+        return { assetClasses, allKeys };
+    }, [props.metadata]);
+
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
         const selectedRows = viewsAvailable[selection.assetClass].rowViews
@@ -46,10 +54,9 @@ export function ViewSelector(props: Props) {
         props.setCols(selectedCols.items);
     }, [viewsAvailable, selection]);
 
-    const assetClasses = Object.keys(props.metadata);
     const crud = viewsCrud(setViewsAvailable, setSelection);
 
-    if (!viewsAvailable || !selection) return null;
+    if (!assetClasses || !allKeys || !viewsAvailable || !selection) return null;
     const ac = selection.assetClass;
     return <div className="flex flex-col gap-1">
         <div className="flex gap-1">
@@ -75,7 +82,7 @@ export function ViewSelector(props: Props) {
         <ViewSelectorTabs
             assetClass={ac} viewsAvailable={viewsAvailable[ac].colViews}
             selected={selection.colViewNames[selection.assetClass]}
-            allKeys={props.metadata[ac].schema}
+            allKeys={allKeys[ac]}
             getLabel={props.getLabel[ac]}
             onSelect={crud.select("col")}
             onCreate={crud.create("col", ac)}

@@ -1,14 +1,13 @@
 "use client";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Import, Moon, Settings, Sun} from "lucide-react"
-import React, {useCallback, useMemo, useState} from "react";
+import React, {useCallback, useState} from "react";
 import {Data, Metadata} from "@/lib/data";
 import {Label} from "@/lib/metadata/labels";
 import PositionsImporter from "@/components/domain/positions-importer";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
 import {toggleAppliedTheme} from "@/lib/theme";
-import {Rec, recordOfKeys} from "@/lib/utils/records";
-import {consolidateSchema} from "@/lib/schema";
+import {Rec} from "@/lib/utils/records";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -21,13 +20,6 @@ type Props = {
 }
 
 export function ManageDialog(props: Props) {
-
-    const { assetClasses, allKeys } = useMemo(() => {
-        if (!props.metadata) return { assetClasses: undefined, allKeys: undefined };
-        const assetClasses = Object.keys(props.metadata);
-        const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(props.metadata[ac].schema, ac));
-        return { assetClasses, allKeys };
-    }, [props.metadata]);
 
     const [internalOpen, setInternalOpen] = useState<string | null>(null)
     const openPanel = props.openPanel ?? internalOpen
@@ -46,7 +38,6 @@ export function ManageDialog(props: Props) {
         try { localStorage.setItem("theme", t); } catch {}
     }
 
-    if (!assetClasses || !allKeys) return;
     return <>
         <Fab icon={<Settings className="size-6"/>} position="tr" label="Customizar">
             {({close}) => <>
