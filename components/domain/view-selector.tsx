@@ -52,7 +52,7 @@ export function ViewSelector(props: Props) {
         props.setAssetClass(selection.assetClass);
         props.setRows(selectedRows.items);
         props.setCols(selectedCols.items);
-    }, [viewsAvailable, selection]);
+    }, [viewsAvailable, selection, props]);
 
     const crud = viewsCrud(setViewsAvailable, setSelection);
 
