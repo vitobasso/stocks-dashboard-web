@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {ColList} from "@/lib/views";
+import {ColView} from "@/lib/views";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
@@ -9,29 +9,29 @@ import ColumnOrderer from "@/components/domain/column-orderer";
 import {Label} from "@/lib/metadata/labels";
 
 type Props = {
-    allKeys: string[]
+    allItems: string[]
     getLabel: (key: string) => Label;
-    allListNames: string[]
-    listToEdit?: ColList
-    onConfirm(colList: ColList): void
+    allViewNames: string[]
+    viewToEdit?: ColView
+    onConfirm(view: ColView): void
     onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
 }
 
-export function ColListDialog(props: Props) {
+export function ColViewDialog(props: Props) {
     const [name, setName] = useState("");
     const [keys, setKeys] = useState<string[]>([]);
 
     useEffect(() => {
         if (props.open) {
-            setName(props.listToEdit?.name ?? "");
-            setKeys([...(props.listToEdit?.items ?? [])]);
+            setName(props.viewToEdit?.name ?? "");
+            setKeys([...(props.viewToEdit?.items ?? [])]);
         }
-    }, [props.open, props.listToEdit]);
+    }, [props.open, props.viewToEdit]);
 
     function isValid(): boolean {
-        const dupName = props.allListNames.filter(n => n !== props.listToEdit?.name).includes(name)
+        const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)
         return !name.trim() || keys.length === 0 || dupName
     }
 
@@ -41,7 +41,7 @@ export function ColListDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.listToEdit;
+    const isEditing = !!props.viewToEdit;
     const title = isEditing ? "Editar lista" : "Criar lista"
     
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -63,7 +63,7 @@ export function ColListDialog(props: Props) {
                             <ColumnSelector
                                 columns={keys}
                                 setColumns={setKeys}
-                                allKeys={props.allKeys}
+                                allKeys={props.allItems}
                                 getLabel={props.getLabel}
                             />
                             <div className="flex-1/2">
@@ -79,7 +79,7 @@ export function ColListDialog(props: Props) {
             </FieldSet>
             <DialogFooter>
                 {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={props.allListNames.length <= 0}
+                    <Button title="Excluir lista" variant="destructive" disabled={props.allViewNames.length <= 0}
                         onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {

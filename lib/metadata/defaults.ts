@@ -3,7 +3,7 @@ import {mapValues, Rec} from "@/lib/utils/records";
 
 export const defaultViewsAvailable: Rec<ViewsAvailable> = {
     "stock_br": {
-        rowLists: [
+        rowViews: [
             {
                 name: "Radar",
                 items: ["ITUB4", "BBDC4", "VALE3", "PETR4", "ABEV3", "BBAS3", "B3SA3", "WEGE3"],
@@ -21,7 +21,7 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
                 items: ["PETR4", "VALE3", "GGBR4", "PRIO3", "RECV3", "SUZB3", "KLBN4"],
             },
         ],
-        colLists: [
+        colViews: [
             {
                 name: "Perfil",
                 items: ["b3_listagem.setor"],
@@ -53,13 +53,13 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
         ],
     },
     "reit_br": {
-        rowLists: [
+        rowViews: [
             {
                 name: "Radar",
                 items: ["KNCR11", "KNIP11", "XPML11", "HGLG11", "BTLG11", "KNRI11",],
             },
         ],
-        colLists: [
+        colViews: [
             {
                 name: "Posição",
                 items: ["derived.b3_position.current_value", "b3_position.average_price",
@@ -79,6 +79,6 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
 }
 export const defaultSelection: ViewSelection = {
     assetClass: "stock_br",
-    rowListNames: mapValues(defaultViewsAvailable, (v) => v.rowLists[0].name),
-    colListNames: mapValues(defaultViewsAvailable, (v) => v.colLists[0].name),
+    rowViewNames: mapValues(defaultViewsAvailable, (v) => v.rowViews[0].name),
+    colViewNames: mapValues(defaultViewsAvailable, (v) => v.colViews[0].name),
 }

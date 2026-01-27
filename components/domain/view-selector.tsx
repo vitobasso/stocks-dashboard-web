@@ -2,10 +2,10 @@ import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {Rec} from "@/lib/utils/records";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
-import {viewListCrud, ViewsAvailable, ViewSelection} from "@/lib/views";
+import {viewsCrud, ViewsAvailable, ViewSelection} from "@/lib/views";
 import {ViewSelectorTabs} from "@/components/view-selector-tabs";
-import {RowListDialog} from "@/components/domain/row-list-dialog";
-import {ColListDialog} from "@/components/domain/col-list-dialog";
+import {RowViewDialog} from "@/components/domain/row-view-dialog";
+import {ColViewDialog} from "@/components/domain/col-view-dialog";
 import {Label} from "@/lib/metadata/labels";
 import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
 
@@ -36,10 +36,10 @@ export function ViewSelector(props: Props) {
 
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
-        const selectedRows = viewsAvailable[selection.assetClass].rowLists
-            .find(rl => rl.name === selection.rowListNames[selection.assetClass]);
-        const selectedCols = viewsAvailable[selection.assetClass].colLists
-            .find(cl => cl.name === selection.colListNames[selection.assetClass]);
+        const selectedRows = viewsAvailable[selection.assetClass].rowViews
+            .find(rl => rl.name === selection.rowViewNames[selection.assetClass]);
+        const selectedCols = viewsAvailable[selection.assetClass].colViews
+            .find(cl => cl.name === selection.colViewNames[selection.assetClass]);
         if (!selectedRows || !selectedCols) return;
         props.setAssetClass(selection.assetClass);
         props.setRows(selectedRows.items);
@@ -47,7 +47,7 @@ export function ViewSelector(props: Props) {
     }, [viewsAvailable, selection]);
 
     const assetClasses = Object.keys(props.metadata);
-    const crud = viewListCrud(setViewsAvailable, setSelection);
+    const crud = viewsCrud(setViewsAvailable, setSelection);
 
     if (!viewsAvailable || !selection) return null;
     const ac = selection.assetClass;
@@ -63,25 +63,25 @@ export function ViewSelector(props: Props) {
             )}
         </div>
         <ViewSelectorTabs
-            assetClass={ac} listsAvailable={viewsAvailable[ac].rowLists}
-            selected={selection.rowListNames[selection.assetClass]}
+            assetClass={ac} viewsAvailable={viewsAvailable[ac].rowViews}
+            selected={selection.rowViewNames[selection.assetClass]}
             allKeys={props.metadata[ac].tickers}
             getLabel={props.getLabel[ac]}
             onSelect={crud.select("row")}
             onCreate={crud.create("row", ac)}
             onEdit={crud.edit("row", ac)}
             onDelete={crud.delete("row", ac)}
-            Dialog={RowListDialog}/>
+            Dialog={RowViewDialog}/>
         <ViewSelectorTabs
-            assetClass={ac} listsAvailable={viewsAvailable[ac].colLists}
-            selected={selection.colListNames[selection.assetClass]}
+            assetClass={ac} viewsAvailable={viewsAvailable[ac].colViews}
+            selected={selection.colViewNames[selection.assetClass]}
             allKeys={props.metadata[ac].schema}
             getLabel={props.getLabel[ac]}
             onSelect={crud.select("col")}
             onCreate={crud.create("col", ac)}
             onEdit={crud.edit("col", ac)}
             onDelete={crud.delete("col", ac)}
-            Dialog={ColListDialog}
+            Dialog={ColViewDialog}
         />
     </div>;
 }

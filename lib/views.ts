@@ -1,28 +1,28 @@
 import {Rec} from "@/lib/utils/records";
 import {Dispatch, SetStateAction} from "react";
 
-export type RowList = { name: string, items: string[] };
-export type ColList = { name: string, items: string[] };
-export type ViewsAvailable = { rowLists: RowList[], colLists: ColList[] }
-export type ViewSelection = { assetClass: string, rowListNames: Rec<string>, colListNames: Rec<string> };
+export type RowView = { name: string, items: string[] };
+export type ColView = { name: string, items: string[] };
+export type ViewsAvailable = { rowViews: RowView[], colViews: ColView[] }
+export type ViewSelection = { assetClass: string, rowViewNames: Rec<string>, colViewNames: Rec<string> };
 
 type Axis = "row" | "col";
-type AnyList = RowList | ColList;
+type AnyView = RowView | ColView;
 
 const cfg = {
-    row: {lists: "rowLists", names: "rowListNames"},
-    col: {lists: "colLists", names: "colListNames"},
+    row: {lists: "rowViews", names: "rowViewNames"},
+    col: {lists: "colViews", names: "colViewNames"},
 } as const;
 
-export function viewListCrud(
+export function viewsCrud(
     setViewsAvailable: Dispatch<SetStateAction<Record<string, ViewsAvailable> | null>>,
     setSelection: Dispatch<SetStateAction<ViewSelection | null>>
 ) {
 
     function updateViews(axis: Axis,
                          ac: string,
-                         fn: (v: AnyList[]) => AnyList[],
-                         onUpdated?: (result: AnyList[]) => void) {
+                         fn: (v: AnyView[]) => AnyView[],
+                         onUpdated?: (result: AnyView[]) => void) {
         setViewsAvailable(v => {
             if (!v) return v;
             const updated = fn(v[ac][cfg[axis].lists])
@@ -52,11 +52,11 @@ export function viewListCrud(
 
     return {
         select: (axis: Axis) => (name: string) => select(axis, () => name),
-        create: (axis: Axis, ac: string) => (created: RowList | ColList) => {
+        create: (axis: Axis, ac: string) => (created: RowView | ColView) => {
             updateViews(axis, ac, (xs) => [...xs, created]);
             select(axis, () => created.name);
         },
-        edit: (axis: Axis, ac: string) => (oldName: string, updated: RowList | ColList) => {
+        edit: (axis: Axis, ac: string) => (oldName: string, updated: RowView | ColView) => {
             updateViews(axis, ac, (xs) => xs.map(x => (x.name === oldName ? updated : x)));
             select(axis, v => v == oldName ? updated.name : v)
         },

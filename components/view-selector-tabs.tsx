@@ -3,70 +3,70 @@ import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import {EllipsisVerticalIcon, PlusIcon} from "lucide-react";
 import React, {useCallback, useState} from "react";
-import {ColList, RowList} from "@/lib/views";
+import {ColView, RowView} from "@/lib/views";
 import {Label} from "@/lib/metadata/labels";
 
-type Props<T extends RowList | ColList> = {
+type Props<T extends RowView | ColView> = {
     className?: string;
     assetClass: string;
-    listsAvailable: T[]
+    viewsAvailable: T[]
     selected: string
     allKeys: string[]
     getLabel: (key: string) => Label;
     onSelect: (name: string) => void
-    onCreate: (list: T) => void
-    onEdit: (oldName: string, list: T) => void
+    onCreate: (view: T) => void
+    onEdit: (oldName: string, view: T) => void
     onDelete: (name: string) => void
     Dialog: React.ComponentType<{
-        allKeys: string[]
-        allListNames: string[]
+        allItems: string[]
+        allViewNames: string[]
         getLabel: (key: string) => Label;
-        listToEdit?: T
-        onConfirm(list: T): void
+        viewToEdit?: T
+        onConfirm(view: T): void
         onDelete?: () => void
         open: boolean;
         onOpenChange(open: boolean): void;
     }>
 }
 
-export function ViewSelectorTabs<T extends RowList | ColList>(props: Props<T>) {
+export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
 
     const [openPanel, setOpenPanel] = useState<string | null>(null)
     const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
 
     return <div className={cn("flex items-center gap-2", props.className)}>
-        {props.listsAvailable.map((list, i) =>
+        {props.viewsAvailable.map((view, i) =>
             <ButtonGroup key={i}
                          className={cn(
                              "group h-7.5 px-2 overflow-hidden rounded-md shadow-sm transition-colors",
-                             props.selected == list.name
+                             props.selected == view.name
                                  ? "bg-primary text-primary-foreground ring-1 ring-primary"
                                  : "bg-transparent ring-1 ring-border hover:bg-accent hover:text-accent-foreground"
                          )}>
                 <Button size="sm"
                         variant="ghost"
                         className="p-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
-                        onClick={() => props.onSelect(list.name)}>
-                    {list.name}
+                        onClick={() => props.onSelect(view.name)}>
+                    {view.name}
                 </Button>
                 <Button size="sm"
                         variant="ghost"
                         className="w-0 !px-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit"
                         onClick={(e) => {
                             e.stopPropagation();
-                            setOpenPanel(`row-${list.name}`);
+                            setOpenPanel(`row-${view.name}`);
                         }}>
                     <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
                 </Button>
                 <props.Dialog
-                    open={openPanel === `row-${list.name}`}
+                    open={openPanel === `row-${view.name}`}
                     onOpenChange={(o) => !o && close()}
-                    listToEdit={list}
-                    allKeys={props.allKeys}
+                    viewToEdit={view}
+                    allItems={props.allKeys}
                     getLabel={props.getLabel}
-                    allListNames={props.listsAvailable.map(l => l.name)}
-                    onConfirm={list => props.onEdit(list.name, list)}
-                    onDelete={() => props.onDelete(list.name)}/>
+                    allViewNames={props.viewsAvailable.map(l => l.name)}
+                    onConfirm={view => props.onEdit(view.name, view)}
+                    onDelete={() => props.onDelete(view.name)}/>
             </ButtonGroup>
         )}
         <Button size="sm" variant="outline"
@@ -79,9 +79,9 @@ export function ViewSelectorTabs<T extends RowList | ColList>(props: Props<T>) {
         <props.Dialog
             open={openPanel === "row-create"}
             onOpenChange={(o) => !o && close()}
-            allKeys={props.allKeys}
+            allItems={props.allKeys}
             getLabel={props.getLabel}
-            allListNames={props.listsAvailable.map(l => l.name)}
+            allViewNames={props.viewsAvailable.map(l => l.name)}
             onConfirm={props.onCreate}/>
     </div>
 }

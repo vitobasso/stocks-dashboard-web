@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {RowList} from "@/lib/views";
+import {RowView} from "@/lib/views";
 import {RowSelector} from "@/components/domain/row-selector";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
@@ -7,28 +7,28 @@ import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTi
 import {Button} from "@/components/ui/button";
 
 type Props = {
-    allKeys: string[]
-    allListNames: string[]
-    listToEdit?: RowList
-    onConfirm(list: RowList): void
+    allItems: string[]
+    allViewNames: string[]
+    viewToEdit?: RowView
+    onConfirm(view: RowView): void
     onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
 }
 
-export function RowListDialog(props: Props) {
+export function RowViewDialog(props: Props) {
     const [name, setName] = useState("");
     const [tickers, setTickers] = useState<string[]>([]);
 
     useEffect(() => {
         if (props.open) {
-            setName(props.listToEdit?.name ?? "");
-            setTickers([...(props.listToEdit?.items ?? [])]);
+            setName(props.viewToEdit?.name ?? "");
+            setTickers([...(props.viewToEdit?.items ?? [])]);
         }
-    }, [props.open, props.listToEdit]);
+    }, [props.open, props.viewToEdit]);
 
     function isValid(): boolean {
-        const dupName = props.allListNames.filter(n => n !== props.listToEdit?.name).includes(name)
+        const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)
         return !name.trim() || tickers.length === 0 || dupName
     }
 
@@ -38,7 +38,7 @@ export function RowListDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.listToEdit;
+    const isEditing = !!props.viewToEdit;
     const title = isEditing ? "Editar lista" : "Criar lista"
     
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -56,13 +56,13 @@ export function RowListDialog(props: Props) {
                 <Field>
                     <FieldLabel>Ativos</FieldLabel>
                     <FieldContent>
-                        <RowSelector allTickers={props.allKeys} rows={tickers} setRows={setTickers}/>
+                        <RowSelector allTickers={props.allItems} rows={tickers} setRows={setTickers}/>
                     </FieldContent>
                 </Field>
             </FieldSet>
             <DialogFooter>
                 {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={props.allListNames.length <= 0}
+                    <Button title="Excluir lista" variant="destructive" disabled={props.allViewNames.length <= 0}
                         onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {
