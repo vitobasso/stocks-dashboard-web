@@ -65,7 +65,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                     allItems={props.allKeys}
                     getLabel={props.getLabel}
                     allViewNames={props.viewsAvailable.map(l => l.name)}
-                    onConfirm={view => props.onEdit(view.name, view)}
+                    onConfirm={updated => props.onEdit(view.name, updated)}
                     onDelete={() => props.onDelete(view.name)}/>
             </ButtonGroup>
         )}
