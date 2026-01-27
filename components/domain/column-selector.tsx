@@ -35,16 +35,14 @@ export function ColumnSelector(props: Props) {
         .toSorted((a, b) => props.getLabel(a)?.short.localeCompare(props.getLabel(b)?.short));
 
     function keyMatches(key: string): boolean {
-        return toNorm(getSuffix(key)).includes(q) ||
-            toNorm(props.getLabel(key)?.short).includes(q) ||
+        return toNorm(props.getLabel(key)?.short).includes(q) ||
             toNorm(props.getLabel(key)?.long).includes(q)
     }
 
     const {getLabel} = props;
     const prefixItselfMatches = useCallback((prefix: string): boolean => {
         const label = getLabel(prefix)
-        return toNorm(prefix).includes(q) ||
-            toNorm(label?.short).includes(q) ||
+        return toNorm(label?.short).includes(q) ||
             toNorm(label?.long).includes(q)
     }, [getLabel, q]);
 
