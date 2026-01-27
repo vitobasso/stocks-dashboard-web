@@ -1,6 +1,5 @@
 import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
 import {Rec, recordOfKeys} from "@/lib/utils/records";
-import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
 import {ViewsAvailable, viewsCrud, ViewSelection} from "@/lib/views";
 import {ViewSelectorTabs} from "@/components/domain/view-selector-tabs";
@@ -11,6 +10,7 @@ import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
 import {consolidateSchema} from "@/lib/schema";
 import {RowCreateDialog} from "@/components/domain/row-create-dialog";
 import {ColCreateDialog} from "@/components/domain/col-create-dialog";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -62,14 +62,20 @@ export function ViewSelector(props: Props) {
     const ac = selection.assetClass;
     return <div className="flex flex-col gap-1">
         <div className="flex gap-1">
-            {assetClasses.map(assetClass =>
-                <Button
-                    key={assetClass} size="sm" className="font-mono text-sm"
-                    variant={ac === assetClass ? "default" : "outline"}
-                    onClick={() => setSelection({...selection, assetClass})}>
-                    {props.getLabel[assetClass](assetClass).short}
-                </Button>
-            )}
+            <Select defaultValue={defaultSelection.assetClass}
+                    onValueChange={(value) => {
+                        setSelection({...selection, assetClass: value});
+                        removeFocus();
+                    }}>
+                <SelectTrigger> <SelectValue placeholder="Classe de Ativo" /> </SelectTrigger>
+                <SelectContent side="bottom">
+                    {assetClasses.map(assetClass =>
+                        <SelectItem key={assetClass} value={assetClass}>
+                            {props.getLabel[assetClass](assetClass).short}
+                        </SelectItem>
+                    )}
+                </SelectContent>
+            </Select>
         </div>
         <ViewSelectorTabs
             assetClass={ac} viewsAvailable={viewsAvailable[ac].rowViews}
@@ -96,6 +102,11 @@ export function ViewSelector(props: Props) {
             EditDialog={ColEditDialog}
         />
     </div>;
+}
+
+function removeFocus() {
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement) activeElement.blur();
 }
 
 function loadViewsAvailable(): Rec<ViewsAvailable> {
