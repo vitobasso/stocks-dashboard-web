@@ -17,8 +17,8 @@ type Props = {
 export function ColumnSelector(props: Props) {
 
     const [search, setSearch] = useState("")
-    const [openValues, setOpenValues] = useState<string[]>([])
-    const manualOpenRef = useRef(false) // when true, do not auto-suggest open values
+    const [expandedPrefixes, setExpandedPrefixes] = useState<string[]>([])
+    const manualExpandRef = useRef(false) // when true, do not auto-suggest expand values
 
     const deferredSearch = useDeferredValue(search)
     const isSearching = deferredSearch.trim().length > 0
@@ -41,56 +41,56 @@ export function ColumnSelector(props: Props) {
     }
 
     const {getLabel} = props;
-    const prefixSelfMatches = useCallback((prefix: string): boolean => {
+    const prefixItselfMatches = useCallback((prefix: string): boolean => {
         const label = getLabel(prefix)
         return toNorm(prefix).includes(q) ||
             toNorm(label?.short).includes(q) ||
             toNorm(label?.long).includes(q)
     }, [getLabel, q]);
 
-    function prefixMatches(prefix: string): boolean {
+    function prefixOrChildrenMatch(prefix: string): boolean {
         if (!isSearching) return true
-        if (prefixSelfMatches(prefix)) return true
+        if (prefixItselfMatches(prefix)) return true
         // any key under this prefix matches
         return props.allKeys.some(k => getPrefix(k) === prefix && keyMatches(k))
     }
 
-    // sets for name matches, used to widen visibility
-    const prefixNameMatched = useMemo(() => new Set(allPrefixes.filter(p => prefixSelfMatches(p))), [allPrefixes, prefixSelfMatches])
+    // prefix name matches, used to widen search results
+    const prefixNamesMatching = useMemo(() => new Set(allPrefixes.filter(p => prefixItselfMatches(p))), [allPrefixes, prefixItselfMatches])
 
     // filtered after search
     const visibleKeys = isSearching ? props.allKeys.filter(keyMatches) : props.allKeys
     const visiblePrefixes = isSearching
-        ? allPrefixes.filter(p => prefixMatches(p))
+        ? allPrefixes.filter(p => prefixOrChildrenMatch(p))
         : allPrefixes
 
-    // auto-suggest open values in the accordion
+    // auto-suggest expand values in the accordion
     useEffect(() => {
-        if (!isSearching || manualOpenRef.current) return
-        const open = new Set<string>()
-        // open all matching prefixes by name and their groups
-        for (const p of prefixNameMatched) {
-            open.add(p)
+        if (!isSearching || manualExpandRef.current) return
+        const expand = new Set<string>()
+        // expand all matching prefixes by name
+        for (const p of prefixNamesMatching) {
+            expand.add(p)
         }
-        // open ancestors of matching keys
+        // expand ancestors of matching keys
         for (const k of visibleKeys) {
             const p = getPrefix(k)
-            if (p) open.add(p)
+            if (p) expand.add(p)
         }
-        const next = Array.from(open)
-        setOpenValues(prev => (
+        const next = Array.from(expand)
+        setExpandedPrefixes(prev => (
             prev.length === next.length && prev.every((v, i) => v === next[i])
         ) ? prev : next)
-    }, [q, visibleKeys, isSearching, prefixNameMatched])
+    }, [q, visibleKeys, isSearching, prefixNamesMatching])
 
-    // reset manual override when search query changes
+    // reset manual override of accordion expand/collapse state when search query changes
     useEffect(() => {
-        manualOpenRef.current = false
+        manualExpandRef.current = false
     }, [q])
 
-    const onValueChange = useCallback((v: string[]) => {
-        manualOpenRef.current = true;
-        setOpenValues(v)
+    const onAccordionChange = useCallback((v: string[]) => {
+        manualExpandRef.current = true;
+        setExpandedPrefixes(v)
     }, [])
 
     return <div className="w-full">
@@ -98,12 +98,12 @@ export function ColumnSelector(props: Props) {
                placeholder="Buscar..." value={search}
                onChange={e => setSearch(e.target.value)}/>
         <div className="flex-1 max-h-123 p-1 overflow-auto">
-            <Accordion type="multiple" value={openValues} onValueChange={onValueChange}>
+            <Accordion type="multiple" value={expandedPrefixes} onValueChange={onAccordionChange}>
                 {visiblePrefixes.map(prefix => {
                     const byPrefix = (key: string) => getPrefix(key) === prefix
-                    const keysInPrefix = props.allKeys.filter(byPrefix)
-                    const visibleKeysInPrefix = prefixNameMatched.has(prefix) ? keysInPrefix : []
-                    return ColumnPrefix(prefix, keysInPrefix, visibleKeysInPrefix, selectedKeys, props)
+                    const allKeysInPrefix = props.allKeys.filter(byPrefix)
+                    const visibleKeysInPrefix = prefixNamesMatching.has(prefix) ? allKeysInPrefix : visibleKeys.filter(byPrefix)
+                    return ColumnPrefix(prefix, allKeysInPrefix, visibleKeysInPrefix, selectedKeys, props)
                 })}
             </Accordion>
         </div>

@@ -39,3 +39,6 @@ tag along, simplywall score
 ### customize: color rules ?
 
 ### customize: calculated columns ?
+
+### test
+column-selector search
