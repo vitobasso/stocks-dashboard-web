@@ -7,6 +7,7 @@ export type ViewsAvailable = { rowLists: RowList[], colLists: ColList[] }
 export type ViewSelection = { assetClass: string, rowListNames: Rec<string>, colListNames: Rec<string> };
 
 type Axis = "row" | "col";
+type AnyList = RowList | ColList;
 
 const cfg = {
     row: {lists: "rowLists", names: "rowListNames"},
@@ -18,14 +19,19 @@ export function viewListCrud(
     setSelection: Dispatch<SetStateAction<ViewSelection | null>>
 ) {
 
-    function updateViews(axis: Axis, ac: string, fn: (v: RowList[] | ColList[]) => RowList[] | ColList[]) {
+    function updateViews(axis: Axis,
+                         ac: string,
+                         fn: (v: AnyList[]) => AnyList[],
+                         onUpdated?: (result: AnyList[]) => void) {
         setViewsAvailable(v => {
             if (!v) return v;
+            const updated = fn(v[ac][cfg[axis].lists])
+            if (onUpdated) onUpdated(updated);
             return {
                 ...v,
                 [ac]: {
                     ...v[ac],
-                    [cfg[axis].lists]: fn(v[ac][cfg[axis].lists]),
+                    [cfg[axis].lists]: updated,
                 },
             };
         });
@@ -55,19 +61,10 @@ export function viewListCrud(
             select(axis, v => v == oldName ? updated.name : v)
         },
         delete: (axis: Axis, ac: string) => (name: string) => {
-            const fn = (xs: RowList[] | ColList[]) => xs.filter(x => x.name !== name)
-            setViewsAvailable(v => {
-                if (!v) return v;
-                const result = fn(v[ac][cfg[axis].lists])
-                select(axis, v => v == name ? result[0].name : v)
-                return {
-                    ...v,
-                    [ac]: {
-                        ...v[ac],
-                        [cfg[axis].lists]: result,
-                    },
-                };
-            });
+            updateViews(axis, ac,
+                (xs) => xs.filter(x => x.name !== name),
+                (xs) => select(axis, v => v == name ? xs[0].name : v)
+            );
         },
     }
 }
