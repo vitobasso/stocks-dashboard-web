@@ -17,7 +17,15 @@ type Props<T extends RowView | ColView> = {
     onCreate: (view: T) => void
     onEdit: (oldName: string, view: T) => void
     onDelete: (name: string) => void
-    Dialog: React.ComponentType<{
+    CreateDialog: React.ComponentType<{
+        allItems: string[]
+        allViewNames: string[]
+        getLabel: (key: string) => Label;
+        onConfirm(view: T): void
+        open: boolean;
+        onOpenChange(open: boolean): void;
+    }>,
+    EditDialog: React.ComponentType<{
         allItems: string[]
         allViewNames: string[]
         getLabel: (key: string) => Label;
@@ -26,7 +34,7 @@ type Props<T extends RowView | ColView> = {
         onDelete?: () => void
         open: boolean;
         onOpenChange(open: boolean): void;
-    }>
+    }>,
 }
 
 export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
@@ -58,7 +66,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                         }}>
                     <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
                 </Button>
-                <props.Dialog
+                <props.EditDialog
                     open={openPanel === `row-${view.name}`}
                     onOpenChange={(o) => !o && close()}
                     viewToEdit={view}
@@ -76,7 +84,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                 }}>
             <PlusIcon className="w-0"/>
         </Button>
-        <props.Dialog
+        <props.CreateDialog
             open={openPanel === "row-create"}
             onOpenChange={(o) => !o && close()}
             allItems={props.allKeys}

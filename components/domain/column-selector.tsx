@@ -1,6 +1,6 @@
 "use client";
 import {Input} from "@/components/ui/input";
-import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState, useDeferredValue, forwardRef} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/lib/metadata/labels";
@@ -12,9 +12,10 @@ type Props = {
     setColumns(columns: string[]): void
     allKeys: string[]
     getLabel(path: string): Label
+    autoFocus?: boolean
 }
 
-export function ColumnSelector(props: Props) {
+export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
 
     const [search, setSearch] = useState("")
     const [expandedPrefixes, setExpandedPrefixes] = useState<string[]>([])
@@ -94,7 +95,8 @@ export function ColumnSelector(props: Props) {
     return <div className="w-full">
         <Input className="mb-2"
                placeholder="Buscar..." value={search}
-               onChange={e => setSearch(e.target.value)}/>
+               onChange={e => setSearch(e.target.value)}
+               ref={ref} autoFocus={props.autoFocus}/>
         <div className="flex-1 max-h-123 p-1 overflow-auto">
             <Accordion type="multiple" value={expandedPrefixes} onValueChange={onAccordionChange}>
                 {visiblePrefixes.map(prefix => {
@@ -106,7 +108,7 @@ export function ColumnSelector(props: Props) {
             </Accordion>
         </div>
     </div>
-}
+});
 
 function ColumnPrefix(
     prefix: string,

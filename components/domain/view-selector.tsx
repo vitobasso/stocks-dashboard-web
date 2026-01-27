@@ -3,12 +3,14 @@ import {Rec, recordOfKeys} from "@/lib/utils/records";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
 import {ViewsAvailable, viewsCrud, ViewSelection} from "@/lib/views";
-import {ViewSelectorTabs} from "@/components/view-selector-tabs";
-import {RowViewDialog} from "@/components/domain/row-view-dialog";
-import {ColViewDialog} from "@/components/domain/col-view-dialog";
+import {ViewSelectorTabs} from "@/components/domain/view-selector-tabs";
+import {RowEditDialog} from "@/components/domain/row-edit-dialog";
+import {ColEditDialog} from "@/components/domain/col-edit-dialog";
 import {Label} from "@/lib/metadata/labels";
 import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
 import {consolidateSchema} from "@/lib/schema";
+import {RowCreateDialog} from "@/components/domain/row-create-dialog";
+import {ColCreateDialog} from "@/components/domain/col-create-dialog";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -78,7 +80,9 @@ export function ViewSelector(props: Props) {
             onCreate={crud.create("row", ac)}
             onEdit={crud.edit("row", ac)}
             onDelete={crud.delete("row", ac)}
-            Dialog={RowViewDialog}/>
+            CreateDialog={RowCreateDialog}
+            EditDialog={RowEditDialog}
+        />
         <ViewSelectorTabs
             assetClass={ac} viewsAvailable={viewsAvailable[ac].colViews}
             selected={selection.colViewNames[selection.assetClass]}
@@ -88,7 +92,8 @@ export function ViewSelector(props: Props) {
             onCreate={crud.create("col", ac)}
             onEdit={crud.edit("col", ac)}
             onDelete={crud.delete("col", ac)}
-            Dialog={ColViewDialog}
+            CreateDialog={ColCreateDialog}
+            EditDialog={ColEditDialog}
         />
     </div>;
 }

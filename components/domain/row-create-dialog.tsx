@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {RowView} from "@/lib/views";
 import {RowSelector} from "@/components/domain/row-selector";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
@@ -9,26 +9,17 @@ import {Button} from "@/components/ui/button";
 type Props = {
     allItems: string[]
     allViewNames: string[]
-    viewToEdit?: RowView
     onConfirm(view: RowView): void
-    onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
 }
 
-export function RowViewDialog(props: Props) {
+export function RowCreateDialog(props: Props) {
     const [name, setName] = useState("");
     const [tickers, setTickers] = useState<string[]>([]);
 
-    useEffect(() => {
-        if (props.open) {
-            setName(props.viewToEdit?.name ?? "");
-            setTickers([...(props.viewToEdit?.items ?? [])]);
-        }
-    }, [props.open, props.viewToEdit]);
-
     function isValid(): boolean {
-        const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)
+        const dupName = props.allViewNames.includes(name)
         return !name.trim() || tickers.length === 0 || dupName
     }
 
@@ -38,13 +29,10 @@ export function RowViewDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.viewToEdit;
-    const title = isEditing ? "Editar lista" : "Criar lista"
-    
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
         <DialogContent>
             <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                <DialogTitle>Nova lista</DialogTitle>
             </DialogHeader>
             <FieldSet>
                 <Field>
@@ -61,18 +49,6 @@ export function RowViewDialog(props: Props) {
                 </Field>
             </FieldSet>
             <DialogFooter>
-                {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={props.allViewNames.length <= 0}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {
-                                props.onDelete?.();
-                                props.onOpenChange(false);
-                            }
-                        }}>
-                        Remover
-                    </Button>
-                )}
                 <DialogClose asChild>
                     <Button variant="outline">Cancelar</Button>
                 </DialogClose>

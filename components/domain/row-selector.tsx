@@ -1,15 +1,16 @@
 import {Input} from "@/components/ui/input";
 import {XIcon} from "lucide-react"
-import {useMemo, useState} from "react";
+import {forwardRef, useMemo, useState} from "react";
 import {Badge} from "@/components/ui/badge";
 
 type Props = {
     rows: string[]
     setRows(rows: string[]): void
     allTickers: string[]
+    autoFocus?: boolean
 }
 
-export function RowSelector(props: Props) {
+export const RowSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
 
     const [newTicker, setNewTicker] = useState("");
     const [highlight, setHighlight] = useState(0);
@@ -61,7 +62,8 @@ export function RowSelector(props: Props) {
             <Input id="input-ticker" inputMode="text" placeholder="Buscar..." value={newTicker} className="flex-1"
                    autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} aria-autocomplete="list"
                    onChange={e => { setNewTicker(e.target.value); setHighlight(0); }}
-                   onKeyDown={onKeyDown}/>
+                   onKeyDown={onKeyDown}
+                   ref={ref} autoFocus={props.autoFocus}/>
             {newTicker && suggestions.length > 0 && (
                 <div className="absolute left-0 right-12 top-full mt-1 z-20 max-h-40 overflow-auto rounded-md border bg-background shadow">
                     {suggestions.map((t, i) => (
@@ -87,4 +89,4 @@ export function RowSelector(props: Props) {
             )}
         </div>
     </div>
-}
+});

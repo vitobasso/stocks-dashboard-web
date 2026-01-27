@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {ColView} from "@/lib/views";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
@@ -12,26 +12,17 @@ type Props = {
     allItems: string[]
     getLabel: (key: string) => Label;
     allViewNames: string[]
-    viewToEdit?: ColView
     onConfirm(view: ColView): void
-    onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
 }
 
-export function ColViewDialog(props: Props) {
+export function ColCreateDialog(props: Props) {
     const [name, setName] = useState("");
     const [keys, setKeys] = useState<string[]>([]);
 
-    useEffect(() => {
-        if (props.open) {
-            setName(props.viewToEdit?.name ?? "");
-            setKeys([...(props.viewToEdit?.items ?? [])]);
-        }
-    }, [props.open, props.viewToEdit]);
-
     function isValid(): boolean {
-        const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)
+        const dupName = props.allViewNames.includes(name)
         return !name.trim() || keys.length === 0 || dupName
     }
 
@@ -41,13 +32,10 @@ export function ColViewDialog(props: Props) {
         props.onOpenChange(false);
     }
 
-    const isEditing = !!props.viewToEdit;
-    const title = isEditing ? "Editar lista" : "Criar lista"
-    
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
         <DialogContent className="overflow-auto">
             <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                    <DialogTitle>Nova lupa</DialogTitle>
             </DialogHeader>
             <FieldSet className="overflow-auto max-h-[70vh]">
                 <Field>
@@ -78,18 +66,6 @@ export function ColViewDialog(props: Props) {
                 </Field>
             </FieldSet>
             <DialogFooter>
-                {isEditing && (
-                    <Button title="Excluir lista" variant="destructive" disabled={props.allViewNames.length <= 0}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Tem certeza que deseja excluir a lista "${name}"?`)) {
-                                props.onDelete?.();
-                                props.onOpenChange(false);
-                            }
-                        }}>
-                        Remover
-                    </Button>
-                )}
                 <DialogClose asChild>
                     <Button variant="outline">Cancelar</Button>
                 </DialogClose>
