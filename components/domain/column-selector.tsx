@@ -31,8 +31,8 @@ export function ColumnSelector(props: Props) {
             }, new Set<string>())
         , [props.columns]);
 
-
-    const basePrefixes = Array.from(new Set(props.allKeys.map(h => getPrefix(h))));
+    const allPrefixes = Array.from(new Set(props.allKeys.map(h => getPrefix(h))))
+        .toSorted((a, b) => props.getLabel(a)?.short.localeCompare(props.getLabel(b)?.short));
 
     function keyMatches(key: string): boolean {
         return toNorm(getSuffix(key)).includes(q) ||
@@ -56,13 +56,13 @@ export function ColumnSelector(props: Props) {
     }
 
     // sets for name matches, used to widen visibility
-    const prefixNameMatched = useMemo(() => new Set(basePrefixes.filter(p => prefixSelfMatches(p))), [basePrefixes, prefixSelfMatches])
+    const prefixNameMatched = useMemo(() => new Set(allPrefixes.filter(p => prefixSelfMatches(p))), [allPrefixes, prefixSelfMatches])
 
     // filtered after search
     const visibleKeys = isSearching ? props.allKeys.filter(keyMatches) : props.allKeys
     const visiblePrefixes = isSearching
-        ? basePrefixes.filter(p => prefixMatches(p))
-        : basePrefixes
+        ? allPrefixes.filter(p => prefixMatches(p))
+        : allPrefixes
 
     // auto-suggest open values in the accordion
     useEffect(() => {

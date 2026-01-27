@@ -11,6 +11,9 @@ edit, rename, duplicate, delete
 
 ### upgrade node and friends
 
+### column-selector: group by source
+subgroup keys but always expand all, making sure top-level group has the check/semi-check
+
 ### [bug] zeros not being colored red
 tag along, simplywall score
 
@@ -18,7 +21,7 @@ tag along, simplywall score
 
 ### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
 
-### calc previsao: aggregate yahoo + tradingview
+### calc projecao: aggregate yahoo + tradingview
 
 ### import b3 automatically
 
