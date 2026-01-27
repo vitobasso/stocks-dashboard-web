@@ -1,8 +1,8 @@
-import React, {Dispatch, SetStateAction, useCallback, useEffect, useState} from "react";
+import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {mapValues, Rec} from "@/lib/utils/records";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
-import {ColList, RowList, ViewsAvailable, ViewSelection} from "@/lib/views";
+import {viewListCrud, ViewsAvailable, ViewSelection} from "@/lib/views";
 import {ViewSelectorTabs} from "@/components/view-selector-tabs";
 import {RowListDialog} from "@/components/domain/row-list-dialog";
 import {ColListDialog} from "@/components/domain/col-list-dialog";
@@ -41,61 +41,12 @@ export function ViewSelector(props: Props) {
             .find(cl => cl.name === selection.colListNames[selection.assetClass]);
         if (!selectedRows || !selectedCols) return;
         props.setAssetClass(selection.assetClass);
-        props.setRows(selectedRows.tickers);
-        props.setCols(selectedCols.keys);
+        props.setRows(selectedRows.items);
+        props.setCols(selectedCols.items);
     }, [viewsAvailable, selection]);
 
     const assetClasses = Object.keys(props.metadata);
-
-    const createRowList = (ac: string) => (rowList: RowList) => {
-        setViewsAvailable(prev => addAvailableRowList(prev, ac, rowList));
-        setSelection(prev => changeSelectedRowList(prev, rowList.name));
-    }
-
-    const editRowList = (ac: string, oldName: string) => (updated: RowList) => {
-        setViewsAvailable(prev => changeAvailableRowList(prev, ac, oldName, updated)); // FIXME update name
-        if (updated.name !== oldName) setSelection(prev => changeSelectedRowList(prev, updated.name));
-    }
-
-    const deleteRowList = (ac: string, listName: string) => {
-        setViewsAvailable(prev => {
-            if (!prev) return prev;
-            const newLists = prev[ac].rowLists.filter(list => list.name !== listName);
-            if (newLists.length === 0) return prev; // Don't delete if it's the last list
-
-            // If the deleted list was selected, select the first available list
-            if (selection?.rowListNames[ac] === listName) {
-                setSelection(prev => changeSelectedRowList(prev, newLists[0].name))
-            }
-
-            return {...prev, [ac]: {...prev[ac], rowLists: newLists}};
-        });
-    }
-
-    const createColList = (ac: string) => (colList: ColList) => {
-        setViewsAvailable(prev => addAvailableColList(prev, ac, colList));
-        setSelection(prev => changeSelectedColList(prev, colList.name));
-    }
-
-    const editColList = (ac: string, oldName: string) => (updated: ColList) => {
-        setViewsAvailable(prev => changeAvailableColList(prev, ac, oldName, updated));
-        if (updated.name !== oldName) setSelection(prev => changeSelectedColList(prev, updated.name));
-    }
-
-    const deleteColList = (ac: string, listName: string) => {
-        setViewsAvailable(prev => {
-            if (!prev) return prev;
-            const newLists = prev[ac].colLists.filter(list => list.name !== listName);
-            if (newLists.length === 0) return prev; // Don't delete if it's the last list
-
-            // If the deleted list was selected, select the first available list
-            if (selection?.colListNames[ac] === listName) {
-                setSelection(prev => changeSelectedColList(prev, newLists[0].name))
-            }
-
-            return {...prev, [ac]: {...prev[ac], colLists: newLists}};
-        });
-    }
+    const crud = viewListCrud(setViewsAvailable, setSelection);
 
     if (!viewsAvailable || !selection) return null;
     const ac = selection.assetClass;
@@ -115,79 +66,24 @@ export function ViewSelector(props: Props) {
             selected={selection.rowListNames[selection.assetClass]}
             allKeys={props.metadata[ac].tickers}
             getLabel={props.getLabel[ac]}
-            onSelect={(name) => setSelection(prev => changeSelectedRowList(prev, name))}
-            onCreate={createRowList(ac)}
-            onEdit={(oldName, rowList) => editRowList(ac, oldName)(rowList)}
-            onDelete={(name) => deleteRowList(ac, name)}
+            onSelect={crud.select("row")}
+            onCreate={crud.create("row", ac)}
+            onEdit={crud.edit("row", ac)}
+            onDelete={crud.delete("row", ac)}
             Dialog={RowListDialog}/>
         <ViewSelectorTabs
             assetClass={ac} listsAvailable={viewsAvailable[ac].colLists}
             selected={selection.colListNames[selection.assetClass]}
             allKeys={props.metadata[ac].schema}
             getLabel={props.getLabel[ac]}
-            onSelect={(name) => setSelection(prev => changeSelectedColList(prev, name))}
-            onCreate={createColList(ac)}
-            onEdit={(oldName, colList) => editColList(ac, oldName)(colList)}
-            onDelete={(name) => deleteColList(ac, name)}
+            onSelect={crud.select("col")}
+            onCreate={crud.create("col", ac)}
+            onEdit={crud.edit("col", ac)}
+            onDelete={crud.delete("col", ac)}
             Dialog={ColListDialog}
         />
     </div>;
 }
-
-function changeSelectedRowList(prev: ViewSelection | null, listName: string): ViewSelection | null {
-    if (!prev) return prev;
-    return {...prev, rowListNames: {...prev.rowListNames, [prev.assetClass]: listName}};
-}
-
-function changeAvailableRowList(prev: Rec<ViewsAvailable> | null, ac: string, oldName: string, rowList: RowList): Rec<ViewsAvailable> | null {
-    if (!prev) return prev;
-    return {
-        ...prev,
-        [ac]: {
-            ...prev[ac],
-            rowLists: prev[ac].rowLists.map(list => list.name === oldName ? rowList : list),
-        }
-    };
-}
-
-function addAvailableRowList(prev: Rec<ViewsAvailable> | null, ac: string, newRowList: RowList): Rec<ViewsAvailable> | null {
-    if (!prev) return prev;
-    return {
-        ...prev,
-        [ac]: {
-            ...prev[ac],
-            rowLists: [...prev[ac].rowLists, newRowList],
-        }
-    };
-}
-
-function changeSelectedColList(prev: ViewSelection | null, listName: string): ViewSelection | null {
-    if (!prev) return prev;
-    return {...prev, colListNames: {...prev.colListNames, [prev.assetClass]: listName}};
-}
-
-function changeAvailableColList(prev: Rec<ViewsAvailable> | null, ac: string, oldName: string, colList: ColList): Rec<ViewsAvailable> | null {
-    if (!prev) return prev;
-    return {
-        ...prev,
-        [ac]: {
-            ...prev[ac],
-            colLists: prev[ac].colLists.map(list => list.name === oldName ? colList : list),
-        }
-    };
-}
-
-function addAvailableColList(prev: Rec<ViewsAvailable> | null, ac: string, newColList: ColList): Rec<ViewsAvailable> | null {
-    if (!prev) return prev;
-    return {
-        ...prev,
-        [ac]: {
-            ...prev[ac],
-            colLists: [...prev[ac].colLists, newColList],
-        }
-    };
-}
-
 
 function loadViewsAvailable(): Rec<ViewsAvailable> {
     const stored = typeof window !== 'undefined' ? localStorage.getItem("viewsAvailable") : null;
@@ -204,69 +100,72 @@ const defaultViewsAvailable: Rec<ViewsAvailable> = {
         rowLists: [
             {
                 name: "Radar",
-                tickers: ["ITUB4", "BBDC4", "VALE3", "PETR4", "ABEV3", "BBAS3", "B3SA3", "WEGE3"],
+                items: ["ITUB4", "BBDC4", "VALE3", "PETR4", "ABEV3", "BBAS3", "B3SA3", "WEGE3"],
             },
             {
                 name: "Elétricas e Saneamento",
-                tickers: ["CMIG4", "CPFE3", "EGIE3", "ENGI11", "EQTL3", "ISAE4", "NEOE3", "SAPR4", "SBSP3"],
+                items: ["CMIG4", "CPFE3", "EGIE3", "ENGI11", "EQTL3", "ISAE4", "NEOE3", "SAPR4", "SBSP3"],
             },
             {
                 name: "Bancos e Seguradoras",
-                tickers: ["BBAS3", "BBDC4", "ITSA$", "ITUB4", "BBSE3", "CXSE3"],
+                items: ["BBAS3", "BBDC4", "ITSA$", "ITUB4", "BBSE3", "CXSE3"],
             },
             {
                 name: "Comodities",
-                tickers: ["PETR4", "VALE3", "GOAU4", "PRIO3", "RECV3", "SUZB3", "KLBN4"],
+                items: ["PETR4", "VALE3", "GGBR4", "PRIO3", "RECV3", "SUZB3", "KLBN4"],
             },
         ],
         colLists: [
             {
                 name: "Perfil",
-                keys: ["b3_listagem.setor"],
+                items: ["b3_listagem.setor"],
             },
             {
                 name: "Posição",
-                keys: ["derived.b3_position.current_value", "b3_position.average_price",
+                items: ["derived.b3_position.current_value", "b3_position.average_price",
                     "derived.b3_position.cumulative_return"],
             },
             {
                 name: "Cotação",
-                keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
+                items: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
             },
             {
                 name: "Fundamentos",
-                keys: ["statusinvest.liquidez_media_diaria", "statusinvest.p_l", "statusinvest.p_vp",
+                items: ["statusinvest.liquidez_media_diaria", "statusinvest.p_l", "statusinvest.p_vp",
                     "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
                     "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.cagr_lucros_5_anos",
                     "statusinvest.dy"]
             },
             {
                 name: "Recomendação",
-                keys: ["strong_buy", "buy", "hold", "sell", "strong_sell"].map(s => `yahoo_recom.${s}`)
+                items: ["strong_buy", "buy", "hold", "sell", "strong_sell"].map(s => `yahoo_recom.${s}`)
             },
-            {name: "Previsão", keys: ["min_pct", "avg_pct", "max_pct"].map(s => `derived.forecast.${s}`)},
+            {
+                name: "Previsão",
+                items: ["min_pct", "avg_pct", "max_pct"].map(s => `derived.forecast.${s}`)
+            },
         ],
     },
     "reit_br": {
         rowLists: [
             {
                 name: "Radar",
-                tickers: ["KNCR11", "KNIP11", "XPML11", "HGLG11", "BTLG11", "KNRI11",],
+                items: ["KNCR11", "KNIP11", "XPML11", "HGLG11", "BTLG11", "KNRI11",],
             },
         ],
         colLists: [
             {
                 name: "Posição",
-                keys: ["derived.b3_position.current_value", "b3_position.average_price",
+                items: ["derived.b3_position.current_value", "b3_position.average_price",
                     "derived.b3_position.cumulative_return"]
             },
             {
                 name: "Cotação",
-                keys: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
+                items: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
             },
             {
                 name: "Fundamentos",
-                keys: ["fundamentus.segmento", "fundamentus.p_vp", "fundamentus.liquidez",
+                items: ["fundamentus.segmento", "fundamentus.p_vp", "fundamentus.liquidez",
                     "fundamentus.dividend_yield", "fundamentus.qtd_de_imoveis", "fundamentus.vacancia_media"]
             },
         ],

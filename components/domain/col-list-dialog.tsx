@@ -26,7 +26,7 @@ export function ColListDialog(props: Props) {
     useEffect(() => {
         if (props.open) {
             setName(props.listToEdit?.name ?? "");
-            setKeys([...(props.listToEdit?.keys ?? [])]);
+            setKeys([...(props.listToEdit?.items ?? [])]);
         }
     }, [props.open, props.listToEdit]);
 
@@ -37,7 +37,7 @@ export function ColListDialog(props: Props) {
 
     function onSubmit() {
         if (!name.trim() || keys.length === 0) return;
-        props.onConfirm({name, keys});
+        props.onConfirm({name, items: keys});
         props.onOpenChange(false);
     }
 

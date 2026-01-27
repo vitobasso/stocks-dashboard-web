@@ -23,7 +23,7 @@ export function RowListDialog(props: Props) {
     useEffect(() => {
         if (props.open) {
             setName(props.listToEdit?.name ?? "");
-            setTickers([...(props.listToEdit?.tickers ?? [])]);
+            setTickers([...(props.listToEdit?.items ?? [])]);
         }
     }, [props.open, props.listToEdit]);
 
@@ -34,7 +34,7 @@ export function RowListDialog(props: Props) {
 
     function onSubmit() {
         if (!name.trim() || tickers.length === 0) return;
-        props.onConfirm({name, tickers});
+        props.onConfirm({name, items: tickers});
         props.onOpenChange(false);
     }
 
