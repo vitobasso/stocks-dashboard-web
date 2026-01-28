@@ -1,7 +1,6 @@
 ### wip
 migrate localStorage
 
-
 ### fix dark theme
 selected view should not highlight
 other views should highlight
@@ -10,10 +9,10 @@ shadows should be toned down
     slight blue/purple tint?
 
 ### views 
+select multi views (add diff rows or cols)
+remove cols via column-orderer
 duplicate
 reorder tabs
-remove cols via column-orderer
-select multi views (add diff rows or cols)
 
 ### shortcuts
 1, 2, 3...      rows
@@ -29,8 +28,13 @@ cmd + 1, 2      edit rows
 
 ### upgrade node and friends
 
+### search tickers by key
+e.g. lucro > X, top X lucro, ... 
+
 ### column-selector: group by source
-subgroup keys but always expand all, making sure top-level group has the check/semi-check
+still 2 levels: source and keys 
+but subgroup keys and always expand them all
+making sure top-level group has the check/semi-check
 
 ### [bug] zeros not being colored red
 tag along, simplywall score
