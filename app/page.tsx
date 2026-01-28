@@ -56,10 +56,6 @@ export default function Page() {
     }, [assetClass, rows, classOfTicker]);
 
     useEffect(() => {
-        localStorage.setItem("columns", JSON.stringify(columns));
-    }, [columns]);
-
-    useEffect(() => {
         localStorage.setItem("positions", JSON.stringify(positions));
     }, [positions]);
 
