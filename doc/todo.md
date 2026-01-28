@@ -1,5 +1,4 @@
 ### wip
-bug: focus on view tabs
 bug: create dialog sometimes starts populated
 migrate localStorage
 

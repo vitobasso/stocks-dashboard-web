@@ -53,7 +53,12 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                              props.selected == view.name
                                  ? "bg-primary text-primary-foreground ring-primary border-primary"
                                  : "bg-background ring-border border-background hover:bg-accent hover:border-accent hover:text-accent-foreground"
-                         )}>
+                         )}
+                         onKeyDown={(e) => {
+                             if (e.key === "Enter" || e.key === " ") {
+                                 props.onSelect(view.name)
+                             }
+                         }}>
                 <Button size="sm" variant="ghost" tabIndex={-1}
                         className={cn("p-1 h-full", inherit)}
                         onClick={() => props.onSelect(view.name)}>
@@ -62,7 +67,6 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                 <Button size="sm" variant="ghost" tabIndex={-1}
                         className={cn("w-0 !px-1 h-full", inherit)}
                         onClick={(e) => {
-                            e.stopPropagation();
                             setOpenPanel(`row-${view.name}`);
                         }}>
                     <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>
