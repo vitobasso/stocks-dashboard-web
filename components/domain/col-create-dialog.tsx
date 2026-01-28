@@ -33,7 +33,7 @@ export function ColCreateDialog(props: Props) {
     }
 
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-        <DialogContent className="overflow-auto">
+        <DialogContent>
             <DialogHeader>
                     <DialogTitle>Nova lupa</DialogTitle>
             </DialogHeader>

@@ -26,16 +26,14 @@ export default function ColumnOrderer(props: Props) {
         });
     }
 
-    return (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <div className="font-bold p-2">Ordem</div>
-            <SortableContext items={props.columns} strategy={verticalListSortingStrategy}>
-                {props.columns.map((item) => (
-                    <SortableRow key={item} id={item}>{props.getLabel(item).short}</SortableRow>
-                ))}
-            </SortableContext>
-        </DndContext>
-    );
+    return <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <div className="font-bold p-2">Ordem</div>
+        <SortableContext items={props.columns} strategy={verticalListSortingStrategy}>
+            {props.columns.map((item) => (
+                <SortableRow key={item} id={item}>{props.getLabel(item).short}</SortableRow>
+            ))}
+        </SortableContext>
+    </DndContext>
 }
 
 function SortableRow({id, children}: { id: string; children: React.ReactNode }) {

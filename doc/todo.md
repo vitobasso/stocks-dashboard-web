@@ -1,8 +1,9 @@
-### quick change lists
-classe: ações, fiis
-linhas (listas): carteira, radar (watchlist), perenes, cíclicas,
-colunas (lentes): resumo (overview), preço, qualidade (checklist), fundamentos, análise, posição,
-edit, rename, duplicate, delete
+### wip
+defaults: critérios de qualidade, rentabilidade
+bug: focus on view tabs
+bug: create dialog sometimes starts populated
+migrate localStorage
+
 
 ### fix dark theme
 selected view should not highlight
@@ -10,6 +11,18 @@ other views should highlight
 green/red colors should be toned down
 shadows should be toned down
     slight blue/purple tint?
+
+### views 
+duplicate
+reorder tabs
+remove cols via column-orderer
+
+### shortcuts
+1, 2, 3...      rows
+q, w, e...:     cols
+shift + 1, 2    classes
+cmd + enter     confirm dialog
+cmd + 1, 2      edit rows
 
 ### click ticker
 - list of links

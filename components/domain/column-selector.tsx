@@ -97,7 +97,7 @@ export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) =
                placeholder="Buscar..." value={search}
                onChange={e => setSearch(e.target.value)}
                ref={ref} autoFocus={props.autoFocus}/>
-        <div className="flex-1 max-h-123 p-1 overflow-auto">
+        <div className="flex-1 p-1">
             <Accordion type="multiple" value={expandedPrefixes} onValueChange={onAccordionChange}>
                 {visiblePrefixes.map(prefix => {
                     const byPrefix = (key: string) => getPrefix(key) === prefix

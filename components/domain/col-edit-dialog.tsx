@@ -45,7 +45,7 @@ export function ColEditDialog(props: Props) {
     const isEditing = !!props.viewToEdit;
 
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-        <DialogContent className="overflow-auto">
+        <DialogContent>
             <DialogHeader>
                     <DialogTitle>
                         <EditableTitle
@@ -56,7 +56,7 @@ export function ColEditDialog(props: Props) {
                         />
                     </DialogTitle>
             </DialogHeader>
-            <FieldSet className="overflow-auto h-[70vh]">
+            <FieldSet className="overflow-auto max-h-[70vh]">
                 <Field>
                     <FieldLabel>Colunas</FieldLabel>
                     <FieldContent>
