@@ -41,26 +41,26 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
 
     const [openPanel, setOpenPanel] = useState<string | null>(null)
     const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
+    const inherit = "bg-inherit text-inherit hover:bg-inherit hover:text-inherit focus-visible:ring-0"
+    const buttonLike = cn("border-2 ring-1 rounded-md shadow-sm transition-colors",
+        "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:outline-0")
 
     return <div className={cn("flex items-center gap-2", props.className)}>
         {props.viewsAvailable.map((view, i) =>
             <ButtonGroup key={i} tabIndex={0}
                          className={cn(
-                             "group h-7.5 px-2 border-2 overflow-hidden rounded-md shadow-sm ring-1 transition-colors",
-                             "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:outline-0",
+                             "group h-7.5 px-1.5 overflow-hidden", buttonLike,
                              props.selected == view.name
                                  ? "bg-primary text-primary-foreground ring-primary border-primary"
-                                 : "bg-transparent ring-border hover:bg-accent hover:text-accent-foreground"
+                                 : "bg-background ring-border hover:bg-accent hover:text-accent-foreground"
                          )}>
                 <Button size="sm" variant="ghost" tabIndex={-1}
-                        className={cn("p-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit",
-                            "focus-visible:ring-0")}
+                        className={cn("p-1 h-full", inherit)}
                         onClick={() => props.onSelect(view.name)}>
                     {view.name}
                 </Button>
                 <Button size="sm" variant="ghost" tabIndex={-1}
-                        className={cn("w-0 !px-1 h-full bg-inherit hover:bg-inherit text-inherit hover:text-inherit",
-                            "focus-visible:ring-0")}
+                        className={cn("w-0 !px-1 h-full", inherit)}
                         onClick={(e) => {
                             e.stopPropagation();
                             setOpenPanel(`row-${view.name}`);
