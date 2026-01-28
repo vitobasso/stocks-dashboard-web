@@ -44,16 +44,15 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
     const inherit = "bg-inherit text-inherit hover:bg-inherit hover:text-inherit focus-visible:ring-0"
     const buttonLike = cn("border-2 ring-1 rounded-md shadow-sm transition-colors",
         "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:outline-0")
+    const primaryVariant = "bg-primary text-primary-foreground ring-primary border-primary"
+    const outlineVariant = cn("bg-background ring-border border-background",
+        "hover:bg-accent hover:border-accent hover:text-accent-foreground")
 
     return <div className={cn("flex items-center gap-2", props.className)}>
         {props.viewsAvailable.map((view, i) =>
             <ButtonGroup key={i} tabIndex={0}
-                         className={cn(
-                             "group h-7.5 px-1.5 overflow-hidden", buttonLike,
-                             props.selected == view.name
-                                 ? "bg-primary text-primary-foreground ring-primary border-primary"
-                                 : "bg-background ring-border border-background hover:bg-accent hover:border-accent hover:text-accent-foreground"
-                         )}
+                         className={cn("group h-7.5 px-1.5 overflow-hidden", buttonLike,
+                             props.selected == view.name ? primaryVariant : outlineVariant)}
                          onKeyDown={(e) => {
                              if (e.key === "Enter" || e.key === " ") {
                                  props.onSelect(view.name)
