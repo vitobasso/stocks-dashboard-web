@@ -12,6 +12,7 @@ import {consolidateSchema} from "@/lib/schema";
 import {RowCreateDialog} from "@/components/domain/row-create-dialog";
 import {ColCreateDialog} from "@/components/domain/col-create-dialog";
 import {flattenUnique} from "@/lib/utils/collections";
+import {Str} from "@/lib/utils/strings";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -58,10 +59,10 @@ export function ViewSelector(props: Props) {
         props.setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
         
         const newRows = flattenUnique(selectedRows);
-        props.setRows(prevRows => JSON.stringify(prevRows) === JSON.stringify(newRows) ? prevRows : newRows);
+        props.setRows(prevRows => prevRows && Str.equals(prevRows, newRows) ? prevRows : newRows);
         
         const newCols = flattenUnique(selectedCols);
-        props.setCols(prevCols => JSON.stringify(prevCols) === JSON.stringify(newCols) ? prevCols : newCols);
+        props.setCols(prevCols => prevCols && Str.equals(prevCols, newCols) ? prevCols : newCols);
     }, [viewsAvailable, selection]);
 
     const crud = viewsCrud(setViewsAvailable, setSelection);
