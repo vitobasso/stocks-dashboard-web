@@ -49,18 +49,17 @@ export function ViewSelector(props: Props) {
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
         const ac = selection.assetClass;
+        props.setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
+
         const selectedRows = selection.rowViewNames[ac]
             .map(n => viewsAvailable[ac].rowViews.find(v => v.name == n)!)
             .map(v => v.items)
+        const newRows = flattenUnique(selectedRows);
+        props.setRows(prevRows => prevRows && Str.equals(prevRows, newRows) ? prevRows : newRows);
+
         const selectedCols = selection.colViewNames[ac]
             .map(n => viewsAvailable[ac].colViews.find(v => v.name == n)!)
             .map(v => v.items)
-
-        props.setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
-        
-        const newRows = flattenUnique(selectedRows);
-        props.setRows(prevRows => prevRows && Str.equals(prevRows, newRows) ? prevRows : newRows);
-        
         const newCols = flattenUnique(selectedCols);
         props.setCols(prevCols => prevCols && Str.equals(prevCols, newCols) ? prevCols : newCols);
     }, [viewsAvailable, selection]);
