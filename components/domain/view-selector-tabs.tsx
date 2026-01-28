@@ -13,8 +13,8 @@ type Props<T extends RowView | ColView> = {
     selected: string[]
     allKeys: string[]
     getLabel: (key: string) => Label;
-    onSelectFirst: (name: string) => void
-    onSelectNext: (name: string) => void
+    onSelectSingle: (name: string) => void
+    onSelectToggle: (name: string) => void
     onCreate: (view: T) => void
     onEdit: (oldName: string, view: T) => void
     onDelete: (name: string) => void
@@ -56,13 +56,13 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                              props.selected.includes(view.name) ? primaryVariant : outlineVariant)}
                          onKeyDown={(e) => {
                              if (e.key === "Enter" || e.key === " ") {
-                                 e.shiftKey? props.onSelectNext(view.name) : props.onSelectFirst(view.name)
+                                 e.shiftKey? props.onSelectToggle(view.name) : props.onSelectSingle(view.name)
                              }
                          }}>
                 <Button size="sm" variant="ghost" tabIndex={-1}
                         className={cn("p-1 h-full", inherit)}
                         onClick={(e) =>
-                            e.shiftKey ? props.onSelectNext(view.name) : props.onSelectFirst(view.name)}>
+                            e.shiftKey ? props.onSelectToggle(view.name) : props.onSelectSingle(view.name)}>
                     {view.name}
                 </Button>
                 <Button size="sm" variant="ghost" tabIndex={-1}

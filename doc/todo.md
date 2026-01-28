@@ -1,5 +1,4 @@
 ### wip
-shift click to de-select
 migrate localStorage
 
 ### fix dark theme

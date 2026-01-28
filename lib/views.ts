@@ -51,8 +51,10 @@ export function viewsCrud(
     }
 
     return {
-        selectFirst: (axis: Axis) => (name: string) => select(axis, () => [name]),
-        selectNext: (axis: Axis) => (name: string) => select(axis, before => [...before, name]),
+        selectSingle: (axis: Axis) => (name: string) => select(axis, () => [name]),
+        selectToggle: (axis: Axis) => (name: string) => select(axis, before =>
+            before.includes(name) ? before.filter(v => v !== name) : [...before, name]
+        ),
         create: (axis: Axis, ac: string) => (created: RowView | ColView) => {
             updateViews(axis, ac, (xs) => [...xs, created]);
             select(axis, () => [created.name]);

@@ -84,8 +84,8 @@ export function ViewSelector(props: Props) {
             selected={selection.rowViewNames[selection.assetClass]}
             allKeys={props.metadata[ac].tickers}
             getLabel={props.getLabel[ac]}
-            onSelectFirst={crud.selectFirst("row")}
-            onSelectNext={crud.selectNext("row")}
+            onSelectSingle={crud.selectSingle("row")}
+            onSelectToggle={crud.selectToggle("row")}
             onCreate={crud.create("row", ac)}
             onEdit={crud.edit("row", ac)}
             onDelete={crud.delete("row", ac)}
@@ -97,8 +97,8 @@ export function ViewSelector(props: Props) {
             selected={selection.colViewNames[selection.assetClass]}
             allKeys={allKeys[ac]}
             getLabel={props.getLabel[ac]}
-            onSelectFirst={crud.selectFirst("col")}
-            onSelectNext={crud.selectNext("col")}
+            onSelectSingle={crud.selectSingle("col")}
+            onSelectToggle={crud.selectToggle("col")}
             onCreate={crud.create("col", ac)}
             onEdit={crud.edit("col", ac)}
             onDelete={crud.delete("col", ac)}
