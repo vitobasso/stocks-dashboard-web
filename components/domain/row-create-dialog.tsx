@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {RowView} from "@/lib/views";
 import {RowSelector} from "@/components/domain/row-selector";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
@@ -17,6 +17,12 @@ type Props = {
 export function RowCreateDialog(props: Props) {
     const [name, setName] = useState("");
     const [tickers, setTickers] = useState<string[]>([]);
+
+    useEffect(() => { if (props.open) resetForm() }, [props.open])
+    function resetForm() {
+        setName("")
+        setTickers([])
+    }
 
     function isValid(): boolean {
         const dupName = props.allViewNames.includes(name)

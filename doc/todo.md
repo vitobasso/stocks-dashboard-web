@@ -1,5 +1,4 @@
 ### wip
-bug: create dialog sometimes starts populated
 migrate localStorage
 
 

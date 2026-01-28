@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ColView} from "@/lib/views";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";
@@ -20,6 +20,12 @@ type Props = {
 export function ColCreateDialog(props: Props) {
     const [name, setName] = useState("");
     const [keys, setKeys] = useState<string[]>([]);
+
+    useEffect(() => { if (props.open) resetForm() }, [props.open])
+    function resetForm() {
+        setName("")
+        setKeys([])
+    }
 
     function isValid(): boolean {
         const dupName = props.allViewNames.includes(name)
