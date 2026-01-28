@@ -1,24 +1,6 @@
 ### wip
 migrate localStorage
 
-### fix dark theme
-selected view should not highlight
-other views should highlight
-green/red colors should be toned down
-shadows should be toned down
-    slight blue/purple tint?
-
-### views 
-duplicate
-reorder tabs
-
-### shortcuts
-1, 2, 3...      rows
-q, w, e...:     cols
-shift + 1, 2    classes
-cmd + enter     confirm dialog
-cmd + 1, 2      edit rows
-
 ### click ticker
 - list of links
 
@@ -45,6 +27,10 @@ tag along, simplywall score
 ### calc projecao: aggregate yahoo + tradingview
 
 ### import b3 automatically
+
+### views
+duplicate
+reorder tabs
 
 ### when importing b3, add all tickers (ask confirmation)
 
