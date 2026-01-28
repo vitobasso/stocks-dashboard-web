@@ -1,5 +1,4 @@
 ### wip
-defaults: critérios de qualidade, rentabilidade
 bug: focus on view tabs
 bug: create dialog sometimes starts populated
 migrate localStorage
@@ -16,6 +15,7 @@ shadows should be toned down
 duplicate
 reorder tabs
 remove cols via column-orderer
+select multi views (add diff rows or cols)
 
 ### shortcuts
 1, 2, 3...      rows

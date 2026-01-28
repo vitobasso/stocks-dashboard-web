@@ -23,29 +23,36 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
         ],
         colViews: [
             {
-                name: "Perfil",
-                items: ["b3_listagem.setor"],
+                name: "Qualidade",
+                items: ["b3_listagem.setor", "investidor10.cadastral.ano_de_fundacao",
+                    "investidor10.cadastral.ano_de_estreia_na_bolsa", "b3_listagem.segmento_de_negociacao",
+                    "investidor10.financeiro.patrimonio_liquido", "statusinvest.liquidez_media_diaria",
+                    "investidor10.financeiro.free_float", "investidor10.financeiro.tag_along",
+                    "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.marg_liquida",
+                    "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "simplywall.earnings_growth"]
+            },
+            {
+                name: "Preço",
+                items: ["b3_listagem.setor", "yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y",
+                    "yahoo_chart.5y", "statusinvest.p_l", "statusinvest.p_vp", "statusinvest.p_ativos",
+                    "statusinvest.p_ebit"]
+            },
+            {
+                name: "Analistas",
+                items: ["b3_listagem.setor", "yahoo_recom.strong_buy", "yahoo_recom.buy", "yahoo_recom.hold", "yahoo_recom.sell",
+                    "yahoo_recom.strong_sell", "derived.forecast.min_pct", "derived.forecast.avg_pct",
+                    "derived.forecast.max_pct"]
+            },
+            {
+                name: "Rentabilidade",
+                items: ["derived.b3_position.invested_value", "derived.b3_position.current_value",
+                    "derived.b3_position.price_variation", "b3_position.total_dividends",
+                    "derived.b3_position.total_value", "derived.b3_position.cumulative_return"]
             },
             {
                 name: "Posição",
-                items: ["derived.b3_position.current_value", "b3_position.average_price",
-                    "derived.b3_position.cumulative_return"],
-            },
-            {
-                name: "Cotação",
-                items: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
-            },
-            {
-                name: "Fundamentos",
-                items: ["statusinvest.liquidez_media_diaria", "statusinvest.p_l", "statusinvest.p_vp",
-                    "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "statusinvest.marg_liquida",
-                    "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.cagr_lucros_5_anos",
-                    "statusinvest.dy"]
-            },
-            {
-                name: "Consenso de Analistas",
-                items: ["strong_buy", "buy", "hold", "sell", "strong_sell"].map(s => `yahoo_recom.${s}`)
-                    .concat(["min_pct", "avg_pct", "max_pct"].map(s => `derived.forecast.${s}`))
+                items: ["b3_position.quantity", "b3_position.average_price", "derived.b3_position.price_variation",
+                    "yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
             },
         ],
     },
@@ -58,18 +65,25 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
         ],
         colViews: [
             {
-                name: "Posição",
-                items: ["derived.b3_position.current_value", "b3_position.average_price",
-                    "derived.b3_position.cumulative_return"]
-            },
-            {
-                name: "Cotação",
-                items: ["yahoo_quote.latest", "yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
-            },
-            {
+                name: "Preço",
+                items: ["yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y",
+                    "fundamentus.p_vp"]
+            }, {
                 name: "Fundamentos",
-                items: ["fundamentus.segmento", "fundamentus.p_vp", "fundamentus.liquidez",
-                    "fundamentus.dividend_yield", "fundamentus.qtd_de_imoveis", "fundamentus.vacancia_media"]
+                items: ["fundamentus.segmento", "fundamentus.liquidez", "fundamentus.qtd_de_imoveis",
+                    "fundamentus.vacancia_media", "fundamentus.ffo_yield", "fundamentus.cap_rate",
+                    "fundamentus.dividend_yield"]
+            },
+            {
+                name: "Rentabilidade",
+                items: ["derived.b3_position.invested_value", "derived.b3_position.current_value",
+                    "derived.b3_position.price_variation", "b3_position.total_dividends",
+                    "derived.b3_position.total_value", "derived.b3_position.cumulative_return"]
+            },
+            {
+                name: "Posição",
+                items: ["b3_position.quantity", "b3_position.average_price", "derived.b3_position.price_variation",
+                    "yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
             },
         ],
     },
