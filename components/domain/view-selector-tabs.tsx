@@ -52,7 +52,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                              "group h-7.5 px-1.5 overflow-hidden", buttonLike,
                              props.selected == view.name
                                  ? "bg-primary text-primary-foreground ring-primary border-primary"
-                                 : "bg-background ring-border hover:bg-accent hover:text-accent-foreground"
+                                 : "bg-background ring-border border-background hover:bg-accent hover:border-accent hover:text-accent-foreground"
                          )}>
                 <Button size="sm" variant="ghost" tabIndex={-1}
                         className={cn("p-1 h-full", inherit)}
