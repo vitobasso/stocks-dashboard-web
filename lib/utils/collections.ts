@@ -19,3 +19,12 @@ export function indexByFields(map: Record<string, string[]>): Map<string, string
     }
     return inverted
 }
+
+export function extendUnique(a: any[], b: any[]) {
+    const s = new Set(a)
+    return [...a, ...b.filter(x => !s.has(x))]
+}
+
+export function flattenUnique(xs: any[][]) {
+    return xs.reduce(extendUnique)
+}

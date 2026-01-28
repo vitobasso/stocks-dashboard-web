@@ -9,7 +9,6 @@ shadows should be toned down
     slight blue/purple tint?
 
 ### views 
-select multi views (add diff rows or cols)
 remove cols via column-orderer
 duplicate
 reorder tabs
@@ -27,6 +26,7 @@ cmd + 1, 2      edit rows
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### upgrade node and friends
+also tsconfig.json target to ES2020 (+performance, less old browser compatibility)
 
 ### search tickers by key
 e.g. lucro > X, top X lucro, ... 

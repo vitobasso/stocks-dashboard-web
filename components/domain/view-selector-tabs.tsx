@@ -10,10 +10,11 @@ type Props<T extends RowView | ColView> = {
     className?: string;
     assetClass: string;
     viewsAvailable: T[]
-    selected: string
+    selected: string[]
     allKeys: string[]
     getLabel: (key: string) => Label;
-    onSelect: (name: string) => void
+    onSelectFirst: (name: string) => void
+    onSelectNext: (name: string) => void
     onCreate: (view: T) => void
     onEdit: (oldName: string, view: T) => void
     onDelete: (name: string) => void
@@ -52,15 +53,16 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
         {props.viewsAvailable.map((view, i) =>
             <ButtonGroup key={i} tabIndex={0}
                          className={cn("group h-7.5 px-1.5 overflow-hidden", buttonLike,
-                             props.selected == view.name ? primaryVariant : outlineVariant)}
+                             props.selected.includes(view.name) ? primaryVariant : outlineVariant)}
                          onKeyDown={(e) => {
                              if (e.key === "Enter" || e.key === " ") {
-                                 props.onSelect(view.name)
+                                 e.shiftKey? props.onSelectNext(view.name) : props.onSelectFirst(view.name)
                              }
                          }}>
                 <Button size="sm" variant="ghost" tabIndex={-1}
                         className={cn("p-1 h-full", inherit)}
-                        onClick={() => props.onSelect(view.name)}>
+                        onClick={(e) =>
+                            e.shiftKey ? props.onSelectNext(view.name) : props.onSelectFirst(view.name)}>
                     {view.name}
                 </Button>
                 <Button size="sm" variant="ghost" tabIndex={-1}

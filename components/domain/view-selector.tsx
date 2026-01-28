@@ -11,6 +11,7 @@ import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
 import {consolidateSchema} from "@/lib/schema";
 import {RowCreateDialog} from "@/components/domain/row-create-dialog";
 import {ColCreateDialog} from "@/components/domain/col-create-dialog";
+import {flattenUnique} from "@/lib/utils/collections";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -46,15 +47,22 @@ export function ViewSelector(props: Props) {
 
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
-        const selectedRows = viewsAvailable[selection.assetClass].rowViews
-            .find(rl => rl.name === selection.rowViewNames[selection.assetClass]);
-        const selectedCols = viewsAvailable[selection.assetClass].colViews
-            .find(cl => cl.name === selection.colViewNames[selection.assetClass]);
-        if (!selectedRows || !selectedCols) return;
-        props.setAssetClass(selection.assetClass);
-        props.setRows(selectedRows.items);
-        props.setCols(selectedCols.items);
-    }, [viewsAvailable, selection, props]);
+        const ac = selection.assetClass;
+        const selectedRows = viewsAvailable[ac]?.rowViews
+            ?.filter(v => selection.rowViewNames[ac]?.includes(v.name))
+            ?.map(v => v.items) || [];
+        const selectedCols = viewsAvailable[ac]?.colViews
+            ?.filter(v => selection.colViewNames[ac]?.includes(v.name))
+            ?.map(v => v.items) || [];
+            
+        props.setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
+        
+        const newRows = flattenUnique(selectedRows);
+        props.setRows(prevRows => JSON.stringify(prevRows) === JSON.stringify(newRows) ? prevRows : newRows);
+        
+        const newCols = flattenUnique(selectedCols);
+        props.setCols(prevCols => JSON.stringify(prevCols) === JSON.stringify(newCols) ? prevCols : newCols);
+    }, [viewsAvailable, selection]);
 
     const crud = viewsCrud(setViewsAvailable, setSelection);
 
@@ -76,7 +84,8 @@ export function ViewSelector(props: Props) {
             selected={selection.rowViewNames[selection.assetClass]}
             allKeys={props.metadata[ac].tickers}
             getLabel={props.getLabel[ac]}
-            onSelect={crud.select("row")}
+            onSelectFirst={crud.selectFirst("row")}
+            onSelectNext={crud.selectNext("row")}
             onCreate={crud.create("row", ac)}
             onEdit={crud.edit("row", ac)}
             onDelete={crud.delete("row", ac)}
@@ -88,7 +97,8 @@ export function ViewSelector(props: Props) {
             selected={selection.colViewNames[selection.assetClass]}
             allKeys={allKeys[ac]}
             getLabel={props.getLabel[ac]}
-            onSelect={crud.select("col")}
+            onSelectFirst={crud.selectFirst("col")}
+            onSelectNext={crud.selectNext("col")}
             onCreate={crud.create("col", ac)}
             onEdit={crud.edit("col", ac)}
             onDelete={crud.delete("col", ac)}

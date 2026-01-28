@@ -4,7 +4,7 @@ import {Dispatch, SetStateAction} from "react";
 export type RowView = { name: string, items: string[] };
 export type ColView = { name: string, items: string[] };
 export type ViewsAvailable = { rowViews: RowView[], colViews: ColView[] }
-export type ViewSelection = { assetClass: string, rowViewNames: Rec<string>, colViewNames: Rec<string> };
+export type ViewSelection = { assetClass: string, rowViewNames: Rec<string[]>, colViewNames: Rec<string[]> };
 
 type Axis = "row" | "col";
 type AnyView = RowView | ColView;
@@ -37,7 +37,7 @@ export function viewsCrud(
         });
     }
 
-    function select(axis: Axis, fn: (v: string) => string) {
+    function select(axis: Axis, fn: (v: string[]) => string[]) {
         setSelection(s => {
             if (!s) return s;
             return {
@@ -51,19 +51,26 @@ export function viewsCrud(
     }
 
     return {
-        select: (axis: Axis) => (name: string) => select(axis, () => name),
+        selectFirst: (axis: Axis) => (name: string) => select(axis, () => [name]),
+        selectNext: (axis: Axis) => (name: string) => select(axis, before => [...before, name]),
         create: (axis: Axis, ac: string) => (created: RowView | ColView) => {
             updateViews(axis, ac, (xs) => [...xs, created]);
-            select(axis, () => created.name);
+            select(axis, () => [created.name]);
         },
         edit: (axis: Axis, ac: string) => (oldName: string, updated: RowView | ColView) => {
             updateViews(axis, ac, (xs) => xs.map(x => (x.name === oldName ? updated : x)));
-            select(axis, v => v == oldName ? updated.name : v)
+            select(axis, before => {
+                const i = before.indexOf(oldName)
+                return i < 0 ? before : before.with(i, updated.name)
+            })
         },
         delete: (axis: Axis, ac: string) => (name: string) => {
             updateViews(axis, ac,
                 (xs) => xs.filter(x => x.name !== name),
-                (xs) => select(axis, v => v == name ? xs[0].name : v)
+                (xs) => select(axis, before => {
+                    const after = before.filter(n => n !== name)
+                    return after.length ? after : [xs[0].name]
+                })
             );
         },
     }
