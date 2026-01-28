@@ -9,7 +9,6 @@ shadows should be toned down
     slight blue/purple tint?
 
 ### views 
-remove cols via column-orderer
 duplicate
 reorder tabs
 

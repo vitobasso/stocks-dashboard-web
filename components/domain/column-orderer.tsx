@@ -2,7 +2,7 @@
 import {closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors,} from "@dnd-kit/core";
 import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy,} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
-import {GripVertical} from "lucide-react";
+import {GripVertical, XIcon} from "lucide-react";
 import {Label} from "@/lib/metadata/labels";
 import React from "react";
 
@@ -26,11 +26,20 @@ export default function ColumnOrderer(props: Props) {
         });
     }
 
+    function handleRemove(item: string) {
+        props.setColumns(() => props.columns.filter(v => v != item))
+    }
+
     return <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="font-bold p-2">Ordem</div>
         <SortableContext items={props.columns} strategy={verticalListSortingStrategy}>
             {props.columns.map((item) => (
-                <SortableRow key={item} id={item}>{props.getLabel(item).short}</SortableRow>
+                <SortableRow key={item} id={item}>
+                    <div className="flex w-full items-center">
+                        <div className="flex-1">{props.getLabel(item).short}</div>
+                        <XIcon className="size-4" onClick={() => handleRemove(item)}/>
+                    </div>
+                </SortableRow>
             ))}
         </SortableContext>
     </DndContext>

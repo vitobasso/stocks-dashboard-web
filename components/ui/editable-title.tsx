@@ -93,7 +93,7 @@ export function EditableTitle({ title, onTitleChange, onEnter, className = "" }:
                 onClick={() => setIsEditing(true)}
                 className="h-8 w-8 flex-shrink-0"
             >
-                <PencilIcon className="h-4 w-4" />
+                <PencilIcon className="size-4" />
             </Button>
         </div>
     );
