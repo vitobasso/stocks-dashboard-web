@@ -24,3 +24,9 @@ To auto-run linting before pushing
 ```shell
 git config core.hooksPath .githooks
 ```
+
+#### Clear next.js build cache
+When colors don't update
+```shell
+rm -rf .next
+```

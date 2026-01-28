@@ -42,12 +42,14 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
 
     const [openPanel, setOpenPanel] = useState<string | null>(null)
     const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
-    const inherit = "bg-inherit text-inherit hover:bg-inherit hover:text-inherit focus-visible:ring-0"
+    const inherit = cn("bg-transparent text-inherit shadow-none",
+        "hover:bg-transparent hover:text-inherit focus-visible:ring-0")
     const buttonLike = cn("border-2 ring-1 rounded-md shadow-sm transition-colors",
         "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring focus-visible:outline-0")
     const primaryVariant = "bg-primary text-primary-foreground ring-primary border-primary"
     const outlineVariant = cn("bg-background ring-border border-background",
-        "hover:bg-accent hover:border-accent hover:text-accent-foreground")
+        "hover:bg-accent hover:border-accent hover:text-accent-foreground",
+        "dark:hover:bg-input/50")
 
     return <div className={cn("flex items-center gap-2", props.className)}>
         {props.viewsAvailable.map((view, i) =>
@@ -59,13 +61,13 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                                  e.shiftKey? props.onSelectToggle(view.name) : props.onSelectSingle(view.name)
                              }
                          }}>
-                <Button size="sm" variant="ghost" tabIndex={-1}
+                <Button size="sm" tabIndex={-1}
                         className={cn("p-1 h-full", inherit)}
                         onClick={(e) =>
                             e.shiftKey ? props.onSelectToggle(view.name) : props.onSelectSingle(view.name)}>
                     {view.name}
                 </Button>
-                <Button size="sm" variant="ghost" tabIndex={-1}
+                <Button size="sm" tabIndex={-1}
                         className={cn("w-0 !px-1 h-full", inherit)}
                         onClick={(e) => {
                             setOpenPanel(`row-${view.name}`);

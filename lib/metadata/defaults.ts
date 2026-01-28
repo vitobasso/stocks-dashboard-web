@@ -90,6 +90,6 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
 }
 export const defaultSelection: ViewSelection = {
     assetClass: "stock_br",
-    rowViewNames: mapValues(defaultViewsAvailable, (v) => v.rowViews[0].name),
-    colViewNames: mapValues(defaultViewsAvailable, (v) => v.colViews[0].name),
+    rowViewNames: mapValues(defaultViewsAvailable, (v) => [v.rowViews[0].name]),
+    colViewNames: mapValues(defaultViewsAvailable, (v) => [v.colViews[0].name]),
 }
