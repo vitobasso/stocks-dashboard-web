@@ -13,12 +13,17 @@ export function recordOfKeys<T>(keys: string[], fn: (key: string) => T): Rec<T> 
     return Object.fromEntries(keys?.map(k => [k, fn(k)]) || [])
 }
 
-export function mergeRecords<A>(data1: Rec<A>, data2: Rec<A>): Rec<A> {
-    if (!data1) return data2;
-    if (!data2) return data1;
+export function mergeDepth1<A>(data1: Rec<A>, data2: Rec<A>): Rec<A> {
+    if (!data1 || !Object.keys(data1).length) return data2;
+    if (!data2 || !Object.keys(data2).length) return data1;
     const entries = Object.keys({...data1, ...data2}).map(key => {
         const value = {...data1[key], ...data2[key]};
         return [key, value]
     });
     return Object.fromEntries(entries);
+}
+
+export function mergeDepth2<A>(data1: Rec<Rec<A>>, data2: Rec<Rec<A>>): Rec<Rec<A>> {
+    let entries = [...allKeys(data1, data2)].map(ac => [ac, mergeDepth1(data1[ac], data2[ac])]);
+    return Object.fromEntries(entries)
 }

@@ -1,4 +1,4 @@
-import {allKeys, mergeRecords, Rec} from "@/lib/utils/records";
+import {allKeys, mergeDepth1, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data, Metadata, splitByAssetClass} from "@/lib/data";
 import {useEffect, useMemo} from "react";
 import {useQueries, useQueryClient} from "@tanstack/react-query";
@@ -35,16 +35,7 @@ export function listenScraped(ac: string, rows: string[],
         try {
             const data = JSON.parse(event.data);
             if (!data || Object.keys(data).length === 0) return;
-
-            function updateScraped(prev: Rec<Data>) {
-                const merged: Rec<Data> = {};
-                for (const ac of allKeys(prev, data)) {
-                    merged[ac] = mergeRecords(prev[ac], data[ac])
-                }
-                return merged;
-            }
-
-            setScraped(updateScraped);
+            setScraped(prev => mergeDepth2(prev, data));
         } catch (e) {
             console.error('Error parsing WebSocket message:', e);
         }
@@ -82,31 +73,25 @@ export function useScrapedTickers(ac: string, rows: string[], isSsl: boolean) {
         })),
     });
 
+
+    function findCached(ac: string, rows: string[]) {
+        return rows.reduce<Rec<Data>>((acc, ticker) => {
+            const cached = queryClient.getQueryData<Rec<Data>>(scrapedQueryKey(ac, ticker));
+            if (cached) Object.assign(acc, cached);
+            return acc;
+        }, {})
+    }
+
     useEffect(() => {
         if (!ac || !rows?.length) return;
-
         const cleanup = listenScraped(ac, rows, (setScraped) => {
-            const prevAll = rows.reduce<Rec<Data>>((acc, ticker) => {
-                const cached = queryClient.getQueryData<Rec<Data>>(scrapedQueryKey(ac, ticker));
-                if (cached) Object.assign(acc, cached);
-                return acc;
-            }, {});
-            const nextAll = setScraped(prevAll);
-
-            for (const assetClass of Object.keys(nextAll)) {
-                const byTicker = nextAll[assetClass] ?? {};
-                for (const ticker of Object.keys(byTicker)) {
-                    queryClient.setQueryData<Rec<Data>>(scrapedQueryKey(ac, ticker), (prev) => {
-                        const merged: Rec<Data> = {...(prev ?? {})};
-                        merged[assetClass] = {
-                            ...(merged[assetClass] ?? {}),
-                            [ticker]: {
-                                ...((merged[assetClass] ?? {})[ticker] ?? {}),
-                                ...(byTicker[ticker] ?? {}),
-                            },
-                        };
-                        return merged;
-                    });
+            const nextAll = setScraped(findCached(ac, rows));
+            for (const [ac, data] of Object.entries(nextAll)) {
+                for (const ticker of Object.keys(data)) {
+                    let queryKey = scrapedQueryKey(ac, ticker);
+                    queryClient.setQueryData<Rec<Data>>(
+                        queryKey, (prev) => mergeDepth2(prev || {}, nextAll)
+                    );
                 }
             }
         }, isSsl);

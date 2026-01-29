@@ -1,6 +1,6 @@
 import {derivations, Derivations} from "@/lib/metadata/derivations";
 import {Label} from "@/lib/metadata/labels";
-import {mergeRecords, Rec} from "@/lib/utils/records";
+import {mergeDepth1, Rec} from "@/lib/utils/records";
 
 export type Metadata = {
     schema: string[],
@@ -28,9 +28,9 @@ export function getSuffix(path: string) {
 }
 
 export function consolidateData(data: Data[], assetClass: string): Data {
-    const merged = data.reduce(mergeRecords, {});
+    const merged = data.reduce(mergeDepth1, {});
     const derived = deriveData(merged, derivations[assetClass]);
-    return mergeRecords(merged, derived);
+    return mergeDepth1(merged, derived);
 }
 
 function deriveData(data: Data, derivations: Derivations): Data {

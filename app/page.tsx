@@ -17,7 +17,6 @@ export default function Page() {
 
     // query results
     const [metadata, setMetadata] = useState<Rec<Metadata> | null>(null);
-    // const [scraped, setScraped] = useState<Rec<Data>>({});
     const [quotes, setQuotes] = useState<Rec<Data>>({});
 
     // user defined state
@@ -45,12 +44,6 @@ export default function Page() {
 
     if (!assetClass || !rows) return skeleton();
     const scraped = useScrapedTickers(assetClass, rows, isSsl());
-
-    // useEffect(() => {
-    //     if (!assetClass || !rows) return;
-    //     fetchScraped(assetClass, rows).then(setScraped);
-    //     return listenScraped(assetClass, rows, setScraped, isSsl());
-    // }, [assetClass, rows]);
 
     useEffect(() => {
         if (!rows || !classOfTicker) return;
