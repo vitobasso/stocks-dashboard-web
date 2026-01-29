@@ -110,6 +110,8 @@ export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) =
     </div>
 });
 
+ColumnSelector.displayName = 'ColumnSelector';
+
 function ColumnPrefix(
     prefix: string,
     keysInPrefix: string[],

@@ -11,7 +11,7 @@ import {consolidateSchema} from "@/lib/schema";
 import {RowCreateDialog} from "@/components/features/views/row-create-dialog";
 import {ColCreateDialog} from "@/components/features/views/col-create-dialog";
 import {flattenUnique} from "@/lib/utils/collections";
-import {Str} from "@/lib/utils/strings";
+import {arraysEq} from "@/lib/utils/strings";
 import {loadViewsAvailable, loadViewSelection, saveViewsAvailable, saveViewSelection} from "@/lib/local-storage/local-storage";
 
 type Props = {
@@ -46,23 +46,25 @@ export function ViewSelector(props: Props) {
         return { assetClasses, allKeys };
     }, [props.metadata]);
 
+    const { setAssetClass, setRows, setCols } = props;
+
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
         const ac = selection.assetClass;
-        props.setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
+        setAssetClass(prevAc => prevAc === ac ? prevAc : ac);
 
         const selectedRows = selection.rowViewNames[ac]
-            .map(n => viewsAvailable[ac].rowViews.find(v => v.name == n)!)
-            .map(v => v.items)
+            .map(n => viewsAvailable[ac].rowViews.find(v => v.name === n)!)
+            .map(v => v.items);
         const newRows = flattenUnique(selectedRows);
-        props.setRows(prevRows => prevRows && Str.equals(prevRows, newRows) ? prevRows : newRows);
+        setRows(prevRows => prevRows && arraysEq(prevRows, newRows) ? prevRows : newRows);
 
         const selectedCols = selection.colViewNames[ac]
-            .map(n => viewsAvailable[ac].colViews.find(v => v.name == n)!)
-            .map(v => v.items)
+            .map(n => viewsAvailable[ac].colViews.find(v => v.name === n)!)
+            .map(v => v.items);
         const newCols = flattenUnique(selectedCols);
-        props.setCols(prevCols => prevCols && Str.equals(prevCols, newCols) ? prevCols : newCols);
-    }, [viewsAvailable, selection]);
+        setCols(prevCols => prevCols && arraysEq(prevCols, newCols) ? prevCols : newCols);
+    }, [viewsAvailable, selection, setAssetClass, setRows, setCols]);
 
     const crud = viewsCrud(setViewsAvailable, setSelection);
 

@@ -51,6 +51,13 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
         "hover:bg-accent hover:border-accent hover:text-accent-foreground",
         "dark:hover:bg-input/50")
 
+    function handleSelect(e: { shiftKey: boolean }, viewName: string) {
+        if (e.shiftKey)
+            props.onSelectToggle(viewName);
+        else
+            props.onSelectSingle(viewName);
+    }
+
     return <div className={cn("flex items-center gap-2", props.className)}>
         {props.viewsAvailable.map((view, i) =>
             <ButtonGroup key={i} tabIndex={0}
@@ -58,18 +65,17 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                              props.selected.includes(view.name) ? primaryVariant : outlineVariant)}
                          onKeyDown={(e) => {
                              if (e.key === "Enter" || e.key === " ") {
-                                 e.shiftKey? props.onSelectToggle(view.name) : props.onSelectSingle(view.name)
+                                 handleSelect(e, view.name)
                              }
                          }}>
                 <Button size="sm" tabIndex={-1}
                         className={cn("p-1 h-full", inherit)}
-                        onClick={(e) =>
-                            e.shiftKey ? props.onSelectToggle(view.name) : props.onSelectSingle(view.name)}>
+                        onClick={(e) => handleSelect(e, view.name)}>
                     {view.name}
                 </Button>
                 <Button size="sm" tabIndex={-1}
                         className={cn("w-0 !px-1 h-full", inherit)}
-                        onClick={(e) => {
+                        onClick={() => {
                             setOpenPanel(`row-${view.name}`);
                         }}>
                     <EllipsisVerticalIcon className="opacity-0 group-hover:opacity-100 transition-opacity"/>

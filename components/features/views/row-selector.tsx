@@ -90,3 +90,5 @@ export const RowSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
         </div>
     </div>
 });
+
+RowSelector.displayName = 'RowSelector';

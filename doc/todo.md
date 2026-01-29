@@ -1,6 +1,6 @@
-### wip
-lint
-run prod build
+### bug: enter on edit dialog is bubbling up to select tab
+
+### auto-repair local storage
 
 ### click ticker
 - list of links
@@ -23,6 +23,9 @@ tag along, simplywall score
 
 ### [bug] showing "0" instead of "-"
 
+### add colors
+patrimonio liquido, listagem, ano
+
 ### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
 
 ### calc projecao: aggregate yahoo + tradingview
@@ -41,5 +44,15 @@ reorder tabs
 
 ### customize: calculated columns ?
 
+### color depending on other keys
+price color depends on industry or avg of industry
+
 ### test
 column-selector search
+
+### other data presentations
+- aggregate per sector: total position or return
+- diff today vs last month
+- time series
+- bubble plot: return * age * position, return * risk * position  
+- bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap

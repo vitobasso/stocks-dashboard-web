@@ -8,7 +8,7 @@ import {SettingsDialog} from "@/components/features/settings-dialog";
 import {DataGrid} from "@/components/features/data-grid";
 import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card} from "@/components/ui/card";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
 import {fetchMeta, fetchQuotes, fetchScraped, listenScraped} from "@/lib/api-client";
@@ -110,13 +110,9 @@ function isSsl() {
 
 function skeleton() {
     return <Card className="m-4">
-        <CardHeader>
-            <CardTitle>
-                <Skeleton className="h-[5vh] w-[50vw] mb-4"/>
-            </CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Skeleton className="h-[60vh] w-full rounded-lg"/>
-        </CardContent>
+        <Skeleton className="h-4 w-[10vw]"/>
+        <Skeleton className="h-4 w-[50vw]"/>
+        <Skeleton className="h-4 w-[40vw]"/>
+        <Skeleton className="h-[60vh] w-full rounded-lg"/>
     </Card>
 }
