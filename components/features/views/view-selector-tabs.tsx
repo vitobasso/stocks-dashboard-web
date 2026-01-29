@@ -64,6 +64,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                          className={cn("group h-7.5 px-1.5 overflow-hidden", buttonLike,
                              props.selected.includes(view.name) ? primaryVariant : outlineVariant)}
                          onKeyDown={(e) => {
+                             if (e.target !== e.currentTarget) return;
                              if (e.key === "Enter" || e.key === " ") {
                                  handleSelect(e, view.name)
                              }

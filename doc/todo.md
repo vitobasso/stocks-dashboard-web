@@ -1,5 +1,3 @@
-### bug: enter on edit dialog is bubbling up to select tab
-
 ### auto-repair local storage
 
 ### click ticker
@@ -22,6 +20,9 @@ making sure top-level group has the check/semi-check
 tag along, simplywall score
 
 ### [bug] showing "0" instead of "-"
+
+### tone down colors for not-so-important cols
+1A, 5A, listagem, ano
 
 ### add colors
 patrimonio liquido, listagem, ano
@@ -55,4 +56,4 @@ column-selector search
 - diff today vs last month
 - time series
 - bubble plot: return * age * position, return * risk * position  
-- bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap
+- bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap, P/E * EPS * size
