@@ -11,7 +11,7 @@ import {indexByFields} from "@/lib/utils/collections";
 import {Card} from "@/components/ui/card";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
-import {fetchMeta, fetchQuotes, useScrapedTickers} from "@/lib/api-client";
+import {fetchMeta, fetchQuotes, useScraped} from "@/lib/api-client";
 
 export default function Page() {
 
@@ -43,7 +43,7 @@ export default function Page() {
     }, [metadata]);
 
     if (!assetClass || !rows) return skeleton();
-    const scraped = useScrapedTickers(assetClass, rows, isSsl());
+    const scraped = useScraped(assetClass, rows, isSsl());
 
     useEffect(() => {
         if (!rows || !classOfTicker) return;
