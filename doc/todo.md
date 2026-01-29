@@ -1,4 +1,7 @@
+### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
+
 ### auto-repair local storage
+schema of current version, default values per field, cleanup unknown fields
 
 ### click ticker
 - list of links
@@ -26,8 +29,6 @@ tag along, simplywall score
 
 ### add colors
 patrimonio liquido, listagem, ano
-
-### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
 
 ### calc projecao: aggregate yahoo + tradingview
 

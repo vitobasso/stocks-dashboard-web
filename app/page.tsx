@@ -12,12 +12,13 @@ import {Card} from "@/components/ui/card";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
 import {fetchMeta, fetchQuotes, fetchScraped, listenScraped} from "@/lib/api-client";
+import {useQueries} from "@tanstack/react-query";
 
 export default function Page() {
 
     // query results
     const [metadata, setMetadata] = useState<Rec<Metadata> | null>(null);
-    const [scraped, setScraped] = useState<Rec<Data>>({});
+    // const [scraped, setScraped] = useState<Rec<Data>>({});
     const [quotes, setQuotes] = useState<Rec<Data>>({});
 
     // user defined state
@@ -43,11 +44,29 @@ export default function Page() {
         return {assetClasses, getLabel, classOfTicker};
     }, [metadata]);
 
-    useEffect(() => {
-        if (!assetClass || !rows) return;
-        fetchScraped(assetClass, rows).then(setScraped);
-        return listenScraped(assetClass, rows, setScraped, isSsl());
-    }, [assetClass, rows]);
+    if (!assetClass || !rows) return skeleton();
+    const results = useQueries({
+        queries: rows.map(ticker => ({
+            queryKey: ['ticker', ticker],
+            queryFn: () => fetchScraped(assetClass, [ticker]),
+        }))
+    });
+
+    const scraped = useMemo(() => {
+        const out: Rec<Data> = {};
+        results.forEach((r, i) => {
+            if (r.data) {
+                Object.assign(out, r.data);
+            }
+        });
+        return out;
+    }, [results]);
+
+    // useEffect(() => {
+    //     if (!assetClass || !rows) return;
+    //     fetchScraped(assetClass, rows).then(setScraped);
+    //     return listenScraped(assetClass, rows, setScraped, isSsl());
+    // }, [assetClass, rows]);
 
     useEffect(() => {
         if (!rows || !classOfTicker) return;

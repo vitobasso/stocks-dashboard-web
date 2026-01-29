@@ -7,6 +7,7 @@ import {LocalStorage} from "@/components/features/local-storage";
 import React from "react";
 import {Analytics} from "@vercel/analytics/next"
 import {Theme} from "@/components/features/theme";
+import {Providers} from "@/app/providers";
 
 const iconSvg = encodeURIComponent(fs.readFileSync('./public/icon.svg', 'utf8'));
 
@@ -32,7 +33,7 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <LocalStorage/>
                 <Theme/>
-                {children}
+                <Providers>{children}</Providers>
                 <Analytics/>
             </body>
         </html>
