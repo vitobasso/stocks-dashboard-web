@@ -11,8 +11,7 @@ import {indexByFields} from "@/lib/utils/collections";
 import {Card} from "@/components/ui/card";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
-import {fetchMeta, fetchQuotes, fetchScraped, listenScraped} from "@/lib/api-client";
-import {useQueries} from "@tanstack/react-query";
+import {fetchMeta, fetchQuotes, useScrapedTickers} from "@/lib/api-client";
 
 export default function Page() {
 
@@ -45,22 +44,7 @@ export default function Page() {
     }, [metadata]);
 
     if (!assetClass || !rows) return skeleton();
-    const results = useQueries({
-        queries: rows.map(ticker => ({
-            queryKey: ['ticker', ticker],
-            queryFn: () => fetchScraped(assetClass, [ticker]),
-        }))
-    });
-
-    const scraped = useMemo(() => {
-        const out: Rec<Data> = {};
-        results.forEach((r, i) => {
-            if (r.data) {
-                Object.assign(out, r.data);
-            }
-        });
-        return out;
-    }, [results]);
+    const scraped = useScrapedTickers(assetClass, rows, isSsl());
 
     // useEffect(() => {
     //     if (!assetClass || !rows) return;

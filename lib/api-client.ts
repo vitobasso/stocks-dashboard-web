@@ -1,5 +1,7 @@
 import {allKeys, mergeRecords, Rec} from "@/lib/utils/records";
 import {Data, Metadata, splitByAssetClass} from "@/lib/data";
+import {useEffect, useMemo} from "react";
+import {useQueries, useQueryClient} from "@tanstack/react-query";
 
 export async function fetchMeta(): Promise<Rec<Metadata>> {
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
@@ -57,6 +59,68 @@ export function listenScraped(ac: string, rows: string[],
             ws.close();
         }
     };
+}
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+function scrapedQueryKey(ac: string, ticker: string) {
+    return [ac, 'scraped', ticker];
+}
+
+export function useScrapedTickers(ac: string, rows: string[], isSsl: boolean) {
+    const queryClient = useQueryClient();
+
+    const results = useQueries({
+        queries: (rows ?? []).map((ticker) => ({
+            queryKey: scrapedQueryKey(ac, ticker),
+            queryFn: () => {
+                return fetchScraped(ac, [ticker]);
+            },
+            enabled: Boolean(ac) && Boolean(rows.length),
+            staleTime: ONE_DAY_MS,
+            gcTime: ONE_DAY_MS,
+        })),
+    });
+
+    useEffect(() => {
+        if (!ac || !rows?.length) return;
+
+        const cleanup = listenScraped(ac, rows, (setScraped) => {
+            const prevAll = rows.reduce<Rec<Data>>((acc, ticker) => {
+                const cached = queryClient.getQueryData<Rec<Data>>(scrapedQueryKey(ac, ticker));
+                if (cached) Object.assign(acc, cached);
+                return acc;
+            }, {});
+            const nextAll = setScraped(prevAll);
+
+            for (const assetClass of Object.keys(nextAll)) {
+                const byTicker = nextAll[assetClass] ?? {};
+                for (const ticker of Object.keys(byTicker)) {
+                    queryClient.setQueryData<Rec<Data>>(scrapedQueryKey(ac, ticker), (prev) => {
+                        const merged: Rec<Data> = {...(prev ?? {})};
+                        merged[assetClass] = {
+                            ...(merged[assetClass] ?? {}),
+                            [ticker]: {
+                                ...((merged[assetClass] ?? {})[ticker] ?? {}),
+                                ...(byTicker[ticker] ?? {}),
+                            },
+                        };
+                        return merged;
+                    });
+                }
+            }
+        }, isSsl);
+
+        return cleanup;
+    }, [ac, isSsl, queryClient, rows]);
+
+    return useMemo(() => {
+        const out: Rec<Data> = {};
+        results.forEach((r) => {
+            if (r.data) Object.assign(out, r.data);
+        });
+        return out;
+    }, [results]);
 }
 
 function scraperParams(ac: string, rows: string[]) {
