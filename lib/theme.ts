@@ -6,15 +6,6 @@ export function applyTheme(theme: Theme) {
   else el.classList.remove("dark");
 }
 
-export function getStoredTheme(ls: Storage): Theme | null {
-  try {
-    const t = ls.getItem("theme");
-    return t === "dark" || t === "light" ? t : null;
-  } catch {
-    return null;
-  }
-}
-
 export function getAppliedTheme(): Theme {
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }

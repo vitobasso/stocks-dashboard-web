@@ -1,5 +1,6 @@
 ### wip
-migrate localStorage
+lint
+run prod build
 
 ### click ticker
 - list of links

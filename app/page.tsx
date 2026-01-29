@@ -6,12 +6,12 @@ import {makeLabelGetter} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/domain/settings-dialog";
 import {DataGrid} from "@/components/domain/data-grid";
-import {Analytics} from "@vercel/analytics/next"
-import {applyTheme, getStoredTheme} from "@/lib/theme";
+import {applyTheme} from "@/lib/theme";
 import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {ViewSelector} from "@/components/domain/view-selector";
+import {loadPositions, loadTheme, savePositions} from "@/lib/local-storage/local-storage";
 
 export default function Page() {
 
@@ -28,7 +28,7 @@ export default function Page() {
 
     useEffect(() => {
         applyStoredTheme();
-        setPositions(loadPositions(localStorage));
+        setPositions(loadPositions());
         fetchMeta().then(setMetadata);
     }, []);
 
@@ -56,7 +56,7 @@ export default function Page() {
     }, [assetClass, rows, classOfTicker]);
 
     useEffect(() => {
-        localStorage.setItem("positions", JSON.stringify(positions));
+        savePositions(positions);
     }, [positions]);
 
     const data: Rec<Data> | undefined = useMemo(() => {
@@ -95,7 +95,6 @@ export default function Page() {
                     <SettingsDialog metadata={metadata} getLabel={getLabel}
                                     setPositions={setPositions} classOfTickers={classOfTicker}
                                     openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
-                    <Analytics/>
                 </>
             }
         </div>
@@ -181,13 +180,8 @@ function scraperLiveUrl(ac: string, rows: string[]) {
     return `${baseUrl}/data-live?${urlParams.toString()}`
 }
 
-function loadPositions(localStorage: Storage): Rec<Data> {
-    const rawString = localStorage.getItem("positions");
-    return rawString?.length && JSON.parse(rawString) || {};
-}
-
 function applyStoredTheme() {
-    const theme = getStoredTheme(localStorage);
+    const theme = loadTheme();
     if (theme) applyTheme(theme);
 }
 

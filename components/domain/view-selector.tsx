@@ -7,12 +7,12 @@ import {ViewSelectorTabs} from "@/components/domain/view-selector-tabs";
 import {RowEditDialog} from "@/components/domain/row-edit-dialog";
 import {ColEditDialog} from "@/components/domain/col-edit-dialog";
 import {Label} from "@/lib/metadata/labels";
-import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
 import {consolidateSchema} from "@/lib/schema";
 import {RowCreateDialog} from "@/components/domain/row-create-dialog";
 import {ColCreateDialog} from "@/components/domain/col-create-dialog";
 import {flattenUnique} from "@/lib/utils/collections";
 import {Str} from "@/lib/utils/strings";
+import {loadViewsAvailable, loadViewSelection, saveViewsAvailable, saveViewSelection} from "@/lib/local-storage/local-storage";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -28,15 +28,15 @@ export function ViewSelector(props: Props) {
 
     useEffect(() => {
         setViewsAvailable(loadViewsAvailable());
-        setSelection(loadSelection());
+        setSelection(loadViewSelection());
     }, []);
 
     useEffect(() => {
-        if (viewsAvailable) localStorage.setItem("viewsAvailable", JSON.stringify(viewsAvailable));
+        if (viewsAvailable) saveViewsAvailable(viewsAvailable);
     }, [viewsAvailable]);
 
     useEffect(() => {
-        if (selection) localStorage.setItem("viewSelection", JSON.stringify(selection));
+        if (selection) saveViewSelection(selection);
     }, [selection]);
 
     const { assetClasses, allKeys } = useMemo(() => {
@@ -106,14 +106,4 @@ export function ViewSelector(props: Props) {
             EditDialog={ColEditDialog}
         />
     </div>;
-}
-
-function loadViewsAvailable(): Rec<ViewsAvailable> {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem("viewsAvailable") : null;
-    return stored ? JSON.parse(stored) : defaultViewsAvailable;
-}
-
-function loadSelection(): ViewSelection | null {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem("viewSelection") : null;
-    return stored ? JSON.parse(stored) : defaultSelection;
 }
