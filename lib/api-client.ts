@@ -1,4 +1,4 @@
-import {mergeDepth2, Rec} from "@/lib/utils/records";
+import {mapDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data, Metadata, splitByAssetClass} from "@/lib/data";
 import {useEffect, useMemo} from "react";
 import {useQueries, useQueryClient} from "@tanstack/react-query";
@@ -45,18 +45,43 @@ export function useScraped(ac: string, rows: string[], isSsl: boolean) {
         }, {})
     }
 
+
+    function listenScraped(ac: string, rows: string[],
+                           setScraped: (value: ((prevState: Rec<Data>) => Rec<Data>)) => void,
+                           isSsl: boolean) {
+        const ws = new WebSocket(scraperLiveUrl(ac, rows, isSsl));
+
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (!data || Object.keys(data).length === 0) return;
+                setScraped(prev => mergeDepth2(prev, data));
+            } catch (e) {
+                console.error('Error parsing WebSocket message:', e);
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        return () => {
+            if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+                ws.close();
+            }
+        };
+    }
+
     useEffect(() => {
         if (!ac || !rows?.length) return;
         const cleanup = listenScraped(ac, rows, (setScraped) => {
             const cachedPlusListened = setScraped(findCached(ac, rows));
-            for (const [ac, data] of Object.entries(cachedPlusListened)) {
-                for (const ticker of Object.keys(data)) {
-                    let queryKey = scrapedKey(ac, ticker);
-                    queryClient.setQueryData<Rec<Data>>(
-                        queryKey, (prev) => mergeDepth2(prev || {}, cachedPlusListened)
-                    );
-                }
-            }
+            mapDepth2(cachedPlusListened, (ac, ticker) => {
+                let queryKey = scrapedKey(ac, ticker);
+                queryClient.setQueryData<Rec<Data>>(
+                    queryKey, (prev) => mergeDepth2(prev || {}, cachedPlusListened)
+                );
+            });
         }, isSsl);
 
         return cleanup;
@@ -96,28 +121,3 @@ function scraperLiveUrl(ac: string, rows: string[], isSsl: boolean) {
     return `${baseUrl}/data-live?${urlParams.toString()}`
 }
 
-function listenScraped(ac: string, rows: string[],
-                       setScraped: (value: ((prevState: Rec<Data>) => Rec<Data>)) => void,
-                       isSsl: boolean) {
-    const ws = new WebSocket(scraperLiveUrl(ac, rows, isSsl));
-
-    ws.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            if (!data || Object.keys(data).length === 0) return;
-            setScraped(prev => mergeDepth2(prev, data));
-        } catch (e) {
-            console.error('Error parsing WebSocket message:', e);
-        }
-    };
-
-    ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-    };
-
-    return () => {
-        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-            ws.close();
-        }
-    };
-}

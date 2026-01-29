@@ -27,3 +27,11 @@ export function mergeDepth2<A>(data1: Rec<Rec<A>>, data2: Rec<Rec<A>>): Rec<Rec<
     let entries = [...allKeys(data1, data2)].map(ac => [ac, mergeDepth1(data1[ac], data2[ac])]);
     return Object.fromEntries(entries)
 }
+
+export function mapDepth2<A>(data: Rec<Rec<A>>, fn: (key1: string, key2: string, value: A) => void){
+    for (const [k1, v1] of Object.entries(data)) {
+        for (const [k2, v2] of Object.entries(v1)) {
+            fn(k1, k2, v2)
+        }
+    }
+}
