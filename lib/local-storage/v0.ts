@@ -1,6 +1,6 @@
 import type {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import type {Rec} from "@/lib/utils/records";
-import {defaultSelection, defaultViewsAvailable} from "@/lib/views/default-views";
+import {defaultSelection, defaultViews} from "@/lib/views/default-views";
 import {readJson, safeRemoveItem} from "@/lib/local-storage/shared";
 
 export type LegacyV0Rows = Rec<string[]>;
@@ -12,7 +12,7 @@ export const V0_KEYS = {
 } as const;
 
 export function migrateV0ToV1ViewsAvailable(rows: LegacyV0Rows, cols: LegacyV0Cols): Rec<ViewsAvailable> {
-    const result: Rec<ViewsAvailable> = {...defaultViewsAvailable};
+    const result: Rec<ViewsAvailable> = {...defaultViews};
 
     for (const assetClass of Object.keys(rows)) {
         const rowItems = rows[assetClass] ?? [];

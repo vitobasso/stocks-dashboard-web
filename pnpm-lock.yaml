@@ -41,9 +41,15 @@ dependencies:
   '@radix-ui/react-visually-hidden':
     specifier: ^1.2.3
     version: 1.2.3(@types/react-dom@19.1.7)(@types/react@19.1.9)(react-dom@19.1.0)(react@19.1.0)
+  '@tanstack/react-query':
+    specifier: ^5.90.20
+    version: 5.90.20(react@19.1.0)
   '@vercel/analytics':
     specifier: ^1.5.0
     version: 1.5.0(next@15.4.10)(react@19.1.0)
+  '@yornaath/batshit':
+    specifier: ^0.14.0
+    version: 0.14.0
   chroma-js:
     specifier: ^3.1.2
     version: 3.1.2
@@ -2148,6 +2154,19 @@ packages:
       tailwindcss: 4.1.11
     dev: true
 
+  /@tanstack/query-core@5.90.20:
+    resolution: {integrity: sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==}
+    dev: false
+
+  /@tanstack/react-query@5.90.20(react@19.1.0):
+    resolution: {integrity: sha512-vXBxa+qeyveVO7OA0jX1z+DeyCA4JKnThKv411jd5SORpBKgkcVnYKCiBgECvADvniBX7tobwBmg01qq9JmMJw==}
+    peerDependencies:
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-core': 5.90.20
+      react: 19.1.0
+    dev: false
+
   /@tybys/wasm-util@0.10.0:
     resolution: {integrity: sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ==}
     requiresBuild: true
@@ -2590,6 +2609,16 @@ packages:
     dependencies:
       next: 15.4.10(@babel/core@7.28.3)(react-dom@19.1.0)(react@19.1.0)
       react: 19.1.0
+    dev: false
+
+  /@yornaath/batshit-devtools@1.7.1:
+    resolution: {integrity: sha512-AyttV1Njj5ug+XqEWY1smV45dTWMlWKtj1B8jcFYgBKUFyUlF/qEhD+iP1E5UaRYW6hQRYD9T2WNDwFTrOMWzQ==}
+    dev: false
+
+  /@yornaath/batshit@0.14.0:
+    resolution: {integrity: sha512-0I+xMi5JoRs3+qVXXhk2AmsEl43MwrG+L+VW+nqw/qQqMFtgRPszLaxhJCfsBKnjfJ0gJzTI1Q9Q9+y903HyHQ==}
+    dependencies:
+      '@yornaath/batshit-devtools': 1.7.1
     dev: false
 
   /acorn-jsx@5.3.2(acorn@8.15.0):

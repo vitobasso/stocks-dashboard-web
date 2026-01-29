@@ -1,24 +1,22 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Data, Metadata} from "@/lib/data";
+import {consolidateData, Data} from "@/lib/data";
 import {makeLabelGetter} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/features/settings-dialog";
 import {DataGrid} from "@/components/features/data-grid";
 import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
-import {Card} from "@/components/ui/card";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
-import {fetchMeta, fetchQuotes, fetchScraped, listenScraped} from "@/lib/api-client";
+import {useMetadataQuery} from "@/lib/services/use-metadata-query";
+import {useQuoteQuery} from "@/lib/services/use-quote-query";
+import {useScrapedQuery} from "@/lib/services/use-scraped-query";
 
 export default function Page() {
 
-    // query results
-    const [metadata, setMetadata] = useState<Rec<Metadata> | null>(null);
-    const [scraped, setScraped] = useState<Rec<Data>>({});
-    const [quotes, setQuotes] = useState<Rec<Data>>({});
+    const metadata = useMetadataQuery()
 
     // user defined state
     const [assetClass, setAssetClass] = useState<string | null>(null);
@@ -28,7 +26,6 @@ export default function Page() {
 
     useEffect(() => {
         setPositions(loadPositions());
-        fetchMeta().then(setMetadata);
     }, []);
 
     const {assetClasses, getLabel, classOfTicker} = useMemo(() => {
@@ -44,24 +41,15 @@ export default function Page() {
     }, [metadata]);
 
     useEffect(() => {
-        if (!assetClass || !rows) return;
-        fetchScraped(assetClass, rows).then(setScraped);
-        return listenScraped(assetClass, rows, setScraped, isSsl());
-    }, [assetClass, rows]);
-
-    useEffect(() => {
-        if (!rows || !classOfTicker) return;
-        fetchQuotes(rows, classOfTicker).then(setQuotes);
-    }, [assetClass, rows, classOfTicker]);
-
-    useEffect(() => {
         savePositions(positions);
     }, [positions]);
+
+    const scraped = useScrapedQuery(assetClass, rows);
+    const quotes = useQuoteQuery(rows, classOfTicker);
 
     const data: Rec<Data> | undefined = useMemo(() => {
         if (assetClasses) return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
     }, [scraped, quotes, positions, assetClasses]);
-
 
     // ui
     const [openPanel, setOpenPanel] = useState<string | null>(null)
@@ -104,15 +92,11 @@ export default function Page() {
 
 }
 
-function isSsl() {
-    return window.location.protocol === 'https:';
-}
-
 function skeleton() {
-    return <Card className="m-4">
-        <Skeleton className="h-4 w-[10vw]"/>
-        <Skeleton className="h-4 w-[50vw]"/>
-        <Skeleton className="h-4 w-[40vw]"/>
+    return <div className="m-4">
+        <Skeleton className="h-7 w-[8vw] m-2"/>
+        <Skeleton className="h-7 w-[45vw] m-2"/>
+        <Skeleton className="h-7 w-[30vw] m-2"/>
         <Skeleton className="h-[60vh] w-full rounded-lg"/>
-    </Card>
+    </div>
 }

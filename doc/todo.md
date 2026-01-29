@@ -1,4 +1,12 @@
+### [bug] websocket opening multiple connections
+some data disappears when receiving ws message
+
+### refactor views
+single key in localStorage
+{ row, col, selected: { ac, row, col } }
+
 ### auto-repair local storage
+schema of current version, default values per field, cleanup unknown fields
 
 ### click ticker
 - list of links
@@ -26,8 +34,6 @@ tag along, simplywall score
 
 ### add colors
 patrimonio liquido, listagem, ano
-
-### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
 
 ### calc projecao: aggregate yahoo + tradingview
 
@@ -57,3 +63,6 @@ column-selector search
 - time series
 - bubble plot: return * age * position, return * risk * position  
 - bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap, P/E * EPS * size
+
+### persist cache across refreshes
+ttl based on meta.scraped-at

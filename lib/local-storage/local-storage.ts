@@ -1,4 +1,4 @@
-import {defaultSelection, defaultViewsAvailable} from "@/lib/views/default-views";
+import {defaultSelection, defaultViews} from "@/lib/views/default-views";
 import type {Data} from "@/lib/data";
 import type {Theme} from "@/lib/theme";
 import type {ViewsAvailable, ViewSelection} from "@/lib/views/views";
@@ -49,7 +49,7 @@ export function migrateIfNeeded(): void {
 }
 
 export function loadViewsAvailable(): Rec<ViewsAvailable> {
-    return readJson<Rec<ViewsAvailable>>(STORAGE_KEYS.viewsAvailable) ?? defaultViewsAvailable;
+    return readJson<Rec<ViewsAvailable>>(STORAGE_KEYS.viewsAvailable) ?? defaultViews;
 }
 
 export function saveViewsAvailable(v: Rec<ViewsAvailable>): void {
