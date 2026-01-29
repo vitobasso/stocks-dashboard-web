@@ -3,7 +3,7 @@ import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import {EllipsisVerticalIcon, PlusIcon} from "lucide-react";
 import React, {useCallback, useState} from "react";
-import {ColView, RowView} from "@/lib/views";
+import {ColView, RowView} from "@/lib/views/views";
 import {Label} from "@/lib/metadata/labels";
 
 type Props<T extends RowView | ColView> = {

@@ -1,6 +1,6 @@
-import type {ViewsAvailable, ViewSelection} from "@/lib/views";
+import type {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import type {Rec} from "@/lib/utils/records";
-import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
+import {defaultSelection, defaultViewsAvailable} from "@/lib/views/default-views";
 import {readJson, safeRemoveItem} from "@/lib/local-storage/shared";
 
 export type LegacyV0Rows = Rec<string[]>;

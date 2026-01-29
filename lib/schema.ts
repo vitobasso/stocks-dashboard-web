@@ -1,4 +1,4 @@
-import {schema as b3} from "@/lib/b3-import";
+import {schema as b3} from "@/lib/import-b3/b3-import";
 import {schema as derivations} from "@/lib/metadata/derivations";
 
 export function consolidateSchema(scraper: string[], assetClass: string): string[] {

@@ -3,9 +3,10 @@ import {Geist, Geist_Mono} from "next/font/google";
 import 'react-data-grid/lib/styles.css';
 import "./globals.css";
 import fs from 'fs';
-import {LocalStorageManager} from "@/components/domain/local-storage-manager";
+import {LocalStorage} from "@/components/features/local-storage";
 import React from "react";
 import {Analytics} from "@vercel/analytics/next"
+import {Theme} from "@/components/features/theme";
 
 const iconSvg = encodeURIComponent(fs.readFileSync('./public/icon.svg', 'utf8'));
 
@@ -29,7 +30,8 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
     return (
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <LocalStorageManager/>
+                <LocalStorage/>
+                <Theme/>
                 {children}
                 <Analytics/>
             </body>

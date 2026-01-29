@@ -9,9 +9,9 @@ export type ViewSelection = { assetClass: string, rowViewNames: Rec<string[]>, c
 type Axis = "row" | "col";
 type AnyView = RowView | ColView;
 
-const cfg = {
-    row: {lists: "rowViews", names: "rowViewNames"},
-    col: {lists: "colViews", names: "colViewNames"},
+const keyMap = {
+    row: {views: "rowViews", viewNames: "rowViewNames"},
+    col: {views: "colViews", viewNames: "colViewNames"},
 } as const;
 
 export function viewsCrud(
@@ -25,13 +25,13 @@ export function viewsCrud(
                          onUpdated?: (result: AnyView[]) => void) {
         setViewsAvailable(v => {
             if (!v) return v;
-            const updated = fn(v[ac][cfg[axis].lists])
+            const updated = fn(v[ac][keyMap[axis].views])
             if (onUpdated) onUpdated(updated);
             return {
                 ...v,
                 [ac]: {
                     ...v[ac],
-                    [cfg[axis].lists]: updated,
+                    [keyMap[axis].views]: updated,
                 },
             };
         });
@@ -42,9 +42,9 @@ export function viewsCrud(
             if (!s) return s;
             return {
                 ...s,
-                [cfg[axis].names]: {
-                    ...s[cfg[axis].names],
-                    [s.assetClass]: fn(s[cfg[axis].names][s.assetClass])
+                [keyMap[axis].viewNames]: {
+                    ...s[keyMap[axis].viewNames],
+                    [s.assetClass]: fn(s[keyMap[axis].viewNames][s.assetClass])
                 }
             };
         })

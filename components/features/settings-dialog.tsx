@@ -4,11 +4,10 @@ import {Import, Moon, Settings, Sun} from "lucide-react"
 import React, {useCallback, useState} from "react";
 import {Data, Metadata} from "@/lib/data";
 import {Label} from "@/lib/metadata/labels";
-import PositionsImporter from "@/components/domain/positions-importer";
+import PositionsImporter from "@/components/features/positions-importer";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
-import {getAppliedTheme, toggleAppliedTheme} from "@/lib/theme";
+import {getAppliedTheme, toggleTheme} from "@/lib/theme";
 import {Rec} from "@/lib/utils/records";
-import {saveTheme} from "@/lib/local-storage/local-storage";
 
 type Props = {
     metadata: Rec<Metadata>
@@ -32,11 +31,6 @@ export function SettingsDialog(props: Props) {
             setOpenPanel(item);
             close(); 
         }
-    }
-
-    function toggleTheme() {
-        const t = toggleAppliedTheme();
-        saveTheme(t);
     }
 
     return <>

@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 import {Data, DataEntry, splitByAssetClass} from "@/lib/data";
 import {Rec} from "@/lib/utils/records";
 import React from "react";
-import {extractData} from "@/lib/b3-import";
+import {extractData} from "@/lib/import-b3/b3-import";
 
 type Props = {
     setPositions(p: React.SetStateAction<Rec<Data>>): void

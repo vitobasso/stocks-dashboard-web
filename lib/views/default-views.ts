@@ -1,4 +1,4 @@
-import {ViewsAvailable, ViewSelection} from "@/lib/views";
+import {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import {mapValues, Rec} from "@/lib/utils/records";
 
 export const defaultViewsAvailable: Rec<ViewsAvailable> = {

@@ -1,6 +1,6 @@
 import {Data} from "@/lib/data";
-import {AssetPosition, extractPositions} from "@/lib/b3-position";
-import {extractDividends} from "@/lib/b3-dividends";
+import {AssetPosition, extractPositions} from "@/lib/import-b3/b3-position";
+import {extractDividends} from "@/lib/import-b3/b3-dividends";
 
 export const schema = [
     "b3_position.quantity",

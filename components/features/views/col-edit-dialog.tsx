@@ -1,34 +1,38 @@
-import {useEffect, useState} from "react";
-import {ColView} from "@/lib/views";
+import {useEffect, useRef, useState} from "react";
+import {ColView} from "@/lib/views/views";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
-import {Input} from "@/components/ui/input";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {ColumnSelector} from "@/components/domain/column-selector";
-import ColumnOrderer from "@/components/domain/column-orderer";
+import {ColumnSelector} from "@/components/features/views/column-selector";
+import ColumnOrderer from "@/components/features/views/column-orderer";
 import {Label} from "@/lib/metadata/labels";
+import {EditableTitle} from "@/components/ui/editable-title";
 
 type Props = {
     allItems: string[]
     getLabel: (key: string) => Label;
     allViewNames: string[]
+    viewToEdit?: ColView
     onConfirm(view: ColView): void
+    onDelete?: () => void
     open: boolean;
     onOpenChange(open: boolean): void;
 }
 
-export function ColCreateDialog(props: Props) {
+export function ColEditDialog(props: Props) {
     const [name, setName] = useState("");
     const [keys, setKeys] = useState<string[]>([]);
+    const colSelectorRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => { if (props.open) resetForm() }, [props.open])
-    function resetForm() {
-        setName("")
-        setKeys([])
-    }
+    useEffect(() => {
+        if (props.open) {
+            setName(props.viewToEdit?.name ?? "");
+            setKeys([...(props.viewToEdit?.items ?? [])]);
+        }
+    }, [props.open, props.viewToEdit]);
 
     function isValid(): boolean {
-        const dupName = props.allViewNames.includes(name)
+        const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)
         return !name.trim() || keys.length === 0 || dupName
     }
 
@@ -38,18 +42,21 @@ export function ColCreateDialog(props: Props) {
         props.onOpenChange(false);
     }
 
+    const isEditing = !!props.viewToEdit;
+
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
         <DialogContent>
             <DialogHeader>
-                    <DialogTitle>Nova lupa</DialogTitle>
+                    <DialogTitle>
+                        <EditableTitle
+                            title={name}
+                            onTitleChange={setName}
+                            onEnter={() => colSelectorRef.current?.focus()}
+                            className="text-lg md:text-lg font-semibold"
+                        />
+                    </DialogTitle>
             </DialogHeader>
             <FieldSet className="overflow-auto max-h-[70vh]">
-                <Field>
-                    <FieldLabel>Nome</FieldLabel>
-                    <FieldContent>
-                        <Input required value={name} onChange={(e) => setName(e.target.value)}/>
-                    </FieldContent>
-                </Field>
                 <Field>
                     <FieldLabel>Colunas</FieldLabel>
                     <FieldContent>
@@ -59,6 +66,7 @@ export function ColCreateDialog(props: Props) {
                                 setColumns={setKeys}
                                 allKeys={props.allItems}
                                 getLabel={props.getLabel}
+                                autoFocus ref={colSelectorRef}
                             />
                             <div className="flex-1/2">
                                 <ColumnOrderer
@@ -72,6 +80,18 @@ export function ColCreateDialog(props: Props) {
                 </Field>
             </FieldSet>
             <DialogFooter>
+                {isEditing && (
+                    <Button title={`Excluir a lupa "${name}"`} variant="destructive" disabled={props.allViewNames.length <= 0}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Tem certeza que deseja excluir a lupa "${name}"?`)) {
+                                props.onDelete?.();
+                                props.onOpenChange(false);
+                            }
+                        }}>
+                        Excluir
+                    </Button>
+                )}
                 <DialogClose asChild>
                     <Button variant="outline">Cancelar</Button>
                 </DialogClose>

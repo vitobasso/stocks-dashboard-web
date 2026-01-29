@@ -1,17 +1,17 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Data, Metadata, splitByAssetClass} from "@/lib/data";
+import {consolidateData, Data, Metadata} from "@/lib/data";
 import {makeLabelGetter} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
-import {SettingsDialog} from "@/components/domain/settings-dialog";
-import {DataGrid} from "@/components/domain/data-grid";
-import {applyTheme} from "@/lib/theme";
-import {allKeys, mapValues, mergeRecords, Rec, recordOfKeys} from "@/lib/utils/records";
+import {SettingsDialog} from "@/components/features/settings-dialog";
+import {DataGrid} from "@/components/features/data-grid";
+import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {ViewSelector} from "@/components/domain/view-selector";
-import {loadPositions, loadTheme, savePositions} from "@/lib/local-storage/local-storage";
+import {ViewSelector} from "@/components/features/views/view-selector";
+import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
+import {fetchMeta, fetchQuotes, fetchScraped, listenScraped} from "@/lib/api-client";
 
 export default function Page() {
 
@@ -27,7 +27,6 @@ export default function Page() {
     const [positions, setPositions] = useState<Rec<Data>>({});
 
     useEffect(() => {
-        applyStoredTheme();
         setPositions(loadPositions());
         fetchMeta().then(setMetadata);
     }, []);
@@ -47,7 +46,7 @@ export default function Page() {
     useEffect(() => {
         if (!assetClass || !rows) return;
         fetchScraped(assetClass, rows).then(setScraped);
-        return listenScraped(assetClass, rows, setScraped);
+        return listenScraped(assetClass, rows, setScraped, isSsl());
     }, [assetClass, rows]);
 
     useEffect(() => {
@@ -73,13 +72,6 @@ export default function Page() {
         if (!m) setTimeout(() => setGroupFilter(null), 250); // wait for fade-out
     }
 
-    function onGroupHeaderClick(assetClass: string) {
-        return (g: string) => {
-            setGroupFilter(g);
-            setOpenPanel(`${assetClass}-cols`);
-        }
-    }
-
     if (!metadata || !assetClasses || !getLabel)
         return skeleton();
     return <div className="min-h-screen flex flex-col">
@@ -90,8 +82,7 @@ export default function Page() {
                 <>
                     <DataGrid className="h-auto"
                               rows={rows} columns={columns} data={data[assetClass]}
-                              getLabel={getLabel[assetClass]}
-                              onGroupHeaderClick={onGroupHeaderClick(assetClass)}/>
+                              getLabel={getLabel[assetClass]}/>
                     <SettingsDialog metadata={metadata} getLabel={getLabel}
                                     setPositions={setPositions} classOfTickers={classOfTicker}
                                     openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
@@ -113,89 +104,19 @@ export default function Page() {
 
 }
 
-async function fetchMeta(): Promise<Rec<Metadata>> {
-    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
-    return await res.json();
-}
-
-async function fetchScraped(ac: string, rows: string[]): Promise<Rec<Data>> {
-    const urlParams = scraperParams(ac, rows);
-    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
-    return await res.json();
-}
-
-async function fetchQuotes(rows: string[], classOfTicker: Map<string, string>): Promise<Rec<Data>> {
-    if (!rows.length) return {};
-
-    const res = await fetch("/api/quotes", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({tickers: rows})
-    });
-    const data: Data = await res.json();
-    return splitByAssetClass(data, classOfTicker);
-}
-
-function listenScraped(ac: string, rows: string[], setScraped: (value: ((prevState: Rec<Data>) => Rec<Data>)) => void) {
-    const ws = new WebSocket(scraperLiveUrl(ac, rows));
-
-    ws.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            if (!data || Object.keys(data).length === 0) return;
-            function updateScraped(prev: Rec<Data>) {
-                const merged: Rec<Data> = {};
-                for (const ac of allKeys(prev, data)) {
-                    merged[ac] = mergeRecords(prev[ac], data[ac])
-                }
-                return merged;
-            }
-            setScraped(updateScraped);
-        } catch (e) {
-            console.error('Error parsing WebSocket message:', e);
-        }
-    };
-
-    ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-    };
-
-    return () => {
-        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-            ws.close();
-        }
-    };
-}
-
-function scraperParams(ac: string, rows: string[]) {
-    const urlParams = new URLSearchParams();
-    if (rows.length) urlParams.append(ac, rows.join(","));
-    return urlParams;
-}
-
-function scraperLiveUrl(ac: string, rows: string[]) {
-    const urlParams = scraperParams(ac, rows);
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
-    return `${baseUrl}/data-live?${urlParams.toString()}`
-}
-
-function applyStoredTheme() {
-    const theme = loadTheme();
-    if (theme) applyTheme(theme);
+function isSsl() {
+    return window.location.protocol === 'https:';
 }
 
 function skeleton() {
-    return [1, 2].map(x =>
-        <Card key={x} className="m-4">
-            <CardHeader>
-                <CardTitle>
-                    <Skeleton className="h-10 w-40 mb-4"/>
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-64 w-full rounded-lg"/>
-            </CardContent>
-        </Card>
-    )
+    return <Card className="m-4">
+        <CardHeader>
+            <CardTitle>
+                <Skeleton className="h-[5vh] w-[50vw] mb-4"/>
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <Skeleton className="h-[60vh] w-full rounded-lg"/>
+        </CardContent>
+    </Card>
 }

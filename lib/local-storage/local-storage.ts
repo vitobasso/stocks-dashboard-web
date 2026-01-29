@@ -1,7 +1,7 @@
-import {defaultSelection, defaultViewsAvailable} from "@/lib/metadata/defaults";
+import {defaultSelection, defaultViewsAvailable} from "@/lib/views/default-views";
 import type {Data} from "@/lib/data";
 import type {Theme} from "@/lib/theme";
-import type {ViewsAvailable, ViewSelection} from "@/lib/views";
+import type {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import type {Rec} from "@/lib/utils/records";
 import {isBrowser, readJson, safeGetItem, safeSetItem, writeJson} from "@/lib/local-storage/shared";
 import {cleanupStorageV0, migrateFromStorageV0} from "@/lib/local-storage/v0";

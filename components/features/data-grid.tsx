@@ -19,7 +19,6 @@ type Props = {
     data: Data
     getLabel(path: string): Label
     className?: string
-    onGroupHeaderClick?(group: string): void
 }
 
 type Row = Record<string, string | number>;

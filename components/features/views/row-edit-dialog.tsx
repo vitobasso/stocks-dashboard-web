@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from "react";
-import {RowView} from "@/lib/views";
-import {RowSelector} from "@/components/domain/row-selector";
+import {RowView} from "@/lib/views/views";
+import {RowSelector} from "@/components/features/views/row-selector";
 import {Field, FieldContent, FieldSet} from "@/components/ui/field";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
