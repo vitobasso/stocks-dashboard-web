@@ -29,7 +29,7 @@ export function mergeDepth1<A>(data1: Rec<A>, data2: Rec<A>): Rec<A> {
 }
 
 export function mergeDepth2<A>(data1: Rec<Rec<A>>, data2: Rec<Rec<A>>): Rec<Rec<A>> {
-    let entries = [...allKeys(data1, data2)].map(ac => [ac, mergeDepth1(data1[ac], data2[ac])]);
+    const entries = [...allKeys(data1, data2)].map(ac => [ac, mergeDepth1(data1[ac], data2[ac])]);
     return Object.fromEntries(entries)
 }
 

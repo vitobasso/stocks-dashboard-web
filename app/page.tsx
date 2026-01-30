@@ -1,7 +1,7 @@
 "use client"
 
 import {useEffect, useMemo, useState} from "react";
-import {consolidateData, Data, Metadata} from "@/lib/data";
+import {consolidateData, Data} from "@/lib/data";
 import {makeLabelGetter} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/features/settings-dialog";
