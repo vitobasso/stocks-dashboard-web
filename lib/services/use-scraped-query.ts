@@ -29,9 +29,13 @@ export function useScrapedQuery(ac: string | null, rows: string[] | null): Rec<D
         })),
     });
 
-    function cacheAll(data: Rec<Data>) {
+    function cachePartialUpdates(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
-            queryClient.setQueryData(queryKey(ac, ticker), {[ac]: {[ticker]: entry}});
+            const key = queryKey(ac, ticker);
+            const prev: Rec<Data> = queryClient.getQueryData(key) ?? {}
+            const update: Rec<Data> = {[ac]: {[ticker]: entry}};
+            const next: Rec<Data> = mergeDepth2(prev, update)
+            queryClient.setQueryData(key, next);
         });
     }
 
@@ -43,7 +47,7 @@ export function useScrapedQuery(ac: string | null, rows: string[] | null): Rec<D
             try {
                 const data = JSON.parse(event.data);
                 if (!data || Object.keys(data).length === 0) return;
-                cacheAll(data);
+                cachePartialUpdates(data);
             } catch (e) {
                 console.error('Error parsing WebSocket message:', e);
             }

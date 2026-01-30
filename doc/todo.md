@@ -1,5 +1,4 @@
 ### [bug] websocket opening multiple connections
-some data disappears when receiving ws message
 
 ### refactor views
 single key in localStorage
