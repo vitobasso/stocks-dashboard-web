@@ -1,5 +1,5 @@
-import {foreachDepth2, mapEntries, mergeDepth1, mergeDepth2, Rec} from "@/lib/utils/records";
-import {Data, Metadata, splitByAssetClass} from "@/lib/data";
+import {foreachDepth2, mapEntries, mergeDepth1, mergeDepth2, Rec, splitInGroups} from "@/lib/utils/records";
+import {Data, Metadata} from "@/lib/data";
 import {useEffect, useMemo, useReducer} from "react";
 import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
 import * as batshit from "@yornaath/batshit";
@@ -44,14 +44,14 @@ export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, 
         })),
     });
 
-    function collectSuccessful<E>(xs: UseQueryResult<Data | null, E>[]): Rec<Data> {
-        const dataPerTicker: Data = xs.map(x => x.data)
+    function collectSuccessful<E>(results: UseQueryResult<Data | null, E>[]): Rec<Data> {
+        const dataPerTicker: Data = results.map(r => r.data)
             .filter((d): d is Data => !!d)
             .reduce(mergeDepth1, {})
-        return splitByAssetClass(dataPerTicker, classOfTicker!)
+        return splitInGroups(dataPerTicker, classOfTicker!)
     }
 
-    return useMemo(() => results ? collectSuccessful(results) : {}, [results]);
+    return useMemo(() => collectSuccessful(results), [results]);
 }
 
 export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Data> {
@@ -131,8 +131,8 @@ export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Da
         return listenScrapedLive(ac, rows);
     }, [ac, rows, queryClient]);
 
-    function collectSuccessful<E>(xs: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
-        return xs.map(x => x.data)
+    function collectSuccessful<E>(results: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
+        return results.map(r => r.data)
             .filter((d): d is Rec<Data> => !!d)
             .reduce(mergeDepth2, {})
     }

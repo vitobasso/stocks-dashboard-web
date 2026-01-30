@@ -40,3 +40,14 @@ export function foreachDepth2<A>(data: Rec<Rec<A>>, fn: (key1: string, key2: str
         }
     }
 }
+
+export function splitInGroups<A>(fullData: Rec<A>, groupOfKey: Map<string, string>): Rec<Rec<A>> {
+    const result: Rec<Rec<A>> = {};
+    for (const [k, v] of Object.entries(fullData)) {
+        const group = groupOfKey.get(k);
+        if (!group) continue;
+        if (!result[group]) result[group] = {};
+        result[group][k] = v;
+    }
+    return result;
+}

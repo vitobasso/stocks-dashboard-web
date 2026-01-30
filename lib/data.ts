@@ -1,6 +1,6 @@
 import {derivations, Derivations} from "@/lib/metadata/derivations";
 import {Label} from "@/lib/metadata/labels";
-import {mergeDepth1, Rec} from "@/lib/utils/records";
+import {mergeDepth1} from "@/lib/utils/records";
 
 export type Metadata = {
     schema: string[],
@@ -74,15 +74,4 @@ function accStats(key: string, value: DataValue, getDisplay: GetDisplay, stats: 
         const maxWidth = Math.max(currentMax, length);
         stats.set(key, {maxLength: maxWidth});
     }
-}
-
-export function splitByAssetClass(fullData: Data, classOfTicker: Map<string, string>): Rec<Data> {
-    const result: Rec<Data> = {};
-    for (const [ticker, data] of Object.entries(fullData)) {
-        const assetClass = classOfTicker.get(ticker);
-        if (!assetClass) continue;
-        if (!result[assetClass]) result[assetClass] = {};
-        result[assetClass][ticker] = data;
-    }
-    return result;
 }

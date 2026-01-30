@@ -1,7 +1,7 @@
 "use client";
 import * as XLSX from "xlsx";
-import {Data, DataEntry, splitByAssetClass} from "@/lib/data";
-import {Rec} from "@/lib/utils/records";
+import {Data, DataEntry} from "@/lib/data";
+import {Rec, splitInGroups} from "@/lib/utils/records";
 import React from "react";
 import {extractData} from "@/lib/import-b3/b3-import";
 
@@ -25,7 +25,7 @@ export default function PositionsImporter(props: Props) {
             const worksheet = workbook.Sheets[sheetName];
             const json: DataEntry[] = XLSX.utils.sheet_to_json(worksheet);
             const data: Data = extractData(json)
-            const dataByAssetClass: Rec<Data> = splitByAssetClass(data, props.classOfTickers)
+            const dataByAssetClass: Rec<Data> = splitInGroups(data, props.classOfTickers)
             props.setPositions(dataByAssetClass)
         };
         reader.readAsArrayBuffer(file);
