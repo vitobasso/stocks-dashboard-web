@@ -7,13 +7,26 @@ export async function fetchMeta(): Promise<Rec<Metadata>> {
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
     return await res.json();
 }
-export function useQuotes(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
+
+export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
     const queryClient = useQueryClient();
 
     const ttl = ONE_HOUR_MS
 
     function queryKey(ticker: string) {
         return ['quotes', ticker];
+    }
+
+    async function fetchQuotes(rows: string[], classOfTicker: Map<string, string>): Promise<Rec<Data>> {
+        if (!rows.length) return {};
+
+        const res = await fetch("/api/quotes", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({tickers: rows})
+        });
+        const data: Data = await res.json();
+        return splitByAssetClass(data, classOfTicker);
     }
 
     function isCached(ticker: string): boolean {
@@ -54,30 +67,41 @@ export function useQuotes(rows: string[] | null, classOfTicker?: Map<string, str
     return useMemo(() => collectSuccessful(results), [results]);
 }
 
-
-export async function fetchQuotes(rows: string[], classOfTicker: Map<string, string>): Promise<Rec<Data>> {
-    if (!rows.length) return {};
-
-    const res = await fetch("/api/quotes", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({tickers: rows})
-    });
-    const data: Data = await res.json();
-    return splitByAssetClass(data, classOfTicker);
-}
-
-
-export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> {
+export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Data> {
     const queryClient = useQueryClient();
+
+    const ttl = ONE_DAY_MS
+
+    function queryKey(ac: string, ticker: string) {
+        return [ac, 'scraped', ticker];
+    }
+
+    async function fetchScraped(ac: string, ticker: string): Promise<Rec<Data>> {
+        const urlParams = scraperParams(ac, [ticker]);
+        const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
+        return await res.json();
+    }
+
+    function scraperParams(ac: string, rows: string[]) {
+        const urlParams = new URLSearchParams();
+        if (rows.length) urlParams.append(ac, rows.join(","));
+        return urlParams;
+    }
+
+    function scraperLiveUrl(ac: string, rows: string[], isSsl: boolean) {
+        const urlParams = scraperParams(ac, rows);
+        const protocol = isSsl ? 'wss:' : 'ws:';
+        const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
+        return `${baseUrl}/data-live?${urlParams.toString()}`
+    }
 
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({
-            queryKey: scrapedKey(ac ?? "", ticker),
+            queryKey: queryKey(ac ?? "", ticker),
             queryFn: () => fetchScraped(ac ?? "", ticker),
             enabled: Boolean(ac && rows?.length),
-            staleTime: ONE_DAY_MS,
-            gcTime: ONE_DAY_MS,
+            staleTime: ttl,
+            gcTime: ttl,
         })),
     });
 
@@ -85,8 +109,7 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
 
     function cacheAll(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
-            let queryKey = scrapedKey(ac, ticker);
-            queryClient.setQueryData(queryKey, { [ac]: { [ticker]: entry } });
+            queryClient.setQueryData(queryKey(ac, ticker), { [ac]: { [ticker]: entry } });
         });
     }
 
@@ -132,26 +155,3 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 const ONE_DAY_MS = 24 * ONE_HOUR_MS;
-
-function scrapedKey(ac: string, ticker: string) {
-    return [ac, 'scraped', ticker];
-}
-
-async function fetchScraped(ac: string, ticker: string): Promise<Rec<Data>> {
-    const urlParams = scraperParams(ac, [ticker]);
-    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
-    return await res.json();
-}
-
-function scraperParams(ac: string, rows: string[]) {
-    const urlParams = new URLSearchParams();
-    if (rows.length) urlParams.append(ac, rows.join(","));
-    return urlParams;
-}
-
-function scraperLiveUrl(ac: string, rows: string[], isSsl: boolean) {
-    const urlParams = scraperParams(ac, rows);
-    const protocol = isSsl ? 'wss:' : 'ws:';
-    const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
-    return `${baseUrl}/data-live?${urlParams.toString()}`
-}
