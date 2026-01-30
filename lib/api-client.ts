@@ -1,7 +1,8 @@
-import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
+import {foreachDepth2, mapEntries, mergeDepth1, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data, Metadata, splitByAssetClass} from "@/lib/data";
 import {useEffect, useMemo, useReducer} from "react";
 import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
+import * as batshit from "@yornaath/batshit";
 
 export async function fetchMeta(): Promise<Rec<Metadata>> {
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
@@ -9,15 +10,13 @@ export async function fetchMeta(): Promise<Rec<Metadata>> {
 }
 
 export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
-    const queryClient = useQueryClient();
-
     const ttl = ONE_HOUR_MS
 
     function queryKey(ticker: string) {
         return ['quotes', ticker];
     }
 
-    async function fetchQuotes(rows: string[], classOfTicker: Map<string, string>): Promise<Rec<Data>> {
+    async function fetchQuotes(rows: string[]): Promise<Rec<Data>> {
         if (!rows.length) return {};
 
         const res = await fetch("/api/quotes", {
@@ -26,49 +25,33 @@ export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, 
             body: JSON.stringify({tickers: rows})
         });
         const data: Data = await res.json();
-        return splitByAssetClass(data, classOfTicker);
+        return mapEntries(data, (k) => k, (k, v) => ({[k]: v}));
     }
 
-    function isIdle(ticker: string): boolean {
-        let state = queryClient.getQueryState(queryKey(ticker));
-        console.log("cache state", ticker, state)
-        return state?.fetchStatus === "idle"
-        // const updatedAt = state?.dataUpdatedAt
-        // return updatedAt ? updatedAt > Date.now() - ttl : false
-    }
-
-    function cacheAll(data: Rec<Data>) {
-        foreachDepth2(data, (ac, ticker, entry) => {
-            queryClient.setQueryData(queryKey(ticker), { [ac]: { [ticker]: entry } });
-        });
-    }
-
-    async function coalesceFetch(ticker: string): Promise<Rec<Data>> {
-        const missing = rows!.filter((row) => row === ticker || isIdle(row));
-        console.log("coalesceFetch", ticker, missing)
-        const result = await fetchQuotes(missing, classOfTicker!)
-        cacheAll(result);
-        const ac: string = classOfTicker!.get(ticker)!
-        return { [ac]: { [ticker]: result[ac][ticker] } }
-    }
+    const batcher = batshit.create({
+        fetcher: fetchQuotes,
+        resolver: batshit.indexedResolver(),
+        scheduler: batshit.windowScheduler(10),
+    });
 
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({
             queryKey: queryKey(ticker),
-            queryFn: () => coalesceFetch(ticker),
+            queryFn: () => batcher.fetch(ticker),
             enabled: Boolean(rows?.length && classOfTicker),
             staleTime: ttl,
             gcTime: ttl,
         })),
     });
 
-    function collectSuccessful<E>(xs: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
-        return xs.map(x => x.data)
-            .filter((d): d is Rec<Data> => !!d)
-            .reduce(mergeDepth2, {})
+    function collectSuccessful<E>(xs: UseQueryResult<Data | null, E>[]): Rec<Data> {
+        const dataPerTicker: Data = xs.map(x => x.data)
+            .filter((d): d is Data => !!d)
+            .reduce(mergeDepth1, {})
+        return splitByAssetClass(dataPerTicker, classOfTicker!)
     }
 
-    return useMemo(() => collectSuccessful(results), [results]);
+    return useMemo(() => results ? collectSuccessful(results) : {}, [results]);
 }
 
 export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Data> {

@@ -5,6 +5,11 @@ export function mapValues<A, B>(record: Rec<A>, fn: (value: A) => B): Rec<B> {
     return Object.fromEntries(entries)
 }
 
+export function mapEntries<A, B>(record: Rec<A>, fnK: (k: string, v: A) => string, fnV: (k: string, v: A) => B): Rec<B> {
+    const entries = Object.entries(record).map(([k, v]) => [fnK(k, v), fnV(k, v)]);
+    return Object.fromEntries(entries)
+}
+
 export function allKeys(...records: Rec<unknown>[]): Set<string> {
     return new Set(records.flatMap(Object.keys));
 }

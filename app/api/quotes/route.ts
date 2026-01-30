@@ -8,9 +8,9 @@ const yahooFinance = new YahooFinance({
 export async function POST(req: Request) {
     const tickers: string[] = (await req.json()).tickers;
     const entries = (await yahooFinance.quote(tickers.map(ticker => ticker + ".SA")))
-        .map(quotes => {
-            const ticker = quotes.symbol.split(".")[0];
-            const value = { "yahoo_quote.latest": quotes.regularMarketPrice };
+        .map(quote => {
+            const ticker = quote.symbol.split(".")[0];
+            const value = { "yahoo_quote.latest": quote.regularMarketPrice };
             return [ticker, value]
         });
     return NextResponse.json(Object.fromEntries(entries));
