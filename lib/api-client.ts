@@ -1,6 +1,6 @@
 import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
-import {Data, DataEntry, Metadata, splitByAssetClass} from "@/lib/data";
-import {useEffect, useMemo} from "react";
+import {Data, Metadata, splitByAssetClass} from "@/lib/data";
+import {useEffect, useMemo, useReducer} from "react";
 import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
 
 export async function fetchMeta(): Promise<Rec<Metadata>> {
@@ -34,14 +34,16 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
         })),
     });
 
+    const [liveUpdated, setLiveUpdated] = useReducer(x => x + 1, 0);
+
     function cacheAll(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
             let queryKey = scrapedKey(ac, ticker);
-            queryClient.setQueryData<DataEntry>(queryKey, entry);
+            queryClient.setQueryData<Rec<Data>>(queryKey, { [ac]: { [ticker]: entry } });
         });
     }
 
-    function listenScraped(ac: string, rows: string[]) {
+    function listenScrapedLive(ac: string, rows: string[]) {
         const isSsl = window.location.protocol === 'https:';
         const ws = new WebSocket(scraperLiveUrl(ac, rows, isSsl));
 
@@ -49,7 +51,8 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
             try {
                 const data = JSON.parse(event.data);
                 if (!data || Object.keys(data).length === 0) return;
-                cacheAll(data); //FIXME when is it returned?
+                cacheAll(data);
+                setLiveUpdated();
             } catch (e) {
                 console.error('Error parsing WebSocket message:', e);
             }
@@ -68,7 +71,7 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
 
     useEffect(() => {
         if (!ac || !rows?.length) return;
-        return listenScraped(ac, rows);
+        return listenScrapedLive(ac, rows);
     }, [ac, rows, queryClient]);
 
     function collectSuccessful<E>(xs: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
@@ -77,7 +80,7 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
             .reduce(mergeDepth2, {})
     }
 
-    return useMemo(() => collectSuccessful(results), [results]);
+    return useMemo(() => collectSuccessful(results), [results, liveUpdated]);
 }
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
