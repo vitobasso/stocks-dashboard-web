@@ -27,9 +27,9 @@ export function getSuffix(path: string) {
     return path.split(".").pop()
 }
 
-export function consolidateData(data: Data[], assetClass: string): Data {
+export function consolidateData(data: Data[], ac: string): Data {
     const merged = data.reduce(mergeDepth1, {});
-    const derived = deriveData(merged, derivations[assetClass]);
+    const derived = deriveData(merged, derivations[ac]);
     return mergeDepth1(merged, derived);
 }
 

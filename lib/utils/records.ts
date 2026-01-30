@@ -19,8 +19,8 @@ export function recordOfKeys<T>(keys: string[], fn: (key: string) => T): Rec<T> 
 }
 
 export function mergeDepth1<A>(data1: Rec<A>, data2: Rec<A>): Rec<A> {
-    if (!data1 || !Object.keys(data1).length) return data2;
     if (!data2 || !Object.keys(data2).length) return data1;
+    if (!data1 || !Object.keys(data1).length) return data2;
     const entries = Object.keys({...data1, ...data2}).map(key => {
         const value = {...data1[key], ...data2[key]};
         return [key, value]
