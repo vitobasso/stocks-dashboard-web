@@ -14,7 +14,7 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
             },
             {
                 name: "Bancos e Seguradoras",
-                items: ["BBAS3", "BBDC4", "ITSA$", "ITUB4", "BBSE3", "CXSE3"],
+                items: ["BBAS3", "BBDC4", "ITSA4", "ITUB4", "BBSE3", "CXSE3"],
             },
             {
                 name: "Comodities",
