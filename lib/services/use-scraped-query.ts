@@ -4,14 +4,20 @@ import {useQueries, useQueryClient} from "@tanstack/react-query";
 import {ONE_DAY_MS} from "@/lib/utils/datetime";
 import {useEffect} from "react";
 
+const ttl = ONE_DAY_MS
+
+async function fetchScraped(ac: string, ticker: string): Promise<Rec<Data>> {
+    const urlParams = scraperParams(ac, [ticker]);
+    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
+    return await res.json();
+}
+
+function queryKey(ac: string, ticker: string) {
+    return [ac, 'scraped', ticker];
+}
+
 export function useScrapedQuery(ac: string | null, rows: string[] | null): Rec<Data> {
     const queryClient = useQueryClient();
-
-    const ttl = ONE_DAY_MS
-
-    function queryKey(ac: string, ticker: string) {
-        return [ac, 'scraped', ticker];
-    }
 
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({
@@ -62,12 +68,6 @@ export function useScrapedQuery(ac: string | null, rows: string[] | null): Rec<D
     return results.map(r => r.data)
         .filter((d): d is Rec<Data> => !!d)
         .reduce(mergeDepth2, {})
-}
-
-async function fetchScraped(ac: string, ticker: string): Promise<Rec<Data>> {
-    const urlParams = scraperParams(ac, [ticker]);
-    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
-    return await res.json();
 }
 
 function scraperParams(ac: string, rows: string[]) {
