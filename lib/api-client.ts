@@ -29,9 +29,12 @@ export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, 
         return splitByAssetClass(data, classOfTicker);
     }
 
-    function isCached(ticker: string): boolean {
-        const updatedAt = queryClient.getQueryState(queryKey(ticker))?.dataUpdatedAt
-        return updatedAt ? updatedAt > Date.now() - ttl : false
+    function isIdle(ticker: string): boolean {
+        let state = queryClient.getQueryState(queryKey(ticker));
+        console.log("cache state", ticker, state)
+        return state?.fetchStatus === "idle"
+        // const updatedAt = state?.dataUpdatedAt
+        // return updatedAt ? updatedAt > Date.now() - ttl : false
     }
 
     function cacheAll(data: Rec<Data>) {
@@ -41,7 +44,8 @@ export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, 
     }
 
     async function coalesceFetch(ticker: string): Promise<Rec<Data>> {
-        const missing = rows!.filter((row) => !isCached(row));
+        const missing = rows!.filter((row) => row === ticker || isIdle(row));
+        console.log("coalesceFetch", ticker, missing)
         const result = await fetchQuotes(missing, classOfTicker!)
         cacheAll(result);
         const ac: string = classOfTicker!.get(ticker)!
