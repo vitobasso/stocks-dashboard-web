@@ -1,3 +1,6 @@
+export const ONE_HOUR_MS = 60 * 60 * 1000;
+export const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
 export function timeAgo(date: Date): string | undefined {
     if (!date || isNaN(date.getTime())) return undefined
 

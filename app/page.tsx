@@ -10,11 +10,13 @@ import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
-import {useMetadata, useQuoteData, useScrapedData} from "@/lib/api-client";
+import {useMetadataQuery} from "@/lib/services/use-metadata-query";
+import {useQuoteQuery} from "@/lib/services/use-quote-query";
+import {useScrapedQuery} from "@/lib/services/use-scraped-query";
 
 export default function Page() {
 
-    const metadata = useMetadata()
+    const metadata = useMetadataQuery()
 
     // user defined state
     const [assetClass, setAssetClass] = useState<string | null>(null);
@@ -42,8 +44,8 @@ export default function Page() {
         savePositions(positions);
     }, [positions]);
 
-    const scraped = useScrapedData(assetClass, rows);
-    const quotes = useQuoteData(rows, classOfTicker);
+    const scraped = useScrapedQuery(assetClass, rows);
+    const quotes = useQuoteQuery(rows, classOfTicker);
 
     const data: Rec<Data> | undefined = useMemo(() => {
         if (assetClasses) return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))

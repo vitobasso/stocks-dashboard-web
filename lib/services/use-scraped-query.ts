@@ -1,66 +1,10 @@
-import {foreachDepth2, mapEntries, mergeDepth1, mergeDepth2, Rec, splitInGroups} from "@/lib/utils/records";
-import {Data, Metadata} from "@/lib/data";
-import {useEffect, useMemo, useReducer} from "react";
-import {useQueries, useQuery, useQueryClient, UseQueryResult} from "@tanstack/react-query";
-import * as batshit from "@yornaath/batshit";
+import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
+import {Data} from "@/lib/data";
+import {useQueries, useQueryClient} from "@tanstack/react-query";
+import {ONE_DAY_MS} from "@/lib/utils/datetime";
+import {useEffect} from "react";
 
-
-export function useMetadata(): Rec<Metadata> | undefined {
-    const ttl = ONE_DAY_MS
-
-    const result = useQuery({
-        queryKey: ['meta'],
-        queryFn: fetchMeta,
-        staleTime: ttl,
-        gcTime: ttl,
-    });
-
-    return result.data;
-}
-
-async function fetchMeta(): Promise<Rec<Metadata>> {
-    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
-    return await res.json();
-}
-
-export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
-    const ttl = ONE_HOUR_MS
-
-    const batcher = useMemo(() => batshit.create({
-        fetcher: fetchQuotes,
-        resolver: batshit.indexedResolver(),
-        scheduler: batshit.windowScheduler(10),
-    }), []);
-
-    const results = useQueries({
-        queries: (rows ?? []).map((ticker) => ({
-            queryKey: ['quotes', ticker],
-            queryFn: () => batcher.fetch(ticker),
-            enabled: Boolean(rows?.length && classOfTicker),
-            staleTime: ttl,
-            gcTime: ttl,
-        })),
-    });
-
-    const dataPerTicker: Data = results.map(r => r.data)
-        .filter((d): d is Data => !!d)
-        .reduce(mergeDepth1, {})
-    return splitInGroups(dataPerTicker, classOfTicker!)
-}
-
-async function fetchQuotes(rows: string[]): Promise<Rec<Data>> {
-    if (!rows.length) return {};
-
-    const res = await fetch("/api/quotes", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({tickers: rows})
-    });
-    const data: Data = await res.json();
-    return mapEntries(data, (k) => k, (k, v) => ({[k]: v}));
-}
-
-export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Data> {
+export function useScrapedQuery(ac: string | null, rows: string[] | null): Rec<Data> {
     const queryClient = useQueryClient();
 
     const ttl = ONE_DAY_MS
@@ -81,7 +25,7 @@ export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Da
 
     function cacheAll(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
-            queryClient.setQueryData(queryKey(ac, ticker), { [ac]: { [ticker]: entry } });
+            queryClient.setQueryData(queryKey(ac, ticker), {[ac]: {[ticker]: entry}});
         });
     }
 
@@ -138,6 +82,3 @@ function scraperLiveUrl(ac: string, rows: string[], isSsl: boolean) {
     const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
     return `${baseUrl}/data-live?${urlParams.toString()}`
 }
-
-const ONE_HOUR_MS = 60 * 60 * 1000;
-const ONE_DAY_MS = 24 * ONE_HOUR_MS;
