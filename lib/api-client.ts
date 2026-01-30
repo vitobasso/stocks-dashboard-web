@@ -1,12 +1,26 @@
 import {foreachDepth2, mapEntries, mergeDepth1, mergeDepth2, Rec, splitInGroups} from "@/lib/utils/records";
 import {Data, Metadata} from "@/lib/data";
 import {useEffect, useMemo, useReducer} from "react";
-import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
+import {useQueries, useQuery, useQueryClient, UseQueryResult} from "@tanstack/react-query";
 import * as batshit from "@yornaath/batshit";
 
-export async function fetchMeta(): Promise<Rec<Metadata>> {
-    const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
-    return await res.json();
+
+export function useMetadata(): Rec<Metadata> | undefined {
+    const ttl = ONE_DAY_MS
+
+    async function fetchMeta(): Promise<Rec<Metadata>> {
+        const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
+        return await res.json();
+    }
+
+    const result = useQuery({
+        queryKey: ['meta'],
+        queryFn: fetchMeta,
+        staleTime: ttl,
+        gcTime: ttl,
+    });
+
+    return result.data;
 }
 
 export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {

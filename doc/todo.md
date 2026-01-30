@@ -1,5 +1,4 @@
 ### [perf] cache data and meta in the browser: faster tab switching & fetch the diff only
-meta
 ttl based on meta.scraped-at?
 persist something cross refreshes?
 

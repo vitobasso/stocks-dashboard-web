@@ -10,11 +10,11 @@ import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
-import {fetchMeta, useQuoteData, useScrapedData} from "@/lib/api-client";
+import {useMetadata, useQuoteData, useScrapedData} from "@/lib/api-client";
 
 export default function Page() {
 
-    const [metadata, setMetadata] = useState<Rec<Metadata> | null>(null);
+    const metadata = useMetadata()
 
     // user defined state
     const [assetClass, setAssetClass] = useState<string | null>(null);
@@ -24,7 +24,6 @@ export default function Page() {
 
     useEffect(() => {
         setPositions(loadPositions());
-        fetchMeta().then(setMetadata);
     }, []);
 
     const {assetClasses, getLabel, classOfTicker} = useMemo(() => {
