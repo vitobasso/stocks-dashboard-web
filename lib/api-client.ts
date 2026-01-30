@@ -79,8 +79,6 @@ export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Da
         })),
     });
 
-    const [liveUpdated, setLiveUpdated] = useReducer(x => x + 1, 0);
-
     function cacheAll(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
             queryClient.setQueryData(queryKey(ac, ticker), { [ac]: { [ticker]: entry } });
@@ -96,7 +94,6 @@ export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Da
                 const data = JSON.parse(event.data);
                 if (!data || Object.keys(data).length === 0) return;
                 cacheAll(data);
-                setLiveUpdated();
             } catch (e) {
                 console.error('Error parsing WebSocket message:', e);
             }
@@ -118,13 +115,9 @@ export function useScrapedData(ac: string | null, rows: string[] | null): Rec<Da
         return listenScrapedLive(ac, rows);
     }, [ac, rows, queryClient]);
 
-    function collectSuccessful<E>(results: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
-        return results.map(r => r.data)
-            .filter((d): d is Rec<Data> => !!d)
-            .reduce(mergeDepth2, {})
-    }
-
-    return useMemo(() => collectSuccessful(results), [results, liveUpdated]);
+    return results.map(r => r.data)
+        .filter((d): d is Rec<Data> => !!d)
+        .reduce(mergeDepth2, {})
 }
 
 async function fetchScraped(ac: string, ticker: string): Promise<Rec<Data>> {
