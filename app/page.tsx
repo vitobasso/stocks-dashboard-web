@@ -41,9 +41,6 @@ export default function Page() {
         return {assetClasses, getLabel, classOfTicker};
     }, [metadata]);
 
-    if (!assetClass || !rows) return skeleton();
-    const scraped = useScraped(assetClass, rows, isSsl());
-
     useEffect(() => {
         if (!rows || !classOfTicker) return;
         fetchQuotes(rows, classOfTicker).then(setQuotes);
@@ -53,10 +50,12 @@ export default function Page() {
         savePositions(positions);
     }, [positions]);
 
+    if (!assetClass || !rows) return skeleton();
+    const scraped = useScraped(assetClass, rows, isSsl());
+
     const data: Rec<Data> | undefined = useMemo(() => {
         if (assetClasses) return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
     }, [scraped, quotes, positions, assetClasses]);
-
 
     // ui
     const [openPanel, setOpenPanel] = useState<string | null>(null)

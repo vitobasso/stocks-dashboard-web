@@ -1,7 +1,7 @@
-import {mapDepth2, Rec} from "@/lib/utils/records";
+import {foreachDepth2, Rec} from "@/lib/utils/records";
 import {Data, DataEntry, Metadata, splitByAssetClass} from "@/lib/data";
 import {useEffect, useMemo} from "react";
-import {useQueries, useQueryClient} from "@tanstack/react-query";
+import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
 
 export async function fetchMeta(): Promise<Rec<Metadata>> {
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
@@ -21,7 +21,7 @@ export async function fetchQuotes(rows: string[], classOfTicker: Map<string, str
 }
 
 
-export function useScraped(ac: string, rows: string[], isSsl: boolean) {
+export function useScraped(ac: string, rows: string[], isSsl: boolean): Rec<Data> {
     const queryClient = useQueryClient();
 
     const results = useQueries({
@@ -35,7 +35,7 @@ export function useScraped(ac: string, rows: string[], isSsl: boolean) {
     });
 
     function cacheAll(data: Rec<Data>) {
-        mapDepth2(data, (ac, ticker, entry) => {
+        foreachDepth2(data, (ac, ticker, entry) => {
             let queryKey = scrapedKey(ac, ticker);
             queryClient.setQueryData<DataEntry>(queryKey, entry);
         });
@@ -70,13 +70,11 @@ export function useScraped(ac: string, rows: string[], isSsl: boolean) {
         return listenScraped(ac, rows, isSsl);
     }, [ac, rows, isSsl, queryClient]);
 
-    return useMemo(() => {
-        const out: Rec<Data> = {};
-        results.forEach((r) => {
-            if (r.data) Object.assign(out, r.data);
-        });
-        return out;
-    }, [results]);
+    function collectSuccessful<E>(xs: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
+        return Object.assign({}, ...xs.map(x => x.data).filter(Boolean))
+    }
+
+    return useMemo(() => collectSuccessful(results), [results]);
 }
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
