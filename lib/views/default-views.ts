@@ -1,7 +1,7 @@
 import {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import {mapValues, Rec} from "@/lib/utils/records";
 
-export const defaultViewsAvailable: Rec<ViewsAvailable> = {
+export const viewsProd: Rec<ViewsAvailable> = {
     "stock_br": {
         rowViews: [
             {
@@ -88,8 +88,45 @@ export const defaultViewsAvailable: Rec<ViewsAvailable> = {
         ],
     },
 }
+
+export const viewsDev: Rec<ViewsAvailable> = {
+    "stock_br": {
+        rowViews: [
+            {
+                name: "test",
+                items: ["BBAS3",],
+            },
+        ],
+        colViews: [
+            {
+                name: "test",
+                items: ["yahoo_quote.latest", "b3_position.quantity", "b3_listagem.setor", "statusinvest.preco",
+                    "yahoo_recom.buy", "yahoo_chart.1mo", "yahoo_target.max", "investidor10.cadastral.ano_de_fundacao",
+                    "simplywall.score.future"]
+            },
+        ],
+    },
+    "reit_br": {
+        rowViews: [
+            {
+                name: "test",
+                items: ["HGLG11",],
+            },
+        ],
+        colViews: [
+            {
+                name: "test",
+                items: ["yahoo_quote.latest", "b3_position.quantity", "fundamentus.p_vp", "simplywall.p_earnings",
+                    "yahoo_chart.1mo"]
+            },
+        ],
+    },
+}
+
+export const defaultViews: Rec<ViewsAvailable> = process.env.NEXT_PUBLIC_DEFAULT_VIEWS_DEV ? viewsDev : viewsProd
+
 export const defaultSelection: ViewSelection = {
     assetClass: "stock_br",
-    rowViewNames: mapValues(defaultViewsAvailable, (v) => [v.rowViews[0].name]),
-    colViewNames: mapValues(defaultViewsAvailable, (v) => [v.colViews[0].name]),
+    rowViewNames: mapValues(defaultViews, (v) => [v.rowViews[0].name]),
+    colViewNames: mapValues(defaultViews, (v) => [v.colViews[0].name]),
 }
