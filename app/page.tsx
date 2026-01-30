@@ -50,8 +50,7 @@ export default function Page() {
         savePositions(positions);
     }, [positions]);
 
-    if (!assetClass || !rows) return skeleton();
-    const scraped = useScraped(assetClass, rows, isSsl());
+    const scraped = useScraped(assetClass, rows);
 
     const data: Rec<Data> | undefined = useMemo(() => {
         if (assetClasses) return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
@@ -96,10 +95,6 @@ export default function Page() {
         </footer>
     </div>
 
-}
-
-function isSsl() {
-    return window.location.protocol === 'https:';
 }
 
 function skeleton() {

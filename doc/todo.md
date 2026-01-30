@@ -1,4 +1,8 @@
 ### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
+data-live
+meta
+quotes
+ttl based on meta.scraped-at
 
 ### auto-repair local storage
 schema of current version, default values per field, cleanup unknown fields

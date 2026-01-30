@@ -23,6 +23,11 @@ export function mergeDepth1<A>(data1: Rec<A>, data2: Rec<A>): Rec<A> {
     return Object.fromEntries(entries);
 }
 
+export function mergeDepth2<A>(data1: Rec<Rec<A>>, data2: Rec<Rec<A>>): Rec<Rec<A>> {
+    let entries = [...allKeys(data1, data2)].map(ac => [ac, mergeDepth1(data1[ac], data2[ac])]);
+    return Object.fromEntries(entries)
+}
+
 export function foreachDepth2<A>(data: Rec<Rec<A>>, fn: (key1: string, key2: string, value: A) => void){
     for (const [k1, v1] of Object.entries(data)) {
         for (const [k2, v2] of Object.entries(v1)) {

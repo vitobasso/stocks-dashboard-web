@@ -1,4 +1,4 @@
-import {foreachDepth2, Rec} from "@/lib/utils/records";
+import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data, DataEntry, Metadata, splitByAssetClass} from "@/lib/data";
 import {useEffect, useMemo} from "react";
 import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
@@ -21,14 +21,14 @@ export async function fetchQuotes(rows: string[], classOfTicker: Map<string, str
 }
 
 
-export function useScraped(ac: string, rows: string[], isSsl: boolean): Rec<Data> {
+export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> {
     const queryClient = useQueryClient();
 
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({
-            queryKey: scrapedKey(ac, ticker),
-            queryFn: () => fetchScraped(ac, ticker),
-            enabled: Boolean(ac) && Boolean(rows.length),
+            queryKey: scrapedKey(ac ?? "", ticker),
+            queryFn: () => fetchScraped(ac ?? "", ticker),
+            enabled: Boolean(ac && rows?.length),
             staleTime: ONE_DAY_MS,
             gcTime: ONE_DAY_MS,
         })),
@@ -41,14 +41,15 @@ export function useScraped(ac: string, rows: string[], isSsl: boolean): Rec<Data
         });
     }
 
-    function listenScraped(ac: string, rows: string[], isSsl: boolean) {
+    function listenScraped(ac: string, rows: string[]) {
+        const isSsl = window.location.protocol === 'https:';
         const ws = new WebSocket(scraperLiveUrl(ac, rows, isSsl));
 
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 if (!data || Object.keys(data).length === 0) return;
-                cacheAll(data);
+                cacheAll(data); //FIXME when is it returned?
             } catch (e) {
                 console.error('Error parsing WebSocket message:', e);
             }
@@ -67,11 +68,13 @@ export function useScraped(ac: string, rows: string[], isSsl: boolean): Rec<Data
 
     useEffect(() => {
         if (!ac || !rows?.length) return;
-        return listenScraped(ac, rows, isSsl);
-    }, [ac, rows, isSsl, queryClient]);
+        return listenScraped(ac, rows);
+    }, [ac, rows, queryClient]);
 
     function collectSuccessful<E>(xs: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
-        return Object.assign({}, ...xs.map(x => x.data).filter(Boolean))
+        return xs.map(x => x.data)
+            .filter((d): d is Rec<Data> => !!d)
+            .reduce(mergeDepth2, {})
     }
 
     return useMemo(() => collectSuccessful(results), [results]);
@@ -86,7 +89,7 @@ function scrapedKey(ac: string, ticker: string) {
 async function fetchScraped(ac: string, ticker: string): Promise<Rec<Data>> {
     const urlParams = scraperParams(ac, [ticker]);
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + `/data?${urlParams.toString()}`);
-    return await res.json().then(data => data[ac][ticker]);
+    return await res.json();
 }
 
 function scraperParams(ac: string, rows: string[]) {
