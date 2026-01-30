@@ -26,10 +26,6 @@ export function useMetadata(): Rec<Metadata> | undefined {
 export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
     const ttl = ONE_HOUR_MS
 
-    function queryKey(ticker: string) {
-        return ['quotes', ticker];
-    }
-
     async function fetchQuotes(rows: string[]): Promise<Rec<Data>> {
         if (!rows.length) return {};
 
@@ -50,7 +46,7 @@ export function useQuoteData(rows: string[] | null, classOfTicker?: Map<string, 
 
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({
-            queryKey: queryKey(ticker),
+            queryKey: ['quotes', ticker],
             queryFn: () => batcher.fetch(ticker),
             enabled: Boolean(rows?.length && classOfTicker),
             staleTime: ttl,

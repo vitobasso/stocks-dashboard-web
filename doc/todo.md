@@ -1,7 +1,3 @@
-### [perf] cache data and meta in the browser: faster tab switching & fetch the diff only
-ttl based on meta.scraped-at?
-persist something cross refreshes?
-
 ### refactor views
 single key in localStorage
 { row, col, selected: { ac, row, col } }
@@ -64,3 +60,6 @@ column-selector search
 - time series
 - bubble plot: return * age * position, return * risk * position  
 - bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap, P/E * EPS * size
+
+### persist cache across refreshes
+ttl based on meta.scraped-at
