@@ -7,6 +7,53 @@ export async function fetchMeta(): Promise<Rec<Metadata>> {
     const res = await fetch(process.env.NEXT_PUBLIC_SCRAPER_URL + "/meta");
     return await res.json();
 }
+export function useQuotes(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
+    const queryClient = useQueryClient();
+
+    const ttl = ONE_HOUR_MS
+
+    function queryKey(ticker: string) {
+        return ['quotes', ticker];
+    }
+
+    function isCached(ticker: string): boolean {
+        const updatedAt = queryClient.getQueryState(queryKey(ticker))?.dataUpdatedAt
+        return updatedAt ? updatedAt > Date.now() - ttl : false
+    }
+
+    function cacheAll(data: Rec<Data>) {
+        foreachDepth2(data, (ac, ticker, entry) => {
+            queryClient.setQueryData(queryKey(ticker), { [ac]: { [ticker]: entry } });
+        });
+    }
+
+    async function coalesceFetch(ticker: string): Promise<Rec<Data>> {
+        const missing = rows!.filter((row) => !isCached(row));
+        const result = await fetchQuotes(missing, classOfTicker!)
+        cacheAll(result);
+        const ac: string = classOfTicker!.get(ticker)!
+        return { [ac]: { [ticker]: result[ac][ticker] } }
+    }
+
+    const results = useQueries({
+        queries: (rows ?? []).map((ticker) => ({
+            queryKey: queryKey(ticker),
+            queryFn: () => coalesceFetch(ticker),
+            enabled: Boolean(rows?.length && classOfTicker),
+            staleTime: ttl,
+            gcTime: ttl,
+        })),
+    });
+
+    function collectSuccessful<E>(xs: UseQueryResult<Rec<Data>, E>[]): Rec<Data> {
+        return xs.map(x => x.data)
+            .filter((d): d is Rec<Data> => !!d)
+            .reduce(mergeDepth2, {})
+    }
+
+    return useMemo(() => collectSuccessful(results), [results]);
+}
+
 
 export async function fetchQuotes(rows: string[], classOfTicker: Map<string, string>): Promise<Rec<Data>> {
     if (!rows.length) return {};
@@ -39,7 +86,7 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
     function cacheAll(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
             let queryKey = scrapedKey(ac, ticker);
-            queryClient.setQueryData<Rec<Data>>(queryKey, { [ac]: { [ticker]: entry } });
+            queryClient.setQueryData(queryKey, { [ac]: { [ticker]: entry } });
         });
     }
 
@@ -83,7 +130,8 @@ export function useScraped(ac: string | null, rows: string[] | null): Rec<Data> 
     return useMemo(() => collectSuccessful(results), [results, liveUpdated]);
 }
 
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const ONE_HOUR_MS = 60 * 60 * 1000;
+const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 
 function scrapedKey(ac: string, ticker: string) {
     return [ac, 'scraped', ticker];

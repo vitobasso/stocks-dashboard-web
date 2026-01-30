@@ -1,7 +1,7 @@
-### [perf] cache data and meta in the browser: faster reloads & fetch the diff only
+### [perf] cache data and meta in the browser: faster tab switching & fetch the diff only
 meta
-quotes
-ttl based on meta.scraped-at
+ttl based on meta.scraped-at?
+persist something cross refreshes?
 
 ### refactor views
 single key in localStorage
