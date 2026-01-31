@@ -13,24 +13,18 @@ export function useScrapedLive() {
 }
 
 export type ScrapedLiveClient = {
-    connect: () => void;
+    open: () => void;
     subscribe: (ac: string, rows: string[]) => void;
     close: () => void;
 };
-
-function scraperLiveUrl(isSsl: boolean) {
-    const protocol = isSsl ? 'wss:' : 'ws:';
-    const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
-    return `${baseUrl}/data-live`
-}
 
 export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveClient {
     let ws: WebSocket | null = null;
     const subscription = new Map<string, Set<string>>();
 
-    function connect() {
-        const isSsl = window.location.protocol === "https:";
-        ws = new WebSocket(scraperLiveUrl(isSsl));
+    function open() {
+
+        ws = new WebSocket(url());
 
         ws.onmessage = (event) => {
             const data: Rec<Data> = JSON.parse(event.data);
@@ -67,5 +61,13 @@ export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveCl
         }
     }
 
-    return { connect, subscribe, close };
+    return { open, subscribe, close };
 }
+
+function url() {
+    const isSsl = window.location.protocol === "https:";
+    const protocol = isSsl ? 'wss:' : 'ws:';
+    const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
+    return `${baseUrl}/data-live`
+}
+

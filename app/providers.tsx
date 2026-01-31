@@ -10,7 +10,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     const scrapedLiveClient = useMemo(() => createScrapedLiveClient(queryClient), [queryClient]);
 
     useEffect(() => {
-        scrapedLiveClient.connect();
+        scrapedLiveClient.open();
         return () => { scrapedLiveClient.close() };
     }, []);
 
