@@ -10,6 +10,15 @@ export function mapEntries<A, B>(record: Rec<A>, fnK: (k: string, v: A) => strin
     return Object.fromEntries(entries)
 }
 
+export function mapValuesDepth2<A, B>(record: Rec<Rec<A>>, fn: (value: A) => B): Rec<Rec<B>> {
+    let entries = Object.entries(record).map(([k, v]) => [k, mapValues(v, fn)]);
+    return Object.fromEntries(entries);
+}
+
+export function mapEntriesDepth3<A, B>(record: Rec<Rec<Rec<A>>>, fnK: (k: string, v: A) => string, fnV: (k: string, v: A) => B): Rec<Rec<Rec<B>>> {
+    return mapValuesDepth2(record, x => mapEntries(x, fnK, fnV));
+}
+
 export function allKeys(...records: Rec<unknown>[]): Set<string> {
     return new Set(records.flatMap(Object.keys));
 }

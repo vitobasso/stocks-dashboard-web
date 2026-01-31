@@ -7,5 +7,5 @@ export function consolidateSchema(scraper: string[], assetClass: string): string
 
 // next.js prohibits exporting this from api/../route.ts
 const quotes = [
-    "yahoo_quote.latest"
+    "yahoo.quote.latest"
 ]

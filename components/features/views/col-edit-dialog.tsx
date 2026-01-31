@@ -10,7 +10,7 @@ import {EditableTitle} from "@/components/ui/editable-title";
 
 type Props = {
     allItems: string[]
-    getLabel: (key: string) => Label;
+    labeler: (key: string) => Label;
     allViewNames: string[]
     viewToEdit?: ColView
     onConfirm(view: ColView): void
@@ -65,14 +65,14 @@ export function ColEditDialog(props: Props) {
                                 columns={keys}
                                 setColumns={setKeys}
                                 allKeys={props.allItems}
-                                getLabel={props.getLabel}
+                                labeler={props.labeler}
                                 autoFocus ref={colSelectorRef}
                             />
                             <div className="flex-1/2">
                                 <ColumnOrderer
                                     columns={keys}
                                     setColumns={setKeys}
-                                    getLabel={props.getLabel}
+                                    labeler={props.labeler}
                                 />
                             </div>
                         </div>

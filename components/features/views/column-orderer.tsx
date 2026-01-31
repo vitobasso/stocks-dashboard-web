@@ -9,7 +9,7 @@ import React from "react";
 type Props = {
     columns: string[]
     setColumns(c: React.SetStateAction<string[]>): void
-    getLabel(path: string): Label
+    labeler(path: string): Label
 }
 
 export default function ColumnOrderer(props: Props) {
@@ -36,7 +36,7 @@ export default function ColumnOrderer(props: Props) {
             {props.columns.map((item) => (
                 <SortableRow key={item} id={item}>
                     <div className="flex w-full items-center">
-                        <div className="flex-1">{props.getLabel(item).short}</div>
+                        <div className="flex-1">{props.labeler(item).short}</div>
                         <XIcon className="size-4" onClick={() => handleRemove(item)}/>
                     </div>
                 </SortableRow>

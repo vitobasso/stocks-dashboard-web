@@ -2,21 +2,17 @@
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Import, Moon, Settings, Sun} from "lucide-react"
 import React, {useCallback, useState} from "react";
-import {Data, Metadata} from "@/lib/data";
-import {Label} from "@/lib/metadata/labels";
+import {Data} from "@/lib/data";
 import PositionsImporter from "@/components/features/positions-importer";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
 import {getAppliedTheme, toggleTheme} from "@/lib/theme";
 import {Rec} from "@/lib/utils/records";
 
 type Props = {
-    metadata: Rec<Metadata>
-    getLabel: Rec<(path: string) => Label>
     classOfTickers: Map<string, string>
     setPositions(p: React.SetStateAction<Rec<Data>>): void
     openPanel: string | null
     setOpenPanel(o: React.SetStateAction<string | null>): void
-    groupFilter: string | null
 }
 
 export function SettingsDialog(props: Props) {

@@ -1,17 +1,22 @@
 import type {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import type {Rec} from "@/lib/utils/records";
 import {defaultSelection, defaultViews} from "@/lib/views/default-views";
-import {readJson, safeRemoveItem} from "@/lib/local-storage/shared";
+import {readJson, safeRemoveItem, setSchemaVersion, writeJson} from "@/lib/local-storage/shared";
 
-export type LegacyV0Rows = Rec<string[]>;
-export type LegacyV0Cols = Rec<{ group: string; keys: string[] }[]>;
+type V0Rows = Rec<string[]>;
+type V0Cols = Rec<{ group: string; keys: string[] }[]>;
 
-export const V0_KEYS = {
+const V0_KEYS = {
     rows: "rows",
     columns: "columns",
 } as const;
 
-export function migrateV0ToV1ViewsAvailable(rows: LegacyV0Rows, cols: LegacyV0Cols): Rec<ViewsAvailable> {
+const V1_KEYS = {
+    viewsAvailable: "viewsAvailable",
+    viewSelection: "viewSelection",
+} as const;
+
+function migrateViewsAvailable(rows: V0Rows, cols: V0Cols): Rec<ViewsAvailable> {
     const result: Rec<ViewsAvailable> = {...defaultViews};
 
     for (const assetClass of Object.keys(rows)) {
@@ -29,7 +34,7 @@ export function migrateV0ToV1ViewsAvailable(rows: LegacyV0Rows, cols: LegacyV0Co
     return result;
 }
 
-export function migrateV0ToV1Selection(viewsAvailable: Rec<ViewsAvailable>): ViewSelection {
+function migrateSelection(viewsAvailable: Rec<ViewsAvailable>): ViewSelection {
     const assetClasses = Object.keys(viewsAvailable);
     const assetClass = assetClasses.includes(defaultSelection.assetClass)
         ? defaultSelection.assetClass
@@ -45,22 +50,36 @@ export function migrateV0ToV1Selection(viewsAvailable: Rec<ViewsAvailable>): Vie
     return {assetClass, rowViewNames, colViewNames};
 }
 
-export type V0MigrationResult = {
+type V1Result = {
     viewsAvailable: Rec<ViewsAvailable>;
     viewSelection: ViewSelection;
 };
 
-export function migrateFromStorageV0(): V0MigrationResult | null {
-    const legacyRows = readJson<LegacyV0Rows>(V0_KEYS.rows);
-    const legacyCols = readJson<LegacyV0Cols>(V0_KEYS.columns);
+function loadV0AndMigrate(): V1Result | null {
+    const legacyRows = readJson<V0Rows>(V0_KEYS.rows);
+    const legacyCols = readJson<V0Cols>(V0_KEYS.columns);
     if (!legacyRows || !legacyCols) return null;
 
-    const viewsAvailable = migrateV0ToV1ViewsAvailable(legacyRows, legacyCols);
-    const viewSelection = migrateV0ToV1Selection(viewsAvailable);
+    const viewsAvailable = migrateViewsAvailable(legacyRows, legacyCols);
+    const viewSelection = migrateSelection(viewsAvailable);
     return {viewsAvailable, viewSelection};
 }
 
-export function cleanupStorageV0(): void {
+function persistV1(result: V1Result): void {
+    writeJson(V1_KEYS.viewsAvailable, result.viewsAvailable);
+    writeJson(V1_KEYS.viewSelection, result.viewSelection);
+}
+
+function cleanupV0Fields(): void {
     safeRemoveItem(V0_KEYS.rows);
     safeRemoveItem(V0_KEYS.columns);
+}
+
+export function migrateV0ToV1() {
+    const result = loadV0AndMigrate();
+    if (result) {
+        persistV1(result);
+        cleanupV0Fields();
+    }
+    setSchemaVersion(1)
 }

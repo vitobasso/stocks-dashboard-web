@@ -2,7 +2,7 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {consolidateData, Data} from "@/lib/data";
-import {makeLabelGetter} from "@/lib/metadata/labels";
+import {makeLabeler} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/features/settings-dialog";
 import {DataGrid} from "@/components/features/data-grid";
@@ -33,16 +33,16 @@ export default function Page() {
         savePositions(positions);
     }, [positions]);
 
-    const {assetClasses, getLabel, classOfTicker} = useMemo(() => {
-        if (!metadata) return {assetClasses: undefined, getLabel: undefined, classOfTicker: undefined};
+    const {assetClasses, labeler, classOfTicker} = useMemo(() => {
+        if (!metadata) return {assetClasses: undefined, labeler: undefined, classOfTicker: undefined};
 
         const assetClasses = Object.keys(metadata);
-        const getLabel = recordOfKeys(assetClasses, (ac) =>
-            makeLabelGetter(metadata[ac].labels, metadata[ac].sources)
+        const labeler = recordOfKeys(assetClasses, (ac) =>
+            makeLabeler(metadata[ac].labels, metadata[ac].sources)
         );
         const classOfTicker = indexByFields(mapValues(metadata, (m) => m.tickers));
 
-        return {assetClasses, getLabel, classOfTicker};
+        return {assetClasses, labeler, classOfTicker};
     }, [metadata]);
 
     const scrapedSubscription = useScrapedSubscription();
@@ -68,20 +68,19 @@ export default function Page() {
         if (!m) setTimeout(() => setGroupFilter(null), 250); // wait for fade-out
     }
 
-    if (!metadata || !assetClasses || !getLabel)
+    if (!metadata || !assetClasses || !labeler)
         return pageSkeleton();
     return <div className="min-h-screen flex flex-col">
         <div className="flex flex-col gap-2 m-4">
-            <ViewSelector metadata={metadata} getLabel={getLabel}
+            <ViewSelector metadata={metadata} labeler={labeler}
                           setAssetClass={setAssetClass} setRows={setRows} setCols={setColumns} />
             {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? dataGridSkeleton() :
                 <>
                     <DataGrid className="flex-1"
                               rows={rows} columns={columns} data={data[assetClass]}
-                              getLabel={getLabel[assetClass]}/>
-                    <SettingsDialog metadata={metadata} getLabel={getLabel}
-                                    setPositions={setPositions} classOfTickers={classOfTicker}
-                                    openPanel={openPanel} setOpenPanel={onOpenPanelChange} groupFilter={groupFilter}/>
+                              labeler={labeler[assetClass]}/>
+                    <SettingsDialog setPositions={setPositions} classOfTickers={classOfTicker}
+                                    openPanel={openPanel} setOpenPanel={onOpenPanelChange}/>
                 </>
             }
         </div>

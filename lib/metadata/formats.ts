@@ -1,16 +1,16 @@
 import {ChartData, DataValue} from "@/lib/data";
 
 const formats: Record<string, "chart" | "percent"> = {
-    "yahoo_chart.1mo": "chart",
-    "yahoo_chart.1y": "chart",
-    "yahoo_chart.5y": "chart",
-    "derived.yahoo_chart.1mo": "chart",
-    "derived.b3_position.price_variation": "percent",
-    "derived.b3_position.cumulative_return": "percent",
-    "derived.statusinvest.ey": "percent",
-    "derived.forecast.min_pct": "percent",
-    "derived.forecast.avg_pct": "percent",
-    "derived.forecast.max_pct": "percent",
+    "yahoo.chart.1mo": "chart",
+    "yahoo.chart.1y": "chart",
+    "yahoo.chart.5y": "chart",
+    "yahoo.derived.chart.1mo": "chart",
+    "b3.derived.position.price_variation": "percent",
+    "b3.derived.position.cumulative_return": "percent",
+    "statusinvest.derived.ey": "percent",
+    "yahoo.derived.forecast.min_pct": "percent",
+    "yahoo.derived.forecast.avg_pct": "percent",
+    "yahoo.derived.forecast.max_pct": "percent",
 
     // dummy keys for unit testing
     "chart": "chart",

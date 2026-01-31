@@ -1,6 +1,6 @@
 import {derivations, Derivations} from "@/lib/metadata/derivations";
 import {Label} from "@/lib/metadata/labels";
-import {mergeDepth1} from "@/lib/utils/records";
+import {mergeDepth1, Rec} from "@/lib/utils/records";
 
 export type Metadata = {
     schema: string[],
@@ -8,9 +8,17 @@ export type Metadata = {
     labels: Record<string, Label>,
     tickers: string[]
 }
-export type MetadataSource = { label: string, url: string, updated_at?: string | undefined };
-export type Data = Record<string, DataEntry>;
-export type DataEntry = Record<string, DataValue>;
+export type MetadataGroup = {
+    label: string
+}
+export type MetadataSource = {
+    label: string,
+    home_url: string,
+    ticker_url: string | undefined,
+    groups: Rec<MetadataGroup> | undefined
+};
+export type Data = Record<string, DataEntry>; // keys are tickers
+export type DataEntry = Record<string, DataValue>; // keys are column keys, values are cell values
 export type DataValue = string | number | number[] | ChartData | SpecificMetadata;
 export type ChartData = { series: number[], variation: number }
 export type SpecificMetadata = { source: string | undefined, updated_at: string | undefined }
@@ -25,6 +33,10 @@ export function getPrefix(path: string) {
 
 export function getSuffix(path: string) {
     return path.split(".").pop()
+}
+
+export function getRoot(path: string) {
+    return path.split(".")[0]
 }
 
 export function consolidateData(data: Data[], ac: string): Data {

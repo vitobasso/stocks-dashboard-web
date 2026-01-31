@@ -16,7 +16,7 @@ import {loadViewsAvailable, loadViewSelection, saveViewsAvailable, saveViewSelec
 
 type Props = {
     metadata: Rec<Metadata>
-    getLabel: Record<string, (key: string) => Label>;
+    labeler: Record<string, (key: string) => Label>;
     setAssetClass: Dispatch<SetStateAction<string | null>>;
     setRows: Dispatch<SetStateAction<string[] | null>>;
     setCols: Dispatch<SetStateAction<string[] | null>>;
@@ -77,7 +77,7 @@ export function ViewSelector(props: Props) {
                     key={assetClass} size="sm" className="font-mono text-sm"
                     variant={ac === assetClass ? "default" : "outline"}
                     onClick={() => setSelection({...selection, assetClass})}>
-                    {props.getLabel[assetClass](assetClass).short}
+                    {props.labeler[assetClass](assetClass).short}
                 </Button>
             )}
         </div>
@@ -85,7 +85,7 @@ export function ViewSelector(props: Props) {
             assetClass={ac} viewsAvailable={viewsAvailable[ac].rowViews}
             selected={selection.rowViewNames[selection.assetClass]}
             allKeys={props.metadata[ac].tickers}
-            getLabel={props.getLabel[ac]}
+            labeler={props.labeler[ac]}
             onSelectSingle={crud.selectSingle("row")}
             onSelectToggle={crud.selectToggle("row")}
             onCreate={crud.create("row", ac)}
@@ -98,7 +98,7 @@ export function ViewSelector(props: Props) {
             assetClass={ac} viewsAvailable={viewsAvailable[ac].colViews}
             selected={selection.colViewNames[selection.assetClass]}
             allKeys={allKeys[ac]}
-            getLabel={props.getLabel[ac]}
+            labeler={props.labeler[ac]}
             onSelectSingle={crud.selectSingle("col")}
             onSelectToggle={crud.selectToggle("col")}
             onCreate={crud.create("col", ac)}

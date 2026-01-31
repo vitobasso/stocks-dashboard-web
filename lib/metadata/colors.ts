@@ -10,13 +10,13 @@ export const colors: Colors = {
 
     // common
 
-    "yahoo_chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
-    "yahoo_chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
-    "yahoo_chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
-    "derived.yahoo_chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "yahoo.chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "yahoo.chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
+    "yahoo.chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
+    "yahoo.derived.chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
 
-    "derived.b3_position.price_variation": {domain: [-60, 0, 40], colors: [red, bgColor, green]},
-    "derived.b3_position.cumulative_return": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
+    "b3.derived.position.price_variation": {domain: [-60, 0, 40], colors: [red, bgColor, green]},
+    "b3.derived.position.cumulative_return": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
 
     // stock_br
 
@@ -49,11 +49,11 @@ export const colors: Colors = {
     "simplywall.score.health": {domain: [-2, 2, 4, 8], colors: [red, bgColor, bgColor, green]},
     "simplywall.score.dividend": {domain: [3, 6], colors: [bgColor, green]},
 
-    "yahoo_recom.strong_buy": {domain: [1, 10], colors: [bgColor, green]},
-    "yahoo_recom.buy": {domain: [2, 20], colors: [bgColor, green]},
-    "yahoo_recom.hold": {domain: [4, 15], colors: [bgColor, red]},
-    "yahoo_recom.sell": {domain: [0, 4], colors: [bgColor, red]},
-    "yahoo_recom.strong_sell": {domain: [0, 2], colors: [bgColor, red]},
+    "yahoo.recom.strong_buy": {domain: [1, 10], colors: [bgColor, green]},
+    "yahoo.recom.buy": {domain: [2, 20], colors: [bgColor, green]},
+    "yahoo.recom.hold": {domain: [4, 15], colors: [bgColor, red]},
+    "yahoo.recom.sell": {domain: [0, 4], colors: [bgColor, red]},
+    "yahoo.recom.strong_sell": {domain: [0, 2], colors: [bgColor, red]},
 
     "investidor10.fundamentos.p_l": {domain: [-1000, 0, 12, 20], colors: [red, bgColor, bgColor, red]},
     "investidor10.fundamentos.p_vp": {domain: [2, 5], colors: [bgColor, red]},
@@ -79,11 +79,11 @@ export const colors: Colors = {
     "investidor10.financeiro.free_float": {domain: [20, 40], colors: [red, bgColor]},
     "investidor10.financeiro.tag_along": {domain: [80, 100], colors: [red, bgColor]},
 
-    "derived.statusinvest.ey": {domain: [0, 10], colors: [red, bgColor]},
+    "statusinvest.derived.ey": {domain: [0, 10], colors: [red, bgColor]},
     "statusinvest.liquidez_media_diaria": {domain: [4, 6], colors: [red, bgColor]},
-    "derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
-    "derived.forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
-    "derived.forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
+    "yahoo.derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
+    "yahoo.derived.forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
+    "yahoo.derived.forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
 
     // reit_br
     "fundamentus.ffo_yield":        {domain: [0, 5, 10, 20], colors: [red, bgColor, bgColor, green]},

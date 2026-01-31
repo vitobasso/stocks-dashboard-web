@@ -1,3 +1,16 @@
+export const VERSION_KEY = "version" as const;
+
+export function getSchemaVersion(): number {
+    const raw = safeGetItem(VERSION_KEY);
+    if (!raw) return 0;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+}
+
+export function setSchemaVersion(v: number): void {
+    safeSetItem(VERSION_KEY, String(v));
+}
+
 export function isBrowser(): boolean {
     return typeof window !== "undefined";
 }

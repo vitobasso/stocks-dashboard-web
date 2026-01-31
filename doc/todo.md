@@ -1,12 +1,10 @@
-### refactor views
-single key in localStorage
-{ row, col, selected: { ac, row, col } }
-
-### auto-repair local storage
-schema of current version, default values per field, cleanup unknown fields
+# TODO refactor sources
+labeler context ?
 
 ### click ticker
 - list of links
+
+### column-orderer: show "x" on hover
 
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
@@ -16,10 +14,7 @@ also tsconfig.json target to ES2020 (+performance, less old browser compatibilit
 ### search tickers by key
 e.g. lucro > X, top X lucro, ... 
 
-### column-selector: group by source
-still 2 levels: source and keys 
-but subgroup keys and always expand them all
-making sure top-level group has the check/semi-check
+### col-dialog: click column-orderer item to find it (auto-expand and highlight) in column-selector 
 
 ### [bug] zeros not being colored red
 tag along, simplywall score

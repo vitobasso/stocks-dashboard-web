@@ -17,7 +17,7 @@ type Props = {
     rows: string[]
     columns: string[]
     data: Data
-    getLabel(path: string): Label
+    labeler(path: string): Label
     className?: string
 }
 
@@ -35,7 +35,7 @@ export function DataGrid(props: Props) {
 
     const columns: readonly ColumnOrColumnGroup<Row>[] = ["ticker", ...props.columns].map(key => ({
         key,
-        name: renderHeader(key, props.getLabel),
+        name: renderHeader(props.labeler(key)),
         frozen: isTicker(key),
         sortable: !isTicker(key),
         headerCellClass: cn('text-center', hoveredCol === key && 'bg-foreground/5'),
@@ -54,8 +54,7 @@ export function DataGrid(props: Props) {
         return {"ticker": ticker, ...Object.fromEntries(entries)};
     });
 
-    function renderHeader(key: string, getLabel: (key: string) => Label, onClick?: (e: React.MouseEvent) => void): ReactElement {
-        const label = getLabel(key);
+    function renderHeader(label: Label, onClick?: (e: React.MouseEvent) => void): ReactElement {
         const content = onClick ?
             <span className={"cursor-pointer"} onClick={onClick}>{label.short}</span> : <span>{label.short}</span>;
         if (!label.long) return content;

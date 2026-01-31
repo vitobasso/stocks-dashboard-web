@@ -3,9 +3,9 @@ import {AssetPosition, extractPositions} from "@/lib/import-b3/b3-position";
 import {extractDividends} from "@/lib/import-b3/b3-dividends";
 
 export const schema = [
-    "b3_position.quantity",
-    "b3_position.average_price",
-    "b3_position.total_dividends"
+    "b3.position.quantity",
+    "b3.position.average_price",
+    "b3.position.total_dividends"
 ]
 
 export function extractData(rows: Record<string, unknown>[]): Data {
@@ -19,9 +19,9 @@ function standardizeData(positions: Map<string, AssetPosition>, dividends: Map<s
         [...positions].map(([ticker, position]) => [
             ticker,
             {
-                "b3_position.quantity": position.quantity,
-                "b3_position.average_price": position.averagePrice,
-                "b3_position.total_dividends": dividends.get(ticker) || 0
+                "b3.position.quantity": position.quantity,
+                "b3.position.average_price": position.averagePrice,
+                "b3.position.total_dividends": dividends.get(ticker) || 0
             }
         ])
     );

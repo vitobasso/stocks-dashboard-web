@@ -3,48 +3,38 @@ import type {Data} from "@/lib/data";
 import type {Theme} from "@/lib/theme";
 import type {ViewsAvailable, ViewSelection} from "@/lib/views/views";
 import type {Rec} from "@/lib/utils/records";
-import {isBrowser, readJson, safeGetItem, safeSetItem, writeJson} from "@/lib/local-storage/shared";
-import {cleanupStorageV0, migrateFromStorageV0} from "@/lib/local-storage/v0";
+import {
+    getSchemaVersion,
+    isBrowser,
+    readJson,
+    safeGetItem,
+    safeSetItem,
+    VERSION_KEY,
+    writeJson
+} from "@/lib/local-storage/shared";
+import {migrateV0ToV1} from "@/lib/local-storage/v0";
+import {migrateV1ToV2} from "@/lib/local-storage/v1";
 
-const STORAGE_VERSION = 1 as const;
+const CURRENT_VERSION = 2 as const;
 
 const STORAGE_KEYS = {
-    schemaVersion: "version",
+    schemaVersion: VERSION_KEY,
     viewsAvailable: "viewsAvailable",
     viewSelection: "viewSelection",
     positions: "positions",
     theme: "theme",
 } as const;
 
-function getSchemaVersion(): number | null {
-    const raw = safeGetItem(STORAGE_KEYS.schemaVersion);
-    if (!raw) return null;
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : null;
-}
-
-function setSchemaVersion(v: number): void {
-    safeSetItem(STORAGE_KEYS.schemaVersion, String(v));
-}
 
 export function migrateIfNeeded(): void {
     if (!isBrowser()) return;
-
     const v = getSchemaVersion();
-    if (v === STORAGE_VERSION) return;
-
-    if (v == null) {
-        const migrated = migrateFromStorageV0();
-        if (!migrated) {
-            setSchemaVersion(STORAGE_VERSION);
-            return;
-        }
-
-        writeJson(STORAGE_KEYS.viewsAvailable, migrated.viewsAvailable);
-        writeJson(STORAGE_KEYS.viewSelection, migrated.viewSelection);
-        cleanupStorageV0();
-        setSchemaVersion(STORAGE_VERSION);
-        return;
+    const migrations = [
+        migrateV0ToV1,
+        migrateV1ToV2,
+    ]
+    for (let i = v; i < CURRENT_VERSION; i++) {
+        migrations[i]();
     }
 }
 

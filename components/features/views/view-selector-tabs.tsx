@@ -12,7 +12,7 @@ type Props<T extends RowView | ColView> = {
     viewsAvailable: T[]
     selected: string[]
     allKeys: string[]
-    getLabel: (key: string) => Label;
+    labeler: (key: string) => Label;
     onSelectSingle: (name: string) => void
     onSelectToggle: (name: string) => void
     onCreate: (view: T) => void
@@ -21,7 +21,7 @@ type Props<T extends RowView | ColView> = {
     CreateDialog: React.ComponentType<{
         allItems: string[]
         allViewNames: string[]
-        getLabel: (key: string) => Label;
+        labeler: (key: string) => Label;
         onConfirm(view: T): void
         open: boolean;
         onOpenChange(open: boolean): void;
@@ -29,7 +29,7 @@ type Props<T extends RowView | ColView> = {
     EditDialog: React.ComponentType<{
         allItems: string[]
         allViewNames: string[]
-        getLabel: (key: string) => Label;
+        labeler: (key: string) => Label;
         viewToEdit?: T
         onConfirm(view: T): void
         onDelete?: () => void
@@ -86,7 +86,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
                     onOpenChange={(o) => !o && close()}
                     viewToEdit={view}
                     allItems={props.allKeys}
-                    getLabel={props.getLabel}
+                    labeler={props.labeler}
                     allViewNames={props.viewsAvailable.map(l => l.name)}
                     onConfirm={updated => props.onEdit(view.name, updated)}
                     onDelete={() => props.onDelete(view.name)}/>
@@ -103,7 +103,7 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
             open={openPanel === "row-create"}
             onOpenChange={(o) => !o && close()}
             allItems={props.allKeys}
-            getLabel={props.getLabel}
+            labeler={props.labeler}
             allViewNames={props.viewsAvailable.map(l => l.name)}
             onConfirm={props.onCreate}/>
     </div>

@@ -24,35 +24,35 @@ export const viewsProd: Rec<ViewsAvailable> = {
         colViews: [
             {
                 name: "Qualidade",
-                items: ["b3_listagem.setor", "investidor10.cadastral.ano_de_fundacao",
-                    "investidor10.cadastral.ano_de_estreia_na_bolsa", "b3_listagem.segmento_de_negociacao",
+                items: ["b3.listagem.setor", "investidor10.cadastral.ano_de_fundacao",
+                    "investidor10.cadastral.ano_de_estreia_na_bolsa", "b3.listagem.segmento_de_negociacao",
                     "investidor10.financeiro.patrimonio_liquido", "statusinvest.liquidez_media_diaria",
                     "investidor10.financeiro.free_float", "investidor10.financeiro.tag_along",
                     "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.marg_liquida",
-                    "derived.statusinvest.ey", "statusinvest.roe", "statusinvest.roic", "simplywall.earnings_growth"]
+                    "statusinvest.derived.ey", "statusinvest.roe", "statusinvest.roic", "simplywall.earnings_growth"]
             },
             {
                 name: "Preço",
-                items: ["b3_listagem.setor", "yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y",
-                    "yahoo_chart.5y", "statusinvest.p_l", "statusinvest.p_vp", "statusinvest.p_ativos",
+                items: ["b3.listagem.setor", "yahoo.quote.latest", "yahoo.derived.chart.1mo", "yahoo.chart.1y",
+                    "yahoo.chart.5y", "statusinvest.p_l", "statusinvest.p_vp", "statusinvest.p_ativos",
                     "statusinvest.p_ebit"]
             },
             {
                 name: "Analistas",
-                items: ["b3_listagem.setor", "yahoo_recom.strong_buy", "yahoo_recom.buy", "yahoo_recom.hold", "yahoo_recom.sell",
-                    "yahoo_recom.strong_sell", "derived.forecast.min_pct", "derived.forecast.avg_pct",
-                    "derived.forecast.max_pct"]
+                items: ["b3.listagem.setor", "yahoo.recom.strong_buy", "yahoo.recom.buy", "yahoo.recom.hold", "yahoo.recom.sell",
+                    "yahoo.recom.strong_sell", "yahoo.derived.forecast.min_pct", "yahoo.derived.forecast.avg_pct",
+                    "yahoo.derived.forecast.max_pct"]
             },
             {
                 name: "Rentabilidade",
-                items: ["derived.b3_position.invested_value", "derived.b3_position.current_value",
-                    "derived.b3_position.price_variation", "b3_position.total_dividends",
-                    "derived.b3_position.total_value", "derived.b3_position.cumulative_return"]
+                items: ["b3.derived.position.invested_value", "b3.derived.position.current_value",
+                    "b3.derived.position.price_variation", "b3.position.total_dividends",
+                    "b3.derived.position.total_value", "b3.derived.position.cumulative_return"]
             },
             {
                 name: "Posição",
-                items: ["b3_position.quantity", "b3_position.average_price", "derived.b3_position.price_variation",
-                    "yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
+                items: ["b3.position.quantity", "b3.position.average_price", "b3.derived.position.price_variation",
+                    "yahoo.quote.latest", "yahoo.derived.chart.1mo", "yahoo.chart.1y", "yahoo.chart.5y"]
             },
         ],
     },
@@ -66,7 +66,7 @@ export const viewsProd: Rec<ViewsAvailable> = {
         colViews: [
             {
                 name: "Preço",
-                items: ["yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y",
+                items: ["yahoo.quote.latest", "yahoo.derived.chart.1mo", "yahoo.chart.1y", "yahoo.chart.5y",
                     "fundamentus.p_vp"]
             }, {
                 name: "Fundamentos",
@@ -76,14 +76,14 @@ export const viewsProd: Rec<ViewsAvailable> = {
             },
             {
                 name: "Rentabilidade",
-                items: ["derived.b3_position.invested_value", "derived.b3_position.current_value",
-                    "derived.b3_position.price_variation", "b3_position.total_dividends",
-                    "derived.b3_position.total_value", "derived.b3_position.cumulative_return"]
+                items: ["b3.derived.position.invested_value", "b3.derived.position.current_value",
+                    "b3.derived.position.price_variation", "b3.position.total_dividends",
+                    "b3.derived.position.total_value", "b3.derived.position.cumulative_return"]
             },
             {
                 name: "Posição",
-                items: ["b3_position.quantity", "b3_position.average_price", "derived.b3_position.price_variation",
-                    "yahoo_quote.latest", "derived.yahoo_chart.1mo", "yahoo_chart.1y", "yahoo_chart.5y"]
+                items: ["b3.position.quantity", "b3.position.average_price", "b3.derived.position.price_variation",
+                    "yahoo.quote.latest", "yahoo.derived.chart.1mo", "yahoo.chart.1y", "yahoo.chart.5y"]
             },
         ],
     },
@@ -100,8 +100,8 @@ export const viewsDev: Rec<ViewsAvailable> = {
         colViews: [
             {
                 name: "test",
-                items: ["yahoo_quote.latest", "b3_position.quantity", "b3_listagem.setor", "statusinvest.preco",
-                    "yahoo_recom.buy", "yahoo_chart.1mo", "yahoo_target.max", "investidor10.cadastral.ano_de_fundacao",
+                items: ["yahoo.quote.latest", "b3.position.quantity", "b3.listagem.setor", "statusinvest.preco",
+                    "yahoo.recom.buy", "yahoo.chart.1mo", "yahoo.target.max", "investidor10.cadastral.ano_de_fundacao",
                     "simplywall.score.future"]
             },
         ],
@@ -116,8 +116,8 @@ export const viewsDev: Rec<ViewsAvailable> = {
         colViews: [
             {
                 name: "test",
-                items: ["yahoo_quote.latest", "b3_position.quantity", "fundamentus.p_vp", "simplywall.p_earnings",
-                    "yahoo_chart.1mo"]
+                items: ["yahoo.quote.latest", "b3.position.quantity", "fundamentus.p_vp", "simplywall.p_earnings",
+                    "yahoo.chart.1mo"]
             },
         ],
     },

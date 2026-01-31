@@ -10,7 +10,7 @@ import {Label} from "@/lib/metadata/labels";
 
 type Props = {
     allItems: string[]
-    getLabel: (key: string) => Label;
+    labeler: (key: string) => Label;
     allViewNames: string[]
     onConfirm(view: ColView): void
     open: boolean;
@@ -58,13 +58,13 @@ export function ColCreateDialog(props: Props) {
                                 columns={keys}
                                 setColumns={setKeys}
                                 allKeys={props.allItems}
-                                getLabel={props.getLabel}
+                                labeler={props.labeler}
                             />
                             <div className="flex-1/2">
                                 <ColumnOrderer
                                     columns={keys}
                                     setColumns={setKeys}
-                                    getLabel={props.getLabel}
+                                    labeler={props.labeler}
                                 />
                             </div>
                         </div>
