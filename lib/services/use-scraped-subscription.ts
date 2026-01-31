@@ -43,7 +43,7 @@ export function createScrapedSubscriptionClient(queryClient: QueryClient): Scrap
     }
 
     function add(ac: string, tickers: string[]) {
-        if (!ws) {
+        if (!ws || ws.readyState != 1) {
             addSubs(ac, tickers, subscriptionBuffer);
         } else {
             const newTickers = addSubs(ac, tickers, subscription);
