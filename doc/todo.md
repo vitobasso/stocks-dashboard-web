@@ -1,5 +1,3 @@
-### [bug] websocket opening multiple connections
-
 ### refactor views
 single key in localStorage
 { row, col, selected: { ac, row, col } }

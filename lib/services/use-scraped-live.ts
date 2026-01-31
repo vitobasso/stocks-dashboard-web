@@ -76,6 +76,6 @@ function url() {
     const isSsl = window.location.protocol === "https:";
     const protocol = isSsl ? 'wss:' : 'ws:';
     const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
-    return `${baseUrl}/data-live`
+    return `${baseUrl}/data`
 }
 
