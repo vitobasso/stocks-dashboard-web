@@ -1,28 +1,24 @@
 'use client';
 
-import {createScrapedLiveClient, LiveScrapedClient, LiveScrapedContext} from "@/lib/services/use-scraped-live";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {useEffect, useMemo, useState} from "react";
+import {createScrapedLiveClient, ScrapedLiveContext} from "@/lib/services/use-scraped-live";
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {useEffect, useMemo} from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
 
     const queryClient = useMemo(() => new QueryClient(), []);
-    const [liveClient, setLiveClient] = useState<LiveScrapedClient | null>(null);
+    const scrapedLiveClient = useMemo(() => createScrapedLiveClient(queryClient), [queryClient]);
 
     useEffect(() => {
-        const client = createScrapedLiveClient(queryClient);
-        setLiveClient(client);
-
-        return () => {
-            liveClient?.close();
-        };
+        scrapedLiveClient.connect();
+        return () => { scrapedLiveClient.close() };
     }, [queryClient]);
 
     return (
         <QueryClientProvider client={queryClient}>
-            <LiveScrapedContext.Provider value={liveClient}>
+            <ScrapedLiveContext.Provider value={scrapedLiveClient}>
                 {children}
-            </LiveScrapedContext.Provider>
+            </ScrapedLiveContext.Provider>
         </QueryClientProvider>
     );
 }

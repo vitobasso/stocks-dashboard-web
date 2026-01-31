@@ -13,6 +13,7 @@ import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
 import {useMetadataQuery} from "@/lib/services/use-metadata-query";
 import {useQuoteQuery} from "@/lib/services/use-quote-query";
 import {useScrapedQuery} from "@/lib/services/use-scraped-query";
+import {useScrapedLive} from "@/lib/services/use-scraped-live";
 
 export default function Page() {
 
@@ -28,6 +29,10 @@ export default function Page() {
         setPositions(loadPositions());
     }, []);
 
+    useEffect(() => {
+        savePositions(positions);
+    }, [positions]);
+
     const {assetClasses, getLabel, classOfTicker} = useMemo(() => {
         if (!metadata) return {assetClasses: undefined, getLabel: undefined, classOfTicker: undefined};
 
@@ -40,15 +45,18 @@ export default function Page() {
         return {assetClasses, getLabel, classOfTicker};
     }, [metadata]);
 
+    const scrapedLive = useScrapedLive();
     useEffect(() => {
-        savePositions(positions);
-    }, [positions]);
+        if (!assetClass || !rows) return;
+        scrapedLive.subscribe(assetClass, rows)
+    }, [assetClass, rows]);
 
     const scraped = useScrapedQuery(assetClass, rows);
     const quotes = useQuoteQuery(rows, classOfTicker);
 
     const data: Rec<Data> | undefined = useMemo(() => {
-        if (assetClasses) return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
+        if (!assetClasses) return;
+        return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
     }, [scraped, quotes, positions, assetClasses]);
 
     // ui
@@ -61,12 +69,12 @@ export default function Page() {
     }
 
     if (!metadata || !assetClasses || !getLabel)
-        return skeleton();
+        return pageSkeleton();
     return <div className="min-h-screen flex flex-col">
         <div className="flex flex-col gap-2 m-4">
             <ViewSelector metadata={metadata} getLabel={getLabel}
                           setAssetClass={setAssetClass} setRows={setRows} setCols={setColumns} />
-            {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? skeleton() :
+            {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? dataGridSkeleton() :
                 <>
                     <DataGrid className="h-auto"
                               rows={rows} columns={columns} data={data[assetClass]}
@@ -92,11 +100,15 @@ export default function Page() {
 
 }
 
-function skeleton() {
+function pageSkeleton() {
     return <div className="m-4">
         <Skeleton className="h-7 w-[8vw] m-2"/>
         <Skeleton className="h-7 w-[45vw] m-2"/>
         <Skeleton className="h-7 w-[30vw] m-2"/>
-        <Skeleton className="h-[60vh] w-full rounded-lg"/>
+        {dataGridSkeleton()}
     </div>
+}
+
+function dataGridSkeleton() {
+    return <Skeleton className="h-[60vh] w-full rounded-lg"/>
 }

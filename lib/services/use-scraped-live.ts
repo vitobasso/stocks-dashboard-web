@@ -4,22 +4,16 @@ import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data} from "@/lib/data";
 
 
-export const LiveScrapedContext = createContext<LiveScrapedClient | null>(null);
+export const ScrapedLiveContext = createContext<ScrapedLiveClient | null>(null);
 
 export function useScrapedLive() {
-    const ctx = useContext(LiveScrapedContext);
-    if (!ctx) throw new Error("LiveClientContext not found");
+    const ctx = useContext(ScrapedLiveContext);
+    if (!ctx) throw new Error("ScrapedLiveContext not found");
     return ctx;
 }
 
-// TODO call from page
-// const liveClient = useScrapedLive();
-// useEffect(() => {
-//     if (!ac || !rows?.length) return;
-//     liveClient.subscribe(ac, rows);
-// }, [ac, rows]);
-
-export type LiveScrapedClient = {
+export type ScrapedLiveClient = {
+    connect: () => void;
     subscribe: (ac: string, rows: string[]) => void;
     close: () => void;
 };
@@ -30,10 +24,20 @@ function scraperLiveUrl(isSsl: boolean) {
     return `${baseUrl}/data-live`
 }
 
-export function createScrapedLiveClient(queryClient: QueryClient): LiveScrapedClient {
-    const isSsl = window.location.protocol === "https:";
-    const ws = new WebSocket(scraperLiveUrl(isSsl));
-    const subscription = new Set();
+export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveClient {
+    let ws: WebSocket | null = null;
+    const subscription = new Map<string, Set<string>>();
+
+    function connect() {
+        const isSsl = window.location.protocol === "https:";
+        ws = new WebSocket(scraperLiveUrl(isSsl));
+
+        ws.onmessage = (event) => {
+            const data: Rec<Data> = JSON.parse(event.data);
+            if (!data) return;
+            cachePartialUpdates(data)
+        };
+    }
 
     function cachePartialUpdates(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
@@ -45,17 +49,14 @@ export function createScrapedLiveClient(queryClient: QueryClient): LiveScrapedCl
         });
     }
 
-    ws.onmessage = (event) => {
-        const data: Rec<Data> = JSON.parse(event.data);
-        if (!data) return;
-        cachePartialUpdates(data)
-    };
-
     function subscribe(ac: string, tickers: string[]) {
-        const newTickers = tickers.filter(t => !subscription.has(t));
+        if (!ws) throw new Error("WebSocket not connected");
+        const prevSet = subscription.get(ac) ?? new Set();
+        const newTickers = [...new Set(tickers).difference(prevSet)]
         if (!newTickers.length) return;
+        subscription.set(ac, new Set([...prevSet, ...newTickers]))
+        console.log("subscribe", newTickers)
         ws.send(JSON.stringify({ [ac]: newTickers }));
-        newTickers.forEach(t => subscription.add(t));
     }
 
     function close() {
@@ -67,5 +68,5 @@ export function createScrapedLiveClient(queryClient: QueryClient): LiveScrapedCl
         }
     }
 
-    return { subscribe, close };
+    return { connect, subscribe, close };
 }
