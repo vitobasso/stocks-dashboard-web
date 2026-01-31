@@ -13,7 +13,7 @@ import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
 import {useMetadataQuery} from "@/lib/services/use-metadata-query";
 import {useQuoteQuery} from "@/lib/services/use-quote-query";
 import {useScrapedQuery} from "@/lib/services/use-scraped-query";
-import {useScrapedLive} from "@/lib/services/use-scraped-live";
+import {useScrapedSubscription} from "@/lib/services/use-scraped-subscription";
 
 export default function Page() {
 
@@ -45,10 +45,10 @@ export default function Page() {
         return {assetClasses, getLabel, classOfTicker};
     }, [metadata]);
 
-    const scrapedLive = useScrapedLive();
+    const scrapedSubscription = useScrapedSubscription();
     useEffect(() => {
         if (!assetClass || !rows) return;
-        scrapedLive.subscribe(assetClass, rows)
+        scrapedSubscription.add(assetClass, rows)
     }, [assetClass, rows]);
 
     const scraped = useScrapedQuery(assetClass, rows);

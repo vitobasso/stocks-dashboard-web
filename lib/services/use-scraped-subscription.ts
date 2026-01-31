@@ -3,25 +3,24 @@ import {QueryClient} from "@tanstack/react-query";
 import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data} from "@/lib/data";
 
+type ScrapedSubscriptionClient = {
+    open: () => void;
+    add: (ac: string, rows: string[]) => void;
+    close: () => void;
+}
 
-export const ScrapedLiveContext = createContext<ScrapedLiveClient | null>(null);
+export const ScrapedSubscriptionContext = createContext<ScrapedSubscriptionClient | null>(null);
 
-export function useScrapedLive() {
-    const ctx = useContext(ScrapedLiveContext);
-    if (!ctx) throw new Error("ScrapedLiveContext not found");
+export function useScrapedSubscription() {
+    const ctx = useContext(ScrapedSubscriptionContext);
+    if (!ctx) throw new Error("ScrapedSubscriptionContext not found");
     return ctx;
 }
 
-export type ScrapedLiveClient = {
-    open: () => void;
-    subscribe: (ac: string, rows: string[]) => void;
-    close: () => void;
-};
-
-export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveClient {
+export function createScrapedSubscriptionClient(queryClient: QueryClient): ScrapedSubscriptionClient {
     let ws: WebSocket | null = null;
     const subscription = new Map<string, Set<string>>();
-    const subscriptionBuffer =  new Map<string, Set<string>>(); // hold until connected
+    const subscriptionBuffer = new Map<string, Set<string>>(); // hold until connected
 
     function open() {
         ws = new WebSocket(url());
@@ -43,12 +42,12 @@ export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveCl
         });
     }
 
-    function subscribe(ac: string, tickers: string[]) {
+    function add(ac: string, tickers: string[]) {
         if (!ws) {
             addSubs(ac, tickers, subscriptionBuffer);
         } else {
             const newTickers = addSubs(ac, tickers, subscription);
-            if (newTickers) ws.send(JSON.stringify({ [ac]: newTickers }));
+            if (newTickers) ws.send(JSON.stringify({[ac]: newTickers}));
         }
     }
 
@@ -69,7 +68,7 @@ export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveCl
         }
     }
 
-    return { open, subscribe, close };
+    return {open, add, close};
 }
 
 function url() {
