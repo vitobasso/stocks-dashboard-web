@@ -21,16 +21,16 @@ export type ScrapedLiveClient = {
 export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveClient {
     let ws: WebSocket | null = null;
     const subscription = new Map<string, Set<string>>();
+    const subscriptionBuffer =  new Map<string, Set<string>>(); // hold until connected
 
     function open() {
-
         ws = new WebSocket(url());
-
         ws.onmessage = (event) => {
             const data: Rec<Data> = JSON.parse(event.data);
             if (!data) return;
             cachePartialUpdates(data)
         };
+        if (subscriptionBuffer.size) ws.send(JSON.stringify(Object.fromEntries(subscriptionBuffer)))
     }
 
     function cachePartialUpdates(data: Rec<Data>) {
@@ -44,12 +44,20 @@ export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveCl
     }
 
     function subscribe(ac: string, tickers: string[]) {
-        if (!ws) throw new Error("WebSocket not connected");
+        if (!ws) {
+            addSubs(ac, tickers, subscriptionBuffer);
+        } else {
+            const newTickers = addSubs(ac, tickers, subscription);
+            if (newTickers) ws.send(JSON.stringify({ [ac]: newTickers }));
+        }
+    }
+
+    function addSubs(ac: string, tickers: string[], target: Map<string, Set<string>>): string[] | undefined {
         const prevSet = subscription.get(ac) ?? new Set();
         const newTickers = [...new Set(tickers).difference(prevSet)]
         if (!newTickers.length) return;
-        subscription.set(ac, new Set([...prevSet, ...newTickers]))
-        ws.send(JSON.stringify({ [ac]: newTickers }));
+        target.set(ac, new Set([...prevSet, ...newTickers]))
+        return newTickers
     }
 
     function close() {
