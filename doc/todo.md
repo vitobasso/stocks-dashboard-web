@@ -1,5 +1,3 @@
-### [perf] tune nginx to not leak mem (i restarted and api got faster)
-
 ### refactor views
 single key in localStorage
 { row, col, selected: { ac, row, col } }
@@ -62,6 +60,8 @@ column-selector search
 - time series
 - bubble plot: return * age * position, return * risk * position  
 - bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap, P/E * EPS * size
+
+### [perf] tune nginx to not leak mem (i restarted and api got faster)
 
 ### [perf] batch call to /data ?
 

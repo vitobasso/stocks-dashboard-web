@@ -5,7 +5,6 @@ import {Field, FieldContent, FieldSet} from "@/components/ui/field";
 import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import {EditableTitle} from "@/components/ui/editable-title";
-import {Description} from "@radix-ui/react-dialog";
 
 type Props = {
     allItems: string[]

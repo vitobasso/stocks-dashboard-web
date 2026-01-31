@@ -177,7 +177,7 @@ export function DataGrid(props: Props) {
             const updatedAt = meta?.updated_at ? timeAgo(new Date(meta.updated_at)) : undefined
             return <Tooltip open={open}>
                 <TooltipTrigger asChild>
-                    <div className="w-full h-full cursor-pointer">{renderedValue}</div>
+                    <div className="cursor-pointer">{renderedValue}</div>
                 </TooltipTrigger>
                 <TooltipContent>
                     <div className="text-center">
