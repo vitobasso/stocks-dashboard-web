@@ -1,27 +1,25 @@
-import {createContext, useContext, useEffect} from "react";
-import { QueryClient } from "@tanstack/react-query";
+import {createContext, useContext} from "react";
+import {QueryClient} from "@tanstack/react-query";
 import {foreachDepth2, mergeDepth2, Rec} from "@/lib/utils/records";
 import {Data} from "@/lib/data";
 
 
 export const LiveScrapedContext = createContext<LiveScrapedClient | null>(null);
 
-export function useLiveClient() {
+export function useScrapedLive() {
     const ctx = useContext(LiveScrapedContext);
     if (!ctx) throw new Error("LiveClientContext not found");
     return ctx;
 }
 
-export function useScrapedLive(ac: string | null, rows: string[] | null) {
-    const liveClient = useLiveClient();
+// TODO call from page
+// const liveClient = useScrapedLive();
+// useEffect(() => {
+//     if (!ac || !rows?.length) return;
+//     liveClient.subscribe(ac, rows);
+// }, [ac, rows]);
 
-    useEffect(() => {
-        if (!ac || !rows?.length) return;
-        liveClient.subscribe(ac, rows);
-    }, [ac, rows]);
-}
-
-type LiveScrapedClient = {
+export type LiveScrapedClient = {
     subscribe: (ac: string, rows: string[]) => void;
     close: () => void;
 };
@@ -54,10 +52,10 @@ export function createScrapedLiveClient(queryClient: QueryClient) {
     };
 
     function subscribe(ac: string, tickers: string[]) {
-        const toAdd = tickers.filter(t => !subscription.has(t));
-        if (!toAdd.length) return;
-        ws.send(JSON.stringify({ assetClass: ac, tickers: toAdd }));
-        toAdd.forEach(t => subscription.add(t));
+        const newTickers = tickers.filter(t => !subscription.has(t));
+        if (!newTickers.length) return;
+        ws.send(JSON.stringify({ [ac]: newTickers }));
+        newTickers.forEach(t => subscription.add(t));
     }
 
     function close() {
