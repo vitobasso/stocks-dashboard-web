@@ -49,7 +49,7 @@ export default function Page() {
     useEffect(() => {
         if (!assetClass || !rows) return;
         scrapedSubscription.add(assetClass, rows)
-    }, [assetClass, rows]);
+    }, [assetClass, rows, scrapedSubscription]);
 
     const scraped = useScrapedQuery(assetClass, rows);
     const quotes = useQuoteQuery(rows, classOfTicker);

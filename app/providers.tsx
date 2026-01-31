@@ -16,7 +16,7 @@ export function Providers({children}: { children: React.ReactNode }) {
         return () => {
             scrapedSubscriptionClient.close()
         };
-    }, []);
+    }, [scrapedSubscriptionClient]);
 
     return (
         <QueryClientProvider client={queryClient}>
