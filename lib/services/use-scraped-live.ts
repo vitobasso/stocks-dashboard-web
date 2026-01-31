@@ -55,7 +55,6 @@ export function createScrapedLiveClient(queryClient: QueryClient): ScrapedLiveCl
         const newTickers = [...new Set(tickers).difference(prevSet)]
         if (!newTickers.length) return;
         subscription.set(ac, new Set([...prevSet, ...newTickers]))
-        console.log("subscribe", newTickers)
         ws.send(JSON.stringify({ [ac]: newTickers }));
     }
 

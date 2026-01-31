@@ -12,7 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         scrapedLiveClient.connect();
         return () => { scrapedLiveClient.close() };
-    }, [queryClient]);
+    }, []);
 
     return (
         <QueryClientProvider client={queryClient}>
