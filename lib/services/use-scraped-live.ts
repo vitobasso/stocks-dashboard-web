@@ -27,10 +27,10 @@ export type LiveScrapedClient = {
 function scraperLiveUrl(isSsl: boolean) {
     const protocol = isSsl ? 'wss:' : 'ws:';
     const baseUrl = process.env.NEXT_PUBLIC_SCRAPER_URL?.replace(/^https?:/, protocol);
-    return `${baseUrl}/data-live}`
+    return `${baseUrl}/data-live`
 }
 
-export function createScrapedLiveClient(queryClient: QueryClient) {
+export function createScrapedLiveClient(queryClient: QueryClient): LiveScrapedClient {
     const isSsl = window.location.protocol === "https:";
     const ws = new WebSocket(scraperLiveUrl(isSsl));
     const subscription = new Set();
