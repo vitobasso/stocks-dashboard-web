@@ -39,7 +39,7 @@ export function ColCreateDialog(props: Props) {
     }
 
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
             <DialogHeader>
                     <DialogTitle>Nova lupa</DialogTitle>
             </DialogHeader>

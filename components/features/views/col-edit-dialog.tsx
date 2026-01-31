@@ -45,7 +45,7 @@ export function ColEditDialog(props: Props) {
     const isEditing = !!props.viewToEdit;
 
     return <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
             <DialogHeader>
                     <DialogTitle>
                         <EditableTitle

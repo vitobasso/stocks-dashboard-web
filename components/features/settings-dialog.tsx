@@ -48,7 +48,7 @@ export function SettingsDialog(props: Props) {
             </>}
         </Fab>
         <Dialog open={openPanel === "import"} onOpenChange={(o) => !o && close()}>
-            <DialogContent position="tr" hideOverlay className="sm:max-w-[28rem] p-4">
+            <DialogContent position="tr" hideOverlay className="sm:max-w-[28rem] p-4" aria-describedby={undefined}>
                 <DialogHeader><DialogTitle>Importar Posição B3</DialogTitle></DialogHeader>
                 <PositionsImporter
                     setPositions={props.setPositions}

@@ -1,5 +1,4 @@
 ### [perf] tune nginx to not leak mem (i restarted and api got faster)
-### [bug] batch call to /data (bad perf on GCP causes 503's)
 
 ### refactor views
 single key in localStorage
@@ -64,5 +63,7 @@ column-selector search
 - bubble plot: return * age * position, return * risk * position  
 - bubble plot: price * quality * size,  EBIT/EV * ROIC * market cap, P/E * EPS * size
 
-### persist cache across refreshes
+### [perf] batch call to /data ?
+
+### persist cache across refreshes ?
 ttl based on meta.scraped-at
