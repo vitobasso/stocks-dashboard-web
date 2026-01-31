@@ -76,7 +76,7 @@ export default function Page() {
                           setAssetClass={setAssetClass} setRows={setRows} setCols={setColumns} />
             {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? dataGridSkeleton() :
                 <>
-                    <DataGrid className="h-auto"
+                    <DataGrid className="flex-1"
                               rows={rows} columns={columns} data={data[assetClass]}
                               getLabel={getLabel[assetClass]}/>
                     <SettingsDialog metadata={metadata} getLabel={getLabel}

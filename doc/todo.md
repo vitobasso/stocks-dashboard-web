@@ -1,4 +1,3 @@
-### [bug] datagrid height limited
 ### [perf] tune nginx to not leak mem (i restarted and api got faster)
 ### [bug] batch call to /data (bad perf on GCP causes 503's)
 
