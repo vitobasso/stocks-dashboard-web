@@ -35,9 +35,10 @@ export default function ColumnOrderer(props: Props) {
         <SortableContext items={props.columns} strategy={verticalListSortingStrategy}>
             {props.columns.map((item) => (
                 <SortableRow key={item} id={item}>
-                    <div className="flex w-full items-center">
-                        <div className="flex-1">{props.labeler(item).short}</div>
-                        <XIcon className="size-4" onClick={() => handleRemove(item)}/>
+                    <div className="flex items-center gap-2 group">
+                        <div className="flex-1 cursor-default">{props.labeler(item).short}</div>
+                        <XIcon className="size-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                               onClick={() => handleRemove(item)}/>
                     </div>
                 </SortableRow>
             ))}

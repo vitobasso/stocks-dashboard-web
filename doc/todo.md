@@ -1,10 +1,8 @@
-# TODO refactor sources
+# TODO
 labeler context ?
 
 ### click ticker
 - list of links
-
-### column-orderer: show "x" on hover
 
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
