@@ -1,15 +1,8 @@
-# TODO
-labeler context ?
 
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### upgrade node and friends
 also tsconfig.json target to ES2020 (+performance, less old browser compatibility)
-
-### search tickers by key
-e.g. lucro > X, top X lucro, ... 
-
-### col-dialog: click column-orderer item to find it (auto-expand and highlight) in column-selector 
 
 ### [bug] zeros not being colored red
 tag along, simplywall score
@@ -21,6 +14,13 @@ tag along, simplywall score
 
 ### add colors
 patrimonio liquido, listagem, ano
+
+### [refactor] labeler context ?
+
+### search tickers by key
+e.g. lucro > X, top X lucro, ... 
+
+### col-dialog: click column-orderer item to find it (auto-expand and highlight) in column-selector 
 
 ### calc projecao: aggregate yahoo + tradingview
 

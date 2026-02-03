@@ -24,10 +24,6 @@ export function mapEntriesDepth3<A, B>(record: Rec<Rec<Rec<A>>>, fnK: (k: string
     return mapValuesDepth2(record, x => mapEntries(x, fnK, fnV));
 }
 
-export function keyLength(data: Rec<unknown>) {
-    return Object.keys(data).length;
-}
-
 export function allKeys(...records: Rec<unknown>[]): Set<string> {
     return new Set(records.flatMap(Object.keys));
 }

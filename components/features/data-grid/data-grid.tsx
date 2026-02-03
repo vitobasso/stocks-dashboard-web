@@ -38,15 +38,14 @@ type Props = {
 type Row = Record<string, string | number>;
 
 export function DataGrid(props: Props) {
-    const allKeys = useMemo(() => ["ticker", ...props.columns], [props.columns]);
+    const allColKeys = useMemo(() => ["ticker", ...props.columns], [props.columns]);
+    const getRowId = useCallback((row: Row) => row.ticker as string, [])
 
     const {getWidthPx, getMaxTextLength} = useColumnWidth(props.data, getAsText);
     const {hoveredCellCss, colClass} = useHoveredCellHighlight(props.columns);
-
-    const getRowId = useCallback((row: Row) => row.ticker as string, [])
     const { onCellClick, isClicked, clickedCell } = useClickedCell<Row>(getRowId)
 
-    const columns: readonly ColumnOrColumnGroup<Row>[] = useMemo(() => allKeys.map(key => ({
+    const columns: readonly ColumnOrColumnGroup<Row>[] = useMemo(() => allColKeys.map(key => ({
         key,
         name: renderHeader(props.labeler(key)),
         frozen: isTicker(key),
@@ -58,7 +57,7 @@ export function DataGrid(props: Props) {
         renderCell: p => renderCellWithTooltip(key, p.row)
     })), [props.columns, props.labeler, getWidthPx, colClass, clickedCell]);
 
-    const baseRows: Row[] = useMemo(() => props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
+    const rows: Row[] = useMemo(() => props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
         const entries = props.columns
             .map((key) => {
                 const value = getValue(props.data[ticker], key)
@@ -98,9 +97,8 @@ export function DataGrid(props: Props) {
     const cssVars = useCssVars([bgColor, fgColor, red, green])
 
     const colorScales = useMemo(() => {
-        const keys = allKeys;
         const map = new Map<string, (n: number) => string>();
-        for (const key of keys) {
+        for (const key of allColKeys) {
             const rule = colors[key];
             if (!rule) continue;
             const cssColors = rule.colors.map(c => cssVars[c]);
@@ -150,7 +148,7 @@ export function DataGrid(props: Props) {
         });
     }
 
-    const sortedRows = useMemo(() => getSortedRows(baseRows), [baseRows, sortColumns]);
+    const sortedRows = useMemo(() => getSortedRows(rows), [rows, sortColumns]);
     const renderers = useMemo(() => ({renderCell}), [renderCell])
 
     function renderCellWithTooltip(key: string, row: Row) {

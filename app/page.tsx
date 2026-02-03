@@ -6,7 +6,7 @@ import {makeLabeler} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/features/settings-dialog";
 import {DataGrid} from "@/components/features/data-grid/data-grid";
-import {mapValues, Rec, recordOfKeys, keyLength} from "@/lib/utils/records";
+import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
@@ -55,9 +55,10 @@ export default function Page() {
     const quotes = useQuoteQuery(rows, classOfTicker);
 
     const data: Rec<Data> | undefined = useMemo(() => {
-        if (!assetClasses) return;
-        return recordOfKeys(assetClasses, (ac => consolidateData([scraped[ac], quotes[ac], positions[ac]], ac)))
-    }, [scraped, quotes, positions, assetClasses]);
+        if (!assetClasses || !rows) return;
+        const base: Data = Object.fromEntries(rows.map((r) => [r, {}]))
+        return recordOfKeys(assetClasses, (ac => consolidateData([base, scraped[ac], quotes[ac], positions[ac]], ac)))
+    }, [rows, scraped, quotes, positions, assetClasses]);
 
     // ui
     const [openPanel, setOpenPanel] = useState<string | null>(null)
@@ -68,7 +69,7 @@ export default function Page() {
         <div className="flex flex-col gap-2 m-4">
             <ViewSelector metadata={metadata} labeler={labeler}
                           setAssetClass={setAc} setRows={setRows} setCols={setColumns} />
-            {(!ac || !rows || !columns || !metadata || !classOfTicker || !data || !keyLength(data[ac])) ? dataGridSkeleton() :
+            {(!ac || !rows || !columns || !metadata || !classOfTicker || !data) ? dataGridSkeleton() :
                 <>
                     <DataGrid className="flex-1"
                               rows={rows} columns={columns} data={data[ac]}

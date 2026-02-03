@@ -1,8 +1,5 @@
 import {ChartData, DataValue} from "@/lib/data";
 
-const numberFormatter = new Intl.NumberFormat('pt-BR', { useGrouping: false, maximumFractionDigits: 3 });
-const percentFormatter = new Intl.NumberFormat('pt-BR', { useGrouping: false, maximumFractionDigits: 2 });
-
 const formats: Record<string, "chart" | "percent"> = {
     "yahoo.chart.1mo": "chart",
     "yahoo.chart.1y": "chart",
@@ -19,6 +16,11 @@ const formats: Record<string, "chart" | "percent"> = {
     "chart": "chart",
     "percent": "percent",
 };
+
+const numberDigits = 3
+const percentDigits = numberDigits - 1
+const numberFmt = new Intl.NumberFormat('pt-BR', { useGrouping: false });
+const percentFmt = new Intl.NumberFormat('pt-BR', { useGrouping: false });
 
 export function isChart(key: string): boolean {
   return formats[key] === "chart";
@@ -46,12 +48,12 @@ export function getAsText(key: string, value: DataValue): string | undefined {
 
 function formatPercent(value: unknown): string | undefined {
     const n: number = typeof value === "number" ? value : Number(value);
-    if (isFinite(n)) return `${percentFormatter.format(trimDigits(n, 2))}%`;
+    if (isFinite(n)) return `${percentFmt.format(trimDigits(n, percentDigits))}%`;
 }
 
 function formatNumber(value: unknown): string | undefined {
     const n: number = typeof value === "number" ? value : Number(value);
-    if (isFinite(n)) return numberFormatter.format(trimDigits(n, 3))
+    if (isFinite(n)) return numberFmt.format(trimDigits(n, numberDigits))
 }
 
 const lengthLimit = 18
