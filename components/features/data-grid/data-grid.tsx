@@ -37,34 +37,53 @@ type Props = {
 
 type Row = Record<string, string | number>;
 
-export function DataGrid(props: Props) {
-    const allColKeys = useMemo(() => ["ticker", ...props.columns], [props.columns]);
+export function DataGrid({ rows, columns, data, metadata, labeler, className }: Props) {
+
+    const allColKeys = useMemo(() => ["ticker", ...columns], [columns]);
     const getRowId = useCallback((row: Row) => row.ticker as string, [])
 
-    const {getWidthPx, getMaxTextLength} = useColumnWidth(props.data, getAsText);
-    const {hoveredCellCss, colClass} = useHoveredCellHighlight(props.columns);
-    const { onCellClick, isClicked, clickedCell } = useClickedCell<Row>(getRowId)
+    const {getWidthPx, getMaxTextLength} = useColumnWidth(data, getAsText);
+    const {hoveredCellCss, colClass} = useHoveredCellHighlight(columns);
+    const {onCellClick, isClicked} = useClickedCell<Row>(getRowId)
 
-    const columns: readonly ColumnOrColumnGroup<Row>[] = useMemo(() => allColKeys.map(key => ({
-        key,
-        name: renderHeader(props.labeler(key)),
-        frozen: isTicker(key),
-        sortable: !isTicker(key),
-        headerCellClass: cn('text-center', colClass(key)),
-        cellClass: cn(cellClass(key), colClass(key)),
-        minWidth: getWidthPx(key),
-        width: getWidthPx(key),
-        renderCell: p => renderCellWithTooltip(key, p.row)
-    })), [props.columns, props.labeler, getWidthPx, colClass, clickedCell]);
+    const cellClass = useCallback((key: string) => {
+        const maxLength = getMaxTextLength(key);
+        const textAlign = maxLength && maxLength > 10 ? 'text-left' : 'text-center';
+        return `p-2 ${textAlign}`;
+    }, [getMaxTextLength]);
 
-    const rows: Row[] = useMemo(() => props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
-        const entries = props.columns
+    const renderCellWithTooltip = useCallback((key: string, row: Row) => {
+        const ticker = row.ticker as string;
+        const renderedValue = DataCell(key, row[key])
+        if (isTicker(key)) {
+            return <TickerCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} ticker={ticker} meta={metadata.sources}/>
+        } else {
+            return <DataCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} colKey={key} dataEntry={data[ticker]}/>
+        }
+    }, [data, metadata, isClicked])
+
+    const dgCols: readonly ColumnOrColumnGroup<Row>[] = useMemo(() => {
+        return allColKeys.map(key => ({
+            key,
+            name: renderHeader(labeler(key)),
+            frozen: isTicker(key),
+            sortable: !isTicker(key),
+            headerCellClass: cn('text-center', colClass(key)),
+            cellClass: cn(cellClass(key), colClass(key)),
+            minWidth: getWidthPx(key),
+            width: getWidthPx(key),
+            renderCell: p => renderCellWithTooltip(key, p.row)
+        }))
+    }, [allColKeys, labeler, cellClass, colClass, getWidthPx, renderCellWithTooltip]);
+
+    const dgRows: Row[] = useMemo(() => rows.toSorted().filter(ticker => data[ticker]).map(ticker => {
+        const entries = columns
             .map((key) => {
-                const value = getValue(props.data[ticker], key)
+                const value = getValue(data[ticker], key)
                 return [key, value]
             });
         return {"ticker": ticker, ...Object.fromEntries(entries)};
-    }), [props.rows, props.columns, props.data]);
+    }), [rows, columns, data]);
 
     function renderHeader(label: Label, onClick?: (e: React.MouseEvent) => void): ReactElement {
         const content = onClick ?
@@ -74,24 +93,6 @@ export function DataGrid(props: Props) {
             <TooltipTrigger asChild>{content}</TooltipTrigger>
             <TooltipContent>{label.long}</TooltipContent>
         </Tooltip>
-    }
-
-    function renderValue(key: string, value: DataValue): ReactElement {
-        if (isChart(key)) return renderChart(key, value);
-        return <>{getAsText(key, value) ?? ""}</>;
-    }
-
-    function renderChart(key: string, data: DataValue): ReactElement {
-        const chart = data as ChartData
-        if (!chart) return <></>
-        return <div style={{position: "relative"}}>
-            <span>{getAsText(key, data)}</span>
-            <div style={{position: "absolute", inset: -10}}>
-                <Sparklines data={chart.series} width={60} height={39} style={{opacity: 0.25}}>
-                    <SparklinesLine color="black" style={{fill: "none"}}/>
-                </Sparklines>
-            </div>
-        </div>
     }
 
     const cssVars = useCssVars([bgColor, fgColor, red, green])
@@ -107,31 +108,25 @@ export function DataGrid(props: Props) {
             map.set(key, (n: number) => scale(n).hex());
         }
         return map;
-    }, [props.columns, cssVars]);
+    }, [allColKeys, cssVars]);
 
-    function getBaseColor(key: string, data: DataValue): string {
+    const getBaseColor = useCallback((key: string, data: DataValue): string => {
         const number = getAsNumber(key, data);
         const toHex = colorScales.get(key);
         if (number == null || !toHex) return cssVars[bgColor];
         return toHex(number);
-    }
+    }, [colorScales, cssVars]);
 
     const renderCell = useCallback((key: React.Key, cellProps: CellRendererProps<Row, unknown>) => {
         const colKey = cellProps.column.key as string;
         const cellData = cellProps.row[colKey];
         const color = getBaseColor(colKey, cellData);
         return <Cell key={key} {...cellProps} className={cellProps.className} style={{ backgroundColor: color }}/>;
-    }, [colClass, colorScales, cssVars]);
-
-    function cellClass(key: string) {
-        const maxLength = getMaxTextLength(key);
-        const textAlign = maxLength && maxLength > 10 ? 'text-left' : 'text-center';
-        return `p-2 ${textAlign}`;
-    }
+    }, [getBaseColor]);
 
     const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
-    function getSortedRows<T extends Row>(rows: T[]): T[] {
+    const getSortedRows = useCallback((rows: Row[]): Row[] => {
         if (sortColumns.length === 0) return rows;
         const {columnKey, direction} = sortColumns[0]; // TODO multi cols
         return [...rows].sort((a, b) => {
@@ -146,28 +141,37 @@ export function DataGrid(props: Props) {
             if (av > bv) return direction === 'ASC' ? 1 : -1;
             return 0;
         });
-    }
+    }, [sortColumns]);
 
-    const sortedRows = useMemo(() => getSortedRows(rows), [rows, sortColumns]);
+    const sortedRows = useMemo(() => getSortedRows(dgRows), [dgRows, getSortedRows]);
     const renderers = useMemo(() => ({renderCell}), [renderCell])
-
-    function renderCellWithTooltip(key: string, row: Row) {
-        const ticker = row.ticker as string;
-        const renderedValue = renderValue(key, row[key])
-        if (isTicker(key)) {
-            return <TickerCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} ticker={ticker} meta={props.metadata.sources}/>
-        } else {
-            return <DataCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} colKey={key} dataEntry={props.data[ticker]}/>
-        }
-    }
 
     return <>
         <style>{hoveredCellCss}</style>
-        <ReactDataGrid className={cn("font-mono", props.className)}
-                      rows={sortedRows} columns={columns}
+        <ReactDataGrid className={cn("font-mono", className)}
+                      rows={sortedRows} columns={dgCols}
                       sortColumns={sortColumns} onSortColumnsChange={setSortColumns}
                       renderers={renderers} onCellClick={onCellClick}/>
     </>
+}
+
+
+function DataCell(key: string, value: DataValue): ReactElement {
+    if (isChart(key)) return ChartCell(key, value);
+    return <>{getAsText(key, value) ?? ""}</>;
+}
+
+function ChartCell(key: string, data: DataValue): ReactElement {
+    const chart = data as ChartData
+    if (!chart) return <></>
+    return <div style={{position: "relative"}}>
+        <span>{getAsText(key, data)}</span>
+        <div style={{position: "absolute", inset: -10}}>
+            <Sparklines data={chart.series} width={60} height={39} style={{opacity: 0.25}}>
+                <SparklinesLine color="black" style={{fill: "none"}}/>
+            </Sparklines>
+        </div>
+    </div>
 }
 
 type CellTooltipProps = {
@@ -222,7 +226,7 @@ export function TickerCellTooltip({open, renderedValue, ticker, meta}: TickerToo
     function tickerUrls(ticker: string): [string, string][] {
         const sourcesWithUrl = filterEntries(meta, (k, v) => Boolean(v.ticker_url))
         const tuples: [string, string][] = Object.entries(sourcesWithUrl)
-            .map(([_, v]) => [
+            .map(([, v]) => [
                 v.label,
                 v.ticker_url!.replace('$ticker', ticker)
             ]);

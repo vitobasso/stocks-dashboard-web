@@ -1,8 +1,7 @@
-
-### click cell on derived values should explain the calc (and give multiple links if needed)
-
 ### upgrade node and friends
 also tsconfig.json target to ES2020 (+performance, less old browser compatibility)
+
+### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### [bug] zeros not being colored red
 tag along, simplywall score

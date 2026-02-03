@@ -14,10 +14,6 @@ type CellId = {
 export function useClickedCell<Row extends Rec<unknown>>(getRowId: (row: Row) => string) {
     const [clickedCell, setClickedCell] = useState<CellId | null>(null)
 
-    const isSameCell = useCallback(
-        (a: CellId, b: CellId | null) => a.rowId === b?.rowId && a.colId === b?.colId,
-        [clickedCell])
-
     const onCellClick = useCallback((args: CellMouseArgs<Row>) => {
         const rowId = getRowId(args.row) as string
         const colId = args.column.key as string
@@ -56,5 +52,9 @@ export function useClickedCell<Row extends Rec<unknown>>(getRowId: (row: Row) =>
         }
     }, [clickedCell])
 
-    return {onCellClick, isClicked, clickedCell}
+    return {onCellClick, isClicked}
+}
+
+function isSameCell(a: CellId, b: CellId | null) {
+    return a.rowId === b?.rowId && a.colId === b?.colId;
 }

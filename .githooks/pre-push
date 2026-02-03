@@ -2,7 +2,7 @@
 [ "$(git branch --show-current)" != "main" ] && exit 0
 
 echo "Running linter..."
-pnpm tsc --noEmit && pnpm lint --fix
+pnpm tsc --noEmit && pnpm lint --fix --max-warnings=0
 
 if [ $? -ne 0 ]; then
   echo "Lint failed, push aborted."
