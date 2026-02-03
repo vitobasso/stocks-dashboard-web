@@ -61,12 +61,6 @@ export default function Page() {
 
     // ui
     const [openPanel, setOpenPanel] = useState<string | null>(null)
-    const [groupFilter, setGroupFilter] = useState<string | null>(null)
-
-    function onOpenPanelChange(m: React.SetStateAction<string | null>) {
-        setOpenPanel(m);
-        if (!m) setTimeout(() => setGroupFilter(null), 250); // wait for fade-out
-    }
 
     if (!metadata || !assetClasses || !labeler)
         return pageSkeleton();
@@ -80,7 +74,7 @@ export default function Page() {
                               rows={rows} columns={columns} data={data[assetClass]}
                               metadata={metadata[assetClass]} labeler={labeler[assetClass]}/>
                     <SettingsDialog setPositions={setPositions} classOfTickers={classOfTicker}
-                                    openPanel={openPanel} setOpenPanel={onOpenPanelChange}/>
+                                    openPanel={openPanel} setOpenPanel={setOpenPanel}/>
                 </>
             }
         </div>

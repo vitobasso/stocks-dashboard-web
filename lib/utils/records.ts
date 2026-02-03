@@ -16,7 +16,7 @@ export function filterEntries<A>(record: Rec<A>, fn: (k: string, v: A) => boolea
 }
 
 export function mapValuesDepth2<A, B>(record: Rec<Rec<A>>, fn: (value: A) => B): Rec<Rec<B>> {
-    let entries = Object.entries(record).map(([k, v]) => [k, mapValues(v, fn)]);
+    const entries = Object.entries(record).map(([k, v]) => [k, mapValues(v, fn)]);
     return Object.fromEntries(entries);
 }
 

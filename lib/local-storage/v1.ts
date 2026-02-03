@@ -50,7 +50,7 @@ function migrateViewsAvailable() {
 
 function migratePositions() {
     const v1: Rec<Data> = loadPositions();
-    const v2: Rec<Data> = mapEntriesDepth3(v1, (k, v) => migrateKey(k), (k, v) => v);
+    const v2: Rec<Data> = mapEntriesDepth3(v1, (k) => migrateKey(k), (_, v) => v);
     savePositions(v2);
 }
 

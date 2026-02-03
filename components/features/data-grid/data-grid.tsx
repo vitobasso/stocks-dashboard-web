@@ -219,7 +219,7 @@ export function TickerCellTooltip({open, renderedValue, ticker, meta}: TickerToo
 
     function tickerUrls(ticker: string): [string, string][] {
         const sourcesWithUrl = filterEntries(meta, (k, v) => Boolean(v.ticker_url))
-        let tuples: [string, string][] = Object.entries(sourcesWithUrl)
+        const tuples: [string, string][] = Object.entries(sourcesWithUrl)
             .map(([_, v]) => [
                 v.label,
                 v.ticker_url!.replace('$ticker', ticker)
