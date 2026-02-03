@@ -1,5 +1,8 @@
 import {ChartData, DataValue} from "@/lib/data";
 
+const numberFormatter = new Intl.NumberFormat('pt-BR', { useGrouping: false, maximumFractionDigits: 3 });
+const percentFormatter = new Intl.NumberFormat('pt-BR', { useGrouping: false, maximumFractionDigits: 2 });
+
 const formats: Record<string, "chart" | "percent"> = {
     "yahoo.chart.1mo": "chart",
     "yahoo.chart.1y": "chart",
@@ -42,13 +45,13 @@ export function getAsText(key: string, value: DataValue): string | undefined {
 }
 
 function formatPercent(value: unknown): string | undefined {
-    const n: number = Number(value);
-    if (isFinite(n)) return `${trimDigits(n, 2).toLocaleString('pt-BR', { useGrouping: false })}%`;
+    const n: number = typeof value === "number" ? value : Number(value);
+    if (isFinite(n)) return `${percentFormatter.format(trimDigits(n, 2))}%`;
 }
 
 function formatNumber(value: unknown): string | undefined {
-    const n: number = Number(value);
-    if (isFinite(n)) return trimDigits(n, 3).toLocaleString('pt-BR', { useGrouping: false })
+    const n: number = typeof value === "number" ? value : Number(value);
+    if (isFinite(n)) return numberFormatter.format(trimDigits(n, 3))
 }
 
 const lengthLimit = 18

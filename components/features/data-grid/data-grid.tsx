@@ -40,7 +40,7 @@ type Row = Record<string, string | number>;
 export function DataGrid(props: Props) {
     const allKeys = useMemo(() => ["ticker", ...props.columns], [props.columns]);
 
-    const {getColWidthPx, getColStats} = useColumnWidth(props.data, getAsText);
+    const {getWidthPx, getMaxTextLength} = useColumnWidth(props.data, getAsText);
     const {hoveredCellCss, colClass} = useHoveredCellHighlight(props.columns);
 
     const getRowId = useCallback((row: Row) => row.ticker as string, [])
@@ -53,10 +53,10 @@ export function DataGrid(props: Props) {
         sortable: !isTicker(key),
         headerCellClass: cn('text-center', colClass(key)),
         cellClass: cn(cellClass(key), colClass(key)),
-        minWidth: getColWidthPx(key),
-        width: getColWidthPx(key),
+        minWidth: getWidthPx(key),
+        width: getWidthPx(key),
         renderCell: p => renderCellWithTooltip(key, p.row)
-    })), [props.columns, props.labeler, getColWidthPx, colClass, clickedCell]);
+    })), [props.columns, props.labeler, getWidthPx, colClass, clickedCell]);
 
     const baseRows: Row[] = useMemo(() => props.rows.toSorted().filter(ticker => props.data[ticker]).map(ticker => {
         const entries = props.columns
@@ -126,8 +126,8 @@ export function DataGrid(props: Props) {
     }, [colClass, colorScales, cssVars]);
 
     function cellClass(key: string) {
-        const stats = getColStats(key);
-        const textAlign = stats?.maxLength && stats.maxLength > 10 ? 'text-left' : 'text-center';
+        const maxLength = getMaxTextLength(key);
+        const textAlign = maxLength && maxLength > 10 ? 'text-left' : 'text-center';
         return `p-2 ${textAlign}`;
     }
 
