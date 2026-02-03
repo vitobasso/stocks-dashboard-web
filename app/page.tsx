@@ -5,7 +5,7 @@ import {consolidateData, Data} from "@/lib/data";
 import {makeLabeler} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/features/settings-dialog";
-import {DataGrid} from "@/components/features/data-grid";
+import {DataGrid} from "@/components/features/data-grid/data-grid";
 import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {ViewSelector} from "@/components/features/views/view-selector";

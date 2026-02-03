@@ -64,26 +64,3 @@ function deriveEntry(data: DataEntry, derivations: Derivations): Data {
     }).filter(([, value]) => !!value)
     return Object.fromEntries(entries);
 }
-
-export type ColumnStats = { maxLength: number };
-type GetDisplay = (key: string, value: DataValue) => string | undefined;
-
-export function calcStats(data: Data, getDisplay: GetDisplay): Map<string, ColumnStats> {
-    const stats = new Map<string, ColumnStats>();
-    Object.entries(data).forEach(([ticker, cols]) => {
-        accStats("ticker", ticker, getDisplay, stats)
-        Object.entries(cols).forEach(([key, value]) => {
-            accStats(key, value, getDisplay, stats);
-        })
-    })
-    return stats
-}
-
-function accStats(key: string, value: DataValue, getDisplay: GetDisplay, stats: Map<string, ColumnStats>) {
-    const length = getDisplay(key, value)?.length;
-    if (length) {
-        const currentMax = stats.get(key)?.maxLength || 0;
-        const maxWidth = Math.max(currentMax, length);
-        stats.set(key, {maxLength: maxWidth});
-    }
-}
