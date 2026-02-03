@@ -2,25 +2,31 @@ import {Rec} from "@/lib/utils/records";
 import {useCallback, useEffect, useState} from "react";
 import {CellMouseArgs} from "react-data-grid";
 
+type CellId = {
+    rowId: string;
+    colId: string;
+}
+
 /**
  * Keeps trick of which Cell was last clicked in a ReactDataGrid.
  * The returned onCellClick must be passed to the ReactDataGrid to capture updates.
  */
 export function useClickedCell<Row extends Rec<unknown>>(getRowId: (row: Row) => string) {
-    const [clickedCell, setClickedCell] = useState<{ rowId: string; colId: string } | null>(null)
+    const [clickedCell, setClickedCell] = useState<CellId | null>(null)
+
+    const isSameCell = useCallback(
+        (a: CellId, b: CellId | null) => a.rowId === b?.rowId && a.colId === b?.colId,
+        [clickedCell])
 
     const onCellClick = useCallback((args: CellMouseArgs<Row>) => {
         const rowId = getRowId(args.row) as string
         const colId = args.column.key as string
-        setClickedCell(prev => (prev?.rowId === rowId && prev?.colId === colId ? null : {rowId, colId}));
-    }, [])
+        setClickedCell(prev => isSameCell({rowId, colId}, prev) ? null : {rowId, colId});
+    }, [getRowId])
 
     const isClicked = useCallback(
-        (rowId: string, colId: string) =>
-            clickedCell?.rowId === rowId &&
-            clickedCell?.colId === colId,
-        [clickedCell]
-    )
+        (rowId: string, colId: string) => isSameCell({rowId, colId}, clickedCell),
+        [clickedCell])
 
     useEffect(() => {
         if (!clickedCell) return
@@ -50,5 +56,5 @@ export function useClickedCell<Row extends Rec<unknown>>(getRowId: (row: Row) =>
         }
     }, [clickedCell])
 
-    return {onCellClick, isClicked}
+    return {onCellClick, isClicked, clickedCell}
 }

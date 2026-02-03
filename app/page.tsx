@@ -6,7 +6,7 @@ import {makeLabeler} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
 import {SettingsDialog} from "@/components/features/settings-dialog";
 import {DataGrid} from "@/components/features/data-grid/data-grid";
-import {mapValues, Rec, recordOfKeys} from "@/lib/utils/records";
+import {mapValues, Rec, recordOfKeys, keyLength} from "@/lib/utils/records";
 import {indexByFields} from "@/lib/utils/collections";
 import {ViewSelector} from "@/components/features/views/view-selector";
 import {loadPositions, savePositions} from "@/lib/local-storage/local-storage";
@@ -20,7 +20,7 @@ export default function Page() {
     const metadata = useMetadataQuery()
 
     // user defined state
-    const [assetClass, setAssetClass] = useState<string | null>(null);
+    const [ac, setAc] = useState<string | null>(null);
     const [rows, setRows] = useState<string[] | null>(null);
     const [columns, setColumns] = useState<string[] | null>(null);
     const [positions, setPositions] = useState<Rec<Data>>({});
@@ -47,11 +47,11 @@ export default function Page() {
 
     const scrapedSubscription = useScrapedSubscription();
     useEffect(() => {
-        if (!assetClass || !rows) return;
-        scrapedSubscription.add(assetClass, rows)
-    }, [assetClass, rows, scrapedSubscription]);
+        if (!ac || !rows) return;
+        scrapedSubscription.add(ac, rows)
+    }, [ac, rows, scrapedSubscription]);
 
-    const scraped = useScrapedQuery(assetClass, rows);
+    const scraped = useScrapedQuery(ac, rows);
     const quotes = useQuoteQuery(rows, classOfTicker);
 
     const data: Rec<Data> | undefined = useMemo(() => {
@@ -67,12 +67,12 @@ export default function Page() {
     return <div className="min-h-screen flex flex-col">
         <div className="flex flex-col gap-2 m-4">
             <ViewSelector metadata={metadata} labeler={labeler}
-                          setAssetClass={setAssetClass} setRows={setRows} setCols={setColumns} />
-            {(!assetClass || !rows || !columns || !metadata || !data || !classOfTicker) ? dataGridSkeleton() :
+                          setAssetClass={setAc} setRows={setRows} setCols={setColumns} />
+            {(!ac || !rows || !columns || !metadata || !classOfTicker || !data || !keyLength(data[ac])) ? dataGridSkeleton() :
                 <>
                     <DataGrid className="flex-1"
-                              rows={rows} columns={columns} data={data[assetClass]}
-                              metadata={metadata[assetClass]} labeler={labeler[assetClass]}/>
+                              rows={rows} columns={columns} data={data[ac]}
+                              metadata={metadata[ac]} labeler={labeler[ac]}/>
                     <SettingsDialog setPositions={setPositions} classOfTickers={classOfTicker}
                                     openPanel={openPanel} setOpenPanel={setOpenPanel}/>
                 </>

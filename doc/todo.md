@@ -1,6 +1,10 @@
 # TODO
 labeler context ?
 
+### perf hotspots
+formats.ts formatNumber (when changing tabs)
+use-column-width.ts calcStats (when loading page, calls formatNumber)
+
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### upgrade node and friends
