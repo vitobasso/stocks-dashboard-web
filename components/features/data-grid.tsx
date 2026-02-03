@@ -1,7 +1,24 @@
 "use client";
 import {ReactElement, useCallback, useEffect, useState} from "react";
-import {Cell, CellMouseArgs, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
-import {calcStats, ChartData, ColumnStats, Data, DataValue, getPrefix, getValue, SpecificMetadata} from "@/lib/data";
+import {
+    Cell,
+    CellMouseArgs,
+    CellRendererProps,
+    ColumnOrColumnGroup,
+    DataGrid as ReactDataGrid,
+    SortColumn
+} from "react-data-grid";
+import {
+    calcStats,
+    ChartData,
+    ColumnStats,
+    Data,
+    DataValue,
+    getPrefix,
+    getValue,
+    Metadata,
+    SpecificMetadata
+} from "@/lib/data";
 import chroma, {Color} from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
@@ -12,11 +29,13 @@ import {getAsNumber, getAsSortable, getAsText, isChart} from "@/lib/metadata/for
 import {cn} from "@/lib/utils";
 import {getAppliedTheme} from "@/lib/theme";
 import {timeAgo} from "@/lib/utils/datetime";
+import {filterEntries} from "@/lib/utils/records";
 
 type Props = {
     rows: string[]
     columns: string[]
     data: Data
+    metadata: Metadata
     labeler(path: string): Label
     className?: string
 }
@@ -134,11 +153,24 @@ export function DataGrid(props: Props) {
     }
 
     const [clickedCell, setClickedCell] = useState<{ ticker: string; key: string } | null>(null);
-
     function onCellClick(args: CellMouseArgs<Row>) {
         const ticker = args.row.ticker as string;
         const key = args.column.key as string;
         setClickedCell(prev => (prev?.ticker === ticker && prev?.key === key ? null : {ticker, key}));
+    }
+    function isClicked(ticker: string, key: string) {
+        return clickedCell?.ticker === ticker && clickedCell?.key === key;
+    }
+
+    function tickerUrls(ticker: string): [string, string][] {
+        const sourcesWithUrl = filterEntries(props.metadata.sources, (k, v) => Boolean(v.ticker_url))
+        let tuples: [string, string][] = Object.entries(sourcesWithUrl)
+            .map(([_, v]) => [
+                v.label,
+                v.ticker_url!.replace('$ticker', ticker)
+            ]);
+        return tuples
+            .toSorted((a, b) => a[0].localeCompare(b[0]));
     }
 
     useEffect(() => {
@@ -172,9 +204,8 @@ export function DataGrid(props: Props) {
         const meta = specificMetadata(ticker, key)
         const renderedValue = renderValue(key, row[key])
         if (meta?.source || meta?.updated_at) {
-            const open = clickedCell?.ticker === ticker && clickedCell?.key === key;
             const updatedAt = meta?.updated_at ? timeAgo(new Date(meta.updated_at)) : undefined
-            return <Tooltip open={open}>
+            return <Tooltip open={isClicked(ticker, key)}>
                 <TooltipTrigger asChild>
                     <div className="cursor-pointer">{renderedValue}</div>
                 </TooltipTrigger>
@@ -186,6 +217,24 @@ export function DataGrid(props: Props) {
                             </a>
                         </p>}
                         {updatedAt && <p>Atualizado {updatedAt}</p>}
+                    </div>
+                </TooltipContent>
+            </Tooltip>
+        } else if (key === "ticker") {
+            return <Tooltip open={isClicked(ticker, key)}>
+                <TooltipTrigger asChild>
+                    <div className="cursor-pointer">{renderedValue}</div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                    <div className="">
+                        <p className="font-bold">Links</p>
+                        {tickerUrls(ticker).map(([source, url]) =>
+                            <p key={source}>
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
+                                    {source}
+                                </a>
+                            </p>
+                        )}
                     </div>
                 </TooltipContent>
             </Tooltip>

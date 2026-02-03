@@ -1,9 +1,6 @@
 # TODO
 labeler context ?
 
-### click ticker
-- list of links
-
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### upgrade node and friends

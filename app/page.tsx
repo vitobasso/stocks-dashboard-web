@@ -78,7 +78,7 @@ export default function Page() {
                 <>
                     <DataGrid className="flex-1"
                               rows={rows} columns={columns} data={data[assetClass]}
-                              labeler={labeler[assetClass]}/>
+                              metadata={metadata[assetClass]} labeler={labeler[assetClass]}/>
                     <SettingsDialog setPositions={setPositions} classOfTickers={classOfTicker}
                                     openPanel={openPanel} setOpenPanel={onOpenPanelChange}/>
                 </>

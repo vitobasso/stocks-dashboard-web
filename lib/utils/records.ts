@@ -1,12 +1,17 @@
 export type Rec<A> = Record<string, A>;
 
-export function mapValues<A, B>(record: Rec<A>, fn: (value: A) => B): Rec<B> {
+export function mapValues<A, B>(record: Rec<A>, fn: (v: A) => B): Rec<B> {
     const entries = Object.entries(record).map(([k, v]) => [k, fn(v)]);
     return Object.fromEntries(entries)
 }
 
 export function mapEntries<A, B>(record: Rec<A>, fnK: (k: string, v: A) => string, fnV: (k: string, v: A) => B): Rec<B> {
     const entries = Object.entries(record).map(([k, v]) => [fnK(k, v), fnV(k, v)]);
+    return Object.fromEntries(entries)
+}
+
+export function filterEntries<A>(record: Rec<A>, fn: (k: string, v: A) => boolean): Rec<A> {
+    const entries = Object.entries(record).filter(([k, v]) => fn(k, v));
     return Object.fromEntries(entries)
 }
 
