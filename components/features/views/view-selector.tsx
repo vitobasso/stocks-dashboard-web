@@ -23,13 +23,8 @@ type Props = {
 };
 
 export function ViewSelector(props: Props) {
-    const [viewsAvailable, setViewsAvailable] = useState<Rec<ViewsAvailable> | null>(null);
-    const [selection, setSelection] = useState<ViewSelection | null>(null);
-
-    useEffect(() => {
-        setViewsAvailable(loadViewsAvailable());
-        setSelection(loadViewSelection());
-    }, []);
+    const [viewsAvailable, setViewsAvailable] = useState<Rec<ViewsAvailable>>(loadViewsAvailable());
+    const [selection, setSelection] = useState<ViewSelection>(loadViewSelection());
 
     useEffect(() => {
         if (viewsAvailable) saveViewsAvailable(viewsAvailable);

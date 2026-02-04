@@ -1,27 +1,13 @@
-import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
+import next from "eslint-config-next";
+
 import {defineConfig} from "eslint/config";
 
 export default defineConfig([
+    ...next,
     {
-        ignores: [".next/**", "node_modules/**"],
-    },
-    {
-        languageOptions: {
-            globals: globals.browser
-        },
-
-    },
-    js.configs.recommended,
-    tseslint.configs.recommended,
-    {
-        ...pluginReact.configs.flat.recommended,
-        settings: {
-            react: {
-                version: "detect",
-            },
-        },
+        rules: {
+            "react-hooks/preserve-manual-memoization": "off", // TODO: enable react compiler and remove this
+            "react/no-unescaped-entities": ["error", {"forbid": ['>', '\'', '}']}], // relaxes the rule to allow quotes
+        }
     }
 ]);

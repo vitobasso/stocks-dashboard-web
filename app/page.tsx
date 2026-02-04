@@ -23,11 +23,7 @@ export default function Page() {
     const [ac, setAc] = useState<string | null>(null);
     const [rows, setRows] = useState<string[] | null>(null);
     const [columns, setColumns] = useState<string[] | null>(null);
-    const [positions, setPositions] = useState<Rec<Data>>({});
-
-    useEffect(() => {
-        setPositions(loadPositions());
-    }, []);
+    const [positions, setPositions] = useState<Rec<Data>>(() => loadPositions());
 
     useEffect(() => {
         savePositions(positions);

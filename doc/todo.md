@@ -1,10 +1,7 @@
-### next/codemod warnings
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm warn deprecated cross-spawn-async@2.2.5: cross-spawn no longer requires a build toolchain, use it instead
-npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
-npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Supp
-
-### click cell on derived values should explain the calc (and give multiple links if needed)
+### enable react compiler
+https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler
+re-enable related lint rule
+remove useMemo and useCallback everywhere
 
 ### [bug] showing "0" instead of "-"
 
@@ -13,6 +10,8 @@ npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and cont
 
 ### add colors
 patrimonio liquido, listagem, ano
+
+### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### [refactor] labeler context ?
 
@@ -42,6 +41,7 @@ price color depends on industry or avg of industry
 
 ### test
 column-selector search
+dialogs: col/row create/edit
 
 ### other data presentations
 - aggregate per sector: total position or return

@@ -20,16 +20,18 @@ type Props = {
 }
 
 export function ColEditDialog(props: Props) {
-    const [name, setName] = useState("");
-    const [keys, setKeys] = useState<string[]>([]);
+    const [name, setName] = useState(props.viewToEdit?.name ?? "");
+    const [keys, setKeys] = useState<string[]>([...(props.viewToEdit?.items ?? [])]);
     const colSelectorRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
+    const [prevOpen, setPrevOpen] = useState(props.open);
+    if (props.open !== prevOpen) {
+        setPrevOpen(props.open);
         if (props.open) {
-            setName(props.viewToEdit?.name ?? "");
-            setKeys([...(props.viewToEdit?.items ?? [])]);
+            setName(props.viewToEdit?.name ?? "")
+            setKeys([...(props.viewToEdit?.items ?? [])])
         }
-    }, [props.open, props.viewToEdit]);
+    }
 
     function isValid(): boolean {
         const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)

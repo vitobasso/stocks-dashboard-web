@@ -19,12 +19,10 @@ type Props = {
 export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
 
     const [search, setSearch] = useState("")
-    const [expandedGroups, setExpandedGroups] = useState<string[]>([])
-    const manualExpandRef = useRef(false) // when true, do not auto-suggest expand values
 
     const deferredSearch = useDeferredValue(search)
     const isSearching = deferredSearch.trim().length > 0
-    const q = useMemo(() => toNorm(deferredSearch), [deferredSearch])
+    const normSearch = useMemo(() => toNorm(deferredSearch), [deferredSearch])
 
     const selectedKeys: Set<string> = useMemo(() =>
             props.columns.reduce((s, k) => {
@@ -40,16 +38,16 @@ export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) =
     }, [props.allKeys]);
 
     function keyMatches(key: string): boolean {
-        return toNorm(props.labeler(key)?.short).includes(q) ||
-            toNorm(props.labeler(key)?.long).includes(q)
+        return toNorm(props.labeler(key)?.short).includes(normSearch) ||
+            toNorm(props.labeler(key)?.long).includes(normSearch)
     }
 
     const {labeler} = props;
     const groupItselfMatches = useCallback((group: string): boolean => {
         const label = labeler(group)
-        return toNorm(label?.short).includes(q) ||
-            toNorm(label?.long).includes(q)
-    }, [labeler, q]);
+        return toNorm(label?.short).includes(normSearch) ||
+            toNorm(label?.long).includes(normSearch)
+    }, [labeler, normSearch]);
 
     function groupOrChildrenMatch(group: string): boolean {
         if (!isSearching) return true
@@ -69,34 +67,47 @@ export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) =
         ? allGroups.filter(p => groupOrChildrenMatch(p))
         : allGroups
 
-    // auto-suggest expand values in the accordion
-    useEffect(() => {
-        if (!isSearching || manualExpandRef.current) return
-        const expand = new Set<string>()
-        // expand all matching groups by name
+    const groupsMatchingSearch = useMemo(() => {
+        if (!isSearching) return []
+        const result = new Set<string>()
+        // result all matching groups by name
         for (const p of groupNamesMatching) {
-            expand.add(p)
+            result.add(p)
         }
-        // expand ancestors of matching keys
+        // result ancestors of matching keys
         for (const k of visibleKeys) {
             const p = getRoot(k)
-            if (p) expand.add(p)
+            if (p) result.add(p)
         }
-        const next = Array.from(expand)
-        setExpandedGroups(prev => (
-            prev.length === next.length && prev.every((v, i) => v === next[i])
-        ) ? prev : next)
-    }, [q, visibleKeys, isSearching, groupNamesMatching])
+        return Array.from(result)
+    }, [visibleKeys, isSearching, groupNamesMatching])
+    const stableGroupsMatchingSearch = groupsMatchingSearch.toSorted().join("|");
 
-    // reset manual override of accordion expand/collapse state when search query changes
+    const [accordionChanges, setAccordionChanges] = useState<Record<string, boolean>>({});
+
     useEffect(() => {
-        manualExpandRef.current = false
-    }, [q])
+        setAccordionChanges({}); // eslint-disable-line react-hooks/set-state-in-effect
+    }, [stableGroupsMatchingSearch]);
 
-    const onAccordionChange = useCallback((v: string[]) => {
-        manualExpandRef.current = true;
-        setExpandedGroups(v)
-    }, [])
+    const groupsExpanded = useMemo(() => {
+        return allGroups.filter(group => {
+            if (groupsMatchingSearch.length) {
+                if (!groupsMatchingSearch.includes(group)) return false;
+                return accordionChanges[group] || accordionChanges[group] === undefined;
+            }
+            return accordionChanges[group];
+        });
+    }, [allGroups, groupsMatchingSearch, accordionChanges])
+
+    const onAccordionChange = useCallback((openGroups: string[]) => {
+        const added = openGroups.filter(g => !groupsExpanded.includes(g));
+        const removed = groupsExpanded.filter(g => !openGroups.includes(g));
+        setAccordionChanges(prev => ({
+            ...prev,
+            ...Object.fromEntries(added.map(g => [g, true])),
+            ...Object.fromEntries(removed.map(g => [g, false])),
+        }));
+    }, [groupsExpanded])
 
     return <div className="w-full">
         <Input className="mb-2"
@@ -104,7 +115,7 @@ export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) =
                onChange={e => setSearch(e.target.value)}
                ref={ref} autoFocus={props.autoFocus}/>
         <div className="flex-1 p-1">
-            <Accordion type="multiple" value={expandedGroups} onValueChange={onAccordionChange}>
+            <Accordion type="multiple" value={groupsExpanded} onValueChange={onAccordionChange}>
                 {visibleGroups.map(group => {
                     const byGroup = (key: string) => getRoot(key) === group
                     const allKeysInGroup = keysByGroup.get(group) ?? []
@@ -139,7 +150,7 @@ function ColumnGroup(
     return <AccordionItem key={group} value={group} className="border-b-0">
         <AccordionTrigger className="pt-0">
             <div className="flex items-center gap-2">
-                <Checkbox checked={checkedState} onCheckedChange={onToggle}
+                <Checkbox className="cursor-default" checked={checkedState} onCheckedChange={onToggle}
                           onClick={(e) => e.stopPropagation()}/>
                 <div>
                     <div className="text-sm">{groupLabel.short}</div>
@@ -165,8 +176,9 @@ function ColumnKey(key: string, selectedKeys: Set<string>, props: Props) {
     }
 
     const label = props.labeler(key)
-    return <label key={getSuffix(key)} className="flex items-center gap-2 cursor-pointer">
-        <Checkbox checked={selectedKeys.has(key)} onCheckedChange={onToggle}/>
+    return <label key={getSuffix(key)} className="flex items-center gap-2"
+                  onClick={() => onToggle(!selectedKeys.has(key))}>
+        <Checkbox checked={selectedKeys.has(key)}/>
         <span className="text-sm font-mono">{label.short}</span>
         <span className="text-xs text-muted-foreground">{label.long}</span>
     </label>;

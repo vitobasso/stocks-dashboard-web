@@ -21,10 +21,13 @@ export function ColCreateDialog(props: Props) {
     const [name, setName] = useState("");
     const [keys, setKeys] = useState<string[]>([]);
 
-    useEffect(() => { if (props.open) resetForm() }, [props.open])
-    function resetForm() {
-        setName("")
-        setKeys([])
+    const [prevOpen, setPrevOpen] = useState(props.open);
+    if (props.open !== prevOpen) {
+        setPrevOpen(props.open);
+        if (props.open) {
+            setName("")
+            setKeys([])
+        }
     }
 
     function isValid(): boolean {

@@ -18,10 +18,13 @@ export function RowCreateDialog(props: Props) {
     const [name, setName] = useState("");
     const [tickers, setTickers] = useState<string[]>([]);
 
-    useEffect(() => { if (props.open) resetForm() }, [props.open])
-    function resetForm() {
-        setName("")
-        setTickers([])
+    const [prevOpen, setPrevOpen] = useState(props.open);
+    if (props.open !== prevOpen) {
+        setPrevOpen(props.open);
+        if (props.open) {
+            setName("")
+            setTickers([])
+        }
     }
 
     function isValid(): boolean {

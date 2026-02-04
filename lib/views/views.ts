@@ -15,8 +15,8 @@ const keyMap = {
 } as const;
 
 export function viewsCrud(
-    setViewsAvailable: Dispatch<SetStateAction<Record<string, ViewsAvailable> | null>>,
-    setSelection: Dispatch<SetStateAction<ViewSelection | null>>
+    setViewsAvailable: Dispatch<SetStateAction<Record<string, ViewsAvailable>>>,
+    setSelection: Dispatch<SetStateAction<ViewSelection>>
 ) {
 
     function updateViews(axis: Axis,
@@ -24,7 +24,6 @@ export function viewsCrud(
                          fn: (v: AnyView[]) => AnyView[],
                          onUpdated?: (result: AnyView[]) => void) {
         setViewsAvailable(v => {
-            if (!v) return v;
             const updated = fn(v[ac][keyMap[axis].views])
             if (onUpdated) onUpdated(updated);
             return {
@@ -39,7 +38,6 @@ export function viewsCrud(
 
     function select(axis: Axis, fn: (v: string[]) => string[]) {
         setSelection(s => {
-            if (!s) return s;
             return {
                 ...s,
                 [keyMap[axis].viewNames]: {

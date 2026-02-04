@@ -17,16 +17,18 @@ type Props = {
 }
 
 export function RowEditDialog(props: Props) {
-    const [name, setName] = useState("");
-    const [tickers, setTickers] = useState<string[]>([]);
+    const [name, setName] = useState(props.viewToEdit?.name ?? "");
+    const [tickers, setTickers] = useState<string[]>([...(props.viewToEdit?.items ?? [])]);
     const rowSelectorRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
+    const [prevOpen, setPrevOpen] = useState(props.open);
+    if (props.open !== prevOpen) {
+        setPrevOpen(props.open);
         if (props.open) {
-            setName(props.viewToEdit?.name ?? "");
-            setTickers([...(props.viewToEdit?.items ?? [])]);
+            setName(props.viewToEdit?.name ?? "")
+            setTickers([...(props.viewToEdit?.items ?? [])])
         }
-    }, [props.open, props.viewToEdit]);
+    }
 
     function isValid(): boolean {
         const dupName = props.allViewNames.filter(n => n !== props.viewToEdit?.name).includes(name)
