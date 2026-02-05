@@ -12,20 +12,18 @@ import {
     MetadataSource,
     SpecificMetadata
 } from "@/lib/data";
-import chroma from "chroma-js";
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
-import {bgColor, colors, fgColor, green, red} from "@/lib/metadata/colors";
 import {Label} from "@/lib/metadata/labels";
-import {useCssVars} from "@/hooks/use-css-vars";
-import {getAsNumber, getAsSortable, getAsText, isChart} from "@/lib/metadata/formats";
+import {getAsSortable, getAsText, isChart} from "@/lib/metadata/formats";
 import {cn} from "@/lib/utils";
 import {timeAgo} from "@/lib/utils/datetime";
 import {filterEntries, Rec} from "@/lib/utils/records";
 import {useClickedCell} from "@/components/features/data-grid/use-clicked-cell";
 import {useColumnWidth} from "@/components/features/data-grid/use-column-width";
 import {useHoveredCellHighlight} from "@/components/features/data-grid/use-hovered-cell-highlight";
-import Color from "colorjs.io";
+import {useCellColors} from "@/components/features/data-grid/use-cell-colors";
+
 
 type Props = {
     rows: string[]
@@ -94,37 +92,7 @@ export function DataGrid({ rows, columns, data, metadata, labeler, className }: 
         return `p-2 ${textAlign}`;
     }
 
-    const cssVars = useCssVars([bgColor, fgColor, red, green])
-
-    const colorScales = mapColorScales();
-    function mapColorScales() {
-        const map = new Map<string, (n: number) => string>();
-        for (const key of allColKeys) {
-            const rule = colors[key];
-            if (!rule) continue;
-            const cssColors = rule.colors.map(c => multiplyAlpha(cssVars[c], rule.alpha));
-            if (cssColors.some(c => !c)) continue;
-            const scale = chroma.scale(cssColors).domain(rule.domain);
-            map.set(key, (n: number) => scale(n).hex());
-        }
-        return map;
-    }
-
-    function multiplyAlpha(input: string, alpha?: number): string {
-        if (!alpha) return input;
-        const a = Math.max(0, Math.min(1, alpha));
-        const color = new Color(input);
-        const currentAlpha = color.alpha ?? 1;
-        color.alpha = currentAlpha * a;
-        return color.toString({ format: "css" });
-    }
-
-    function getCellColor(key: string, data: DataValue): string {
-        const number = getAsNumber(key, data);
-        const toHex = colorScales.get(key);
-        if (number == null || !toHex) return cssVars[bgColor];
-        return toHex(number);
-    }
+    const getCellColor = useCellColors(allColKeys);
 
     function renderCell(key: React.Key, cellProps: CellRendererProps<Row, unknown>) {
         const colKey = cellProps.column.key as string;
