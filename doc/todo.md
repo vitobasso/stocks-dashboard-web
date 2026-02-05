@@ -20,8 +20,6 @@ reorder tabs
 
 ### when importing b3, add all tickers (ask confirmation)
 
-### order by multi cols
-
 ### customize: color rules ?
 
 ### customize: calculated columns ?
