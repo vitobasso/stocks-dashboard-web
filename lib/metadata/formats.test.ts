@@ -1,4 +1,4 @@
-import {getAsText, trimDigits} from '../formats';
+import {getAsText, trimDigits} from './formats';
 import { describe, test, expect } from '@jest/globals';
 
 describe('trimDigits', () => {

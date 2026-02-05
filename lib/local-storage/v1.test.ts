@@ -1,5 +1,5 @@
 import {describe, expect, test} from "@jest/globals";
-import {migrateIfNeeded} from "../local-storage";
+import {migrateIfNeeded} from "./local-storage";
 
 const viewsAvailableV1 = {
     "stock_br": {

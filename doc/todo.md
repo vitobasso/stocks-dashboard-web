@@ -1,3 +1,6 @@
+### column-selector: fix pointer in subtitle and dialog name
+h4, h2?
+
 ### enable react compiler
 https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler
 re-enable related lint rule
@@ -40,7 +43,6 @@ reorder tabs
 price color depends on industry or avg of industry
 
 ### test
-column-selector search
 dialogs: col/row create/edit
 
 ### other data presentations
