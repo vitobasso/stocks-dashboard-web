@@ -1,6 +1,6 @@
 "use client";
-import {ReactElement, useState} from "react";
-import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
+import {ReactElement} from "react";
+import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid} from "react-data-grid";
 import {
     ChartData,
     Data,
@@ -15,7 +15,7 @@ import {
 import {Sparklines, SparklinesLine} from 'react-sparklines';
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 import {Label} from "@/lib/metadata/labels";
-import {getAsSortable, getAsText, isChart} from "@/lib/metadata/formats";
+import {getAsText, isChart} from "@/lib/metadata/formats";
 import {cn} from "@/lib/utils";
 import {timeAgo} from "@/lib/utils/datetime";
 import {filterEntries, Rec} from "@/lib/utils/records";
@@ -23,6 +23,7 @@ import {useClickedCell} from "@/components/features/data-grid/use-clicked-cell";
 import {useColumnWidth} from "@/components/features/data-grid/use-column-width";
 import {useHoveredCellHighlight} from "@/components/features/data-grid/use-hovered-cell-highlight";
 import {useCellColors} from "@/components/features/data-grid/use-cell-colors";
+import {useSortColumns} from "@/components/features/data-grid/use-sort-columns";
 
 
 type Props = {
@@ -101,29 +102,12 @@ export function DataGrid({ rows, columns, data, metadata, labeler, className }: 
         return <Cell key={key} {...cellProps} className={cellProps.className} style={{backgroundColor: color}}/>;
     }
 
-    const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
-
-    function getSortedRows(rows: Row[]): Row[] {
-        if (sortColumns.length === 0) return rows;
-        const {columnKey, direction} = sortColumns[0]; // TODO multi cols
-        return [...rows].sort((a, b) => {
-            const av = getAsSortable(columnKey, a[columnKey]);
-            const bv = getAsSortable(columnKey, b[columnKey]);
-
-            if (av == null && bv == null) return 0;
-            if (av == null) return direction === 'ASC' ? -1 : 1; // put null/undefined first
-            if (bv == null) return direction === 'ASC' ? 1 : -1;
-
-            if (av < bv) return direction === 'ASC' ? -1 : 1;
-            if (av > bv) return direction === 'ASC' ? 1 : -1;
-            return 0;
-        });
-    }
+    const {sortedRows, sortColumns, setSortColumns} = useSortColumns(dgRows);
 
     return <>
         <style>{hoveredCellCss}</style>
         <ReactDataGrid className={cn("font-mono", className)}
-                       rows={getSortedRows(dgRows)} columns={dgCols}
+                       rows={sortedRows} columns={dgCols}
                        sortColumns={sortColumns} onSortColumnsChange={setSortColumns}
                        renderers={{renderCell}} onCellClick={onCellClick}/>
     </>
