@@ -3,7 +3,7 @@ import {useEffect, useState} from "react"
 
 export function useCssVars(names: string[]) {
 
-    const read = () => { // eslint-disable-line react-hooks/exhaustive-deps
+    function read() { // eslint-disable-line react-hooks/exhaustive-deps
         const s = getComputedStyle(document.documentElement)
         return Object.fromEntries(names.map(n => [n, s.getPropertyValue(n).trim()]))
     }

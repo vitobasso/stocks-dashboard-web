@@ -4,16 +4,16 @@ export const red = "--chart-1";
 export const green = "--chart-2";
 
 export type Colors = Record<string, ColorRule>;
-export type ColorRule = { domain: number[], colors: string[] }
+export type ColorRule = { domain: number[], colors: string[], alpha?: number }
 
 export const colors: Colors = {
 
     // common
 
-    "yahoo.chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
-    "yahoo.chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green]}, //selic anual media: 13.84
-    "yahoo.chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green]}, //selic acc 5 anos: 92.4
-    "yahoo.derived.chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green]},
+    "yahoo.derived.chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green], alpha: 0.5},
+    "yahoo.chart.1mo": {domain: [-20, -5, 10, 20], colors: [red, bgColor, bgColor, green], alpha: 0.5},
+    "yahoo.chart.1y": {domain: [-20, 8.8, 18.8, 45], colors: [red, bgColor, bgColor, green], alpha: 0.25}, //selic anual media: 13.84
+    "yahoo.chart.5y": {domain: [0, 70, 115, 150], colors: [red, bgColor, bgColor, green], alpha: 0.125}, //selic acc 5 anos: 92.4
 
     "b3.derived.position.price_variation": {domain: [-60, 0, 40], colors: [red, bgColor, green]},
     "b3.derived.position.cumulative_return": {domain: [-50, 0, 50], colors: [red, bgColor, green]},
@@ -81,9 +81,9 @@ export const colors: Colors = {
 
     "statusinvest.derived.ey": {domain: [0, 10], colors: [red, bgColor]},
     "statusinvest.liquidez_media_diaria": {domain: [4, 6], colors: [red, bgColor]},
-    "yahoo.derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green]},
-    "yahoo.derived.forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green]},
-    "yahoo.derived.forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green]},
+    "yahoo.derived.forecast.min_pct": {domain: [-20, 0, 10, 30], colors: [red, bgColor, bgColor, green], alpha: 0.25},
+    "yahoo.derived.forecast.avg_pct": {domain: [-5, 5, 20, 80], colors: [red, bgColor, bgColor, green], alpha: 0.25},
+    "yahoo.derived.forecast.max_pct": {domain: [10, 25, 60, 100], colors: [red, bgColor, bgColor, green], alpha: 0.25},
 
     // reit_br
     "fundamentus.ffo_yield":        {domain: [0, 5, 10, 20], colors: [red, bgColor, bgColor, green]},
