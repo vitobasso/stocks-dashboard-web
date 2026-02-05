@@ -1,5 +1,3 @@
-### [bug] showing "0" instead of "-"
-
 ### tone down colors for not-so-important cols
 1A, 5A, listagem, ano
 

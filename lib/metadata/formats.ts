@@ -52,6 +52,7 @@ function formatPercent(value: unknown): string | undefined {
 }
 
 function formatNumber(value: unknown): string | undefined {
+    if (value == null) return undefined;
     const n: number = typeof value === "number" ? value : Number(value);
     if (isFinite(n)) return numberFmt.format(trimDigits(n, numberDigits))
 }

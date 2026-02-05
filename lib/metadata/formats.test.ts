@@ -69,6 +69,7 @@ describe('getAsText', () => {
     test('invalid', () => {
         expect(getAsText("", 1/0)).toBe("");
         expect(getAsText("", NaN)).toBe("");
+        expect(getAsText("", null as any)).toBe("");
         expect(getAsText("", { series: [], variation: 123 })).toBe("");
         expect(getAsText("percent", 1/0)).toBe(undefined);
         expect(getAsText("percent", NaN)).toBe(undefined);
