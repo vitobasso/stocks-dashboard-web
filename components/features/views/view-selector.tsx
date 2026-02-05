@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from "react";
+import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {Rec, recordOfKeys} from "@/lib/utils/records";
 import {Button} from "@/components/ui/button";
 import {Metadata} from "@/lib/data";
@@ -12,17 +12,22 @@ import {RowCreateDialog} from "@/components/features/views/row-create-dialog";
 import {ColCreateDialog} from "@/components/features/views/col-create-dialog";
 import {flattenUnique} from "@/lib/utils/collections";
 import {arraysEq} from "@/lib/utils/strings";
-import {loadViewsAvailable, loadViewSelection, saveViewsAvailable, saveViewSelection} from "@/lib/local-storage/local-storage";
+import {
+    loadViewsAvailable,
+    loadViewSelection,
+    saveViewsAvailable,
+    saveViewSelection
+} from "@/lib/local-storage/local-storage";
 
 type Props = {
     metadata: Rec<Metadata>
     labeler: Record<string, (key: string) => Label>;
-    setAssetClass: Dispatch<SetStateAction<string | null>>;
-    setRows: Dispatch<SetStateAction<string[] | null>>;
-    setCols: Dispatch<SetStateAction<string[] | null>>;
+    setAssetClass: Dispatch<SetStateAction<string | undefined>>;
+    setRows: Dispatch<SetStateAction<string[] | undefined>>;
+    setCols: Dispatch<SetStateAction<string[] | undefined>>;
 };
 
-export function ViewSelector(props: Props) {
+export function ViewSelector({metadata, labeler, setAssetClass, setRows, setCols}: Props) {
     const [viewsAvailable, setViewsAvailable] = useState<Rec<ViewsAvailable>>(loadViewsAvailable());
     const [selection, setSelection] = useState<ViewSelection>(loadViewSelection());
 
@@ -34,14 +39,8 @@ export function ViewSelector(props: Props) {
         if (selection) saveViewSelection(selection);
     }, [selection]);
 
-    const { assetClasses, allKeys } = useMemo(() => {
-        if (!props.metadata) return { assetClasses: undefined, allKeys: undefined };
-        const assetClasses = Object.keys(props.metadata);
-        const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(props.metadata[ac].schema, ac));
-        return { assetClasses, allKeys };
-    }, [props.metadata]);
-
-    const { setAssetClass, setRows, setCols } = props;
+    const assetClasses = Object.keys(metadata);
+    const allKeys = recordOfKeys(assetClasses, ac => consolidateSchema(metadata[ac].schema, ac));
 
     useEffect(() => {
         if (!viewsAvailable || !selection) return;
@@ -72,15 +71,15 @@ export function ViewSelector(props: Props) {
                     key={assetClass} size="sm" className="font-mono text-sm"
                     variant={ac === assetClass ? "default" : "outline"}
                     onClick={() => setSelection({...selection, assetClass})}>
-                    {props.labeler[assetClass](assetClass).short}
+                    {labeler[assetClass](assetClass).short}
                 </Button>
             )}
         </div>
         <ViewSelectorTabs
             assetClass={ac} viewsAvailable={viewsAvailable[ac].rowViews}
             selected={selection.rowViewNames[selection.assetClass]}
-            allKeys={props.metadata[ac].tickers}
-            labeler={props.labeler[ac]}
+            allKeys={metadata[ac].tickers}
+            labeler={labeler[ac]}
             onSelectSingle={crud.selectSingle("row")}
             onSelectToggle={crud.selectToggle("row")}
             onCreate={crud.create("row", ac)}
@@ -93,7 +92,7 @@ export function ViewSelector(props: Props) {
             assetClass={ac} viewsAvailable={viewsAvailable[ac].colViews}
             selected={selection.colViewNames[selection.assetClass]}
             allKeys={allKeys[ac]}
-            labeler={props.labeler[ac]}
+            labeler={labeler[ac]}
             onSelectSingle={crud.selectSingle("col")}
             onSelectToggle={crud.selectToggle("col")}
             onCreate={crud.create("col", ac)}

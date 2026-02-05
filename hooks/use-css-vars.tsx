@@ -1,13 +1,12 @@
 "use client"
-import {useCallback, useEffect, useState} from "react"
+import {useEffect, useState} from "react"
 
 export function useCssVars(names: string[]) {
-    const stableNames = names.toSorted().join("|")
 
-    const read = useCallback(() => {
+    const read = () => { // eslint-disable-line react-hooks/exhaustive-deps
         const s = getComputedStyle(document.documentElement)
         return Object.fromEntries(names.map(n => [n, s.getPropertyValue(n).trim()]))
-    }, [stableNames]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
 
     const [v, setV] = useState<Record<string, string>>(() =>
         (typeof window === "undefined" ? Object.fromEntries(names.map(n => [n, ""])) : read()))
@@ -23,7 +22,7 @@ export function useCssVars(names: string[]) {
             mq.removeEventListener("change", update);
             mo.disconnect()
         }
-    }, [stableNames, read])
+    }, [read])  
 
     return v
 }

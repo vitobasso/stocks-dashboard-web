@@ -1,6 +1,6 @@
 "use client"
 
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {consolidateData, Data} from "@/lib/data";
 import {makeLabeler} from "@/lib/metadata/labels";
 import {Skeleton} from "@/components/ui/skeleton";
@@ -17,48 +17,38 @@ import {useScrapedSubscription} from "@/lib/services/use-scraped-subscription";
 
 export default function Page() {
 
+    // metadata
     const metadata = useMetadataQuery()
+    const assetClasses = metadata && Object.keys(metadata);
+    const labeler = assetClasses && recordOfKeys(assetClasses, (ac) =>
+        makeLabeler(metadata[ac].labels, metadata[ac].sources)
+    );
+    const classOfTicker = metadata && indexByFields(mapValues(metadata, (m) => m.tickers));
 
     // user defined state
-    const [ac, setAc] = useState<string | null>(null);
-    const [rows, setRows] = useState<string[] | null>(null);
-    const [columns, setColumns] = useState<string[] | null>(null);
+    const [ac, setAc] = useState<string | undefined>(undefined);
+    const [rows, setRows] = useState<string[] | undefined>(undefined);
+    const [columns, setColumns] = useState<string[] | undefined>(undefined);
     const [positions, setPositions] = useState<Rec<Data>>(() => loadPositions());
+    useEffect(() => savePositions(positions), [positions]);
 
-    useEffect(() => {
-        savePositions(positions);
-    }, [positions]);
-
-    const {assetClasses, labeler, classOfTicker} = useMemo(() => {
-        if (!metadata) return {assetClasses: undefined, labeler: undefined, classOfTicker: undefined};
-
-        const assetClasses = Object.keys(metadata);
-        const labeler = recordOfKeys(assetClasses, (ac) =>
-            makeLabeler(metadata[ac].labels, metadata[ac].sources)
-        );
-        const classOfTicker = indexByFields(mapValues(metadata, (m) => m.tickers));
-
-        return {assetClasses, labeler, classOfTicker};
-    }, [metadata]);
-
+    // data queries
     const scrapedSubscription = useScrapedSubscription();
     useEffect(() => {
         if (!ac || !rows) return;
         scrapedSubscription.add(ac, rows)
     }, [ac, rows, scrapedSubscription]);
-
     const scraped = useScrapedQuery(ac, rows);
     const quotes = useQuoteQuery(rows, classOfTicker);
 
-    const data: Rec<Data> | undefined = useMemo(() => {
-        if (!assetClasses || !rows) return;
-        const base: Data = Object.fromEntries(rows.map((r) => [r, {}]))
-        return recordOfKeys(assetClasses, (ac => consolidateData([base, scraped[ac], quotes[ac], positions[ac]], ac)))
-    }, [rows, scraped, quotes, positions, assetClasses]);
+    // consolidated data
+    const baseData = rows && Object.fromEntries(rows.map((r) => [r, {}]))
+    const data = assetClasses && baseData &&recordOfKeys(assetClasses, ac =>
+        consolidateData([baseData, scraped[ac], quotes[ac], positions[ac]], ac)
+    )
 
     // ui
     const [openPanel, setOpenPanel] = useState<string | null>(null)
-
     if (!metadata || !assetClasses || !labeler)
         return pageSkeleton();
     return <div className="min-h-screen flex flex-col">

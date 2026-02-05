@@ -1,7 +1,7 @@
 "use client";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {Import, Moon, Settings, Sun} from "lucide-react"
-import React, {useCallback, useState} from "react";
+import React, {useState} from "react";
 import {Data} from "@/lib/data";
 import PositionsImporter from "@/components/features/positions-importer";
 import {Fab, FabMenuItem} from "@/components/ui/fab";
@@ -20,7 +20,9 @@ export function SettingsDialog(props: Props) {
     const [internalOpen, setInternalOpen] = useState<string | null>(null)
     const openPanel = props.openPanel ?? internalOpen
     const setOpenPanel = props.setOpenPanel ?? setInternalOpen //FIXME props.setOpenPanel is never undefined so setInternalOpen is never called?
-    const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
+    function close() {
+        return setOpenPanel(null);
+    }
 
     function trigger(item: string, close: () => void) {
         return () => { 

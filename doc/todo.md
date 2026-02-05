@@ -1,8 +1,3 @@
-### enable react compiler
-https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler
-re-enable related lint rule
-remove useMemo and useCallback everywhere
-
 ### [bug] showing "0" instead of "-"
 
 ### tone down colors for not-so-important cols

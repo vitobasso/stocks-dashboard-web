@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {ColView} from "@/lib/views/views";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";
 import {Input} from "@/components/ui/input";

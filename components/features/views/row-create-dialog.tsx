@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {RowView} from "@/lib/views/views";
 import {RowSelector} from "@/components/features/views/row-selector";
 import {Field, FieldContent, FieldLabel, FieldSet} from "@/components/ui/field";

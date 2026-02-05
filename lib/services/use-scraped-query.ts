@@ -17,7 +17,7 @@ function scraperParams(ac: string, rows: string[]) {
     return urlParams;
 }
 
-export function useScrapedQuery(ac: string | null, rows: string[] | null): Rec<Data> {
+export function useScrapedQuery(ac: string | undefined, rows: string[] | undefined): Rec<Data> {
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({
             queryKey: [ac, 'scraped', ticker],

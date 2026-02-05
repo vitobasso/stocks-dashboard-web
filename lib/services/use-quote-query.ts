@@ -24,7 +24,7 @@ const batcher = batshit.create({
     scheduler: batshit.windowScheduler(10),
 });
 
-export function useQuoteQuery(rows: string[] | null, classOfTicker?: Map<string, string>): Rec<Data> {
+export function useQuoteQuery(rows: string[] | undefined, classOfTicker?: Map<string, string>): Rec<Data> {
 
     const results = useQueries({
         queries: (rows ?? []).map((ticker) => ({

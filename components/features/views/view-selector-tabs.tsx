@@ -2,7 +2,7 @@ import {ButtonGroup} from "@/components/ui/button-group";
 import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import {EllipsisVerticalIcon, PlusIcon} from "lucide-react";
-import React, {useCallback, useState} from "react";
+import React, {useState} from "react";
 import {ColView, RowView} from "@/lib/views/views";
 import {Label} from "@/lib/metadata/labels";
 
@@ -41,7 +41,18 @@ type Props<T extends RowView | ColView> = {
 export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
 
     const [openPanel, setOpenPanel] = useState<string | null>(null)
-    const close = useCallback(() => setOpenPanel(null), [setOpenPanel])
+
+    function close() {
+        return setOpenPanel(null);
+    }
+
+    function handleSelect(e: { shiftKey: boolean }, viewName: string) {
+        if (e.shiftKey)
+            props.onSelectToggle(viewName);
+        else
+            props.onSelectSingle(viewName);
+    }
+
     const inherit = cn("bg-transparent text-inherit shadow-none",
         "hover:bg-transparent hover:text-inherit focus-visible:ring-0")
     const buttonLike = cn("border-2 ring-1 rounded-md shadow-sm transition-colors",
@@ -50,13 +61,6 @@ export function ViewSelectorTabs<T extends RowView | ColView>(props: Props<T>) {
     const outlineVariant = cn("bg-background ring-border border-background",
         "hover:bg-accent hover:border-accent hover:text-accent-foreground",
         "dark:hover:bg-input/50")
-
-    function handleSelect(e: { shiftKey: boolean }, viewName: string) {
-        if (e.shiftKey)
-            props.onSelectToggle(viewName);
-        else
-            props.onSelectSingle(viewName);
-    }
 
     return <div className={cn("flex items-center gap-2", props.className)}>
         {props.viewsAvailable.map((view, i) =>

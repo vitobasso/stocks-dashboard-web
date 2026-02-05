@@ -1,5 +1,5 @@
 "use client";
-import {ReactElement, useCallback, useMemo, useState} from "react";
+import {ReactElement, useState} from "react";
 import {Cell, CellRendererProps, ColumnOrColumnGroup, DataGrid as ReactDataGrid, SortColumn} from "react-data-grid";
 import {
     ChartData,
@@ -39,51 +39,33 @@ type Row = Record<string, string | number>;
 
 export function DataGrid({ rows, columns, data, metadata, labeler, className }: Props) {
 
-    const allColKeys = useMemo(() => ["ticker", ...columns], [columns]);
-    const getRowId = useCallback((row: Row) => row.ticker as string, [])
+    const allColKeys = ["ticker", ...columns];
+    const getRowId = (row: Row) => row.ticker as string
 
     const {getWidthPx, getMaxTextLength} = useColumnWidth(data, getAsText);
     const {hoveredCellCss, colClass} = useHoveredCellHighlight(columns);
     const {onCellClick, isClicked} = useClickedCell<Row>(getRowId)
 
-    const cellClass = useCallback((key: string) => {
-        const maxLength = getMaxTextLength(key);
-        const textAlign = maxLength && maxLength > 10 ? 'text-left' : 'text-center';
-        return `p-2 ${textAlign}`;
-    }, [getMaxTextLength]);
+    const dgCols: readonly ColumnOrColumnGroup<Row>[] = allColKeys.map(key => ({
+        key,
+        name: renderHeader(labeler(key)),
+        frozen: isTicker(key),
+        sortable: !isTicker(key),
+        headerCellClass: cn('text-center', colClass(key)),
+        cellClass: cn(cellClass(key), colClass(key)),
+        minWidth: getWidthPx(key),
+        width: getWidthPx(key),
+        renderCell: p => renderCellWithTooltip(key, p.row)
+    }))
 
-    const renderCellWithTooltip = useCallback((key: string, row: Row) => {
-        const ticker = row.ticker as string;
-        const renderedValue = DataCell(key, row[key])
-        if (isTicker(key)) {
-            return <TickerCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} ticker={ticker} meta={metadata.sources}/>
-        } else {
-            return <DataCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} colKey={key} dataEntry={data[ticker]}/>
-        }
-    }, [data, metadata, isClicked])
-
-    const dgCols: readonly ColumnOrColumnGroup<Row>[] = useMemo(() => {
-        return allColKeys.map(key => ({
-            key,
-            name: renderHeader(labeler(key)),
-            frozen: isTicker(key),
-            sortable: !isTicker(key),
-            headerCellClass: cn('text-center', colClass(key)),
-            cellClass: cn(cellClass(key), colClass(key)),
-            minWidth: getWidthPx(key),
-            width: getWidthPx(key),
-            renderCell: p => renderCellWithTooltip(key, p.row)
-        }))
-    }, [allColKeys, labeler, cellClass, colClass, getWidthPx, renderCellWithTooltip]);
-
-    const dgRows: Row[] = useMemo(() => rows.toSorted().filter(ticker => data[ticker]).map(ticker => {
+    const dgRows: Row[] = rows.toSorted().filter(ticker => data[ticker]).map(ticker => {
         const entries = columns
             .map((key) => {
                 const value = getValue(data[ticker], key)
                 return [key, value]
             });
         return {"ticker": ticker, ...Object.fromEntries(entries)};
-    }), [rows, columns, data]);
+    });
 
     function renderHeader(label: Label, onClick?: (e: React.MouseEvent) => void): ReactElement {
         const content = onClick ?
@@ -95,9 +77,26 @@ export function DataGrid({ rows, columns, data, metadata, labeler, className }: 
         </Tooltip>
     }
 
+    const renderCellWithTooltip = (key: string, row: Row) => {
+        const ticker = row.ticker as string;
+        const renderedValue = DataCell(key, row[key])
+        if (isTicker(key)) {
+            return <TickerCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} ticker={ticker} meta={metadata.sources}/>
+        } else {
+            return <DataCellTooltip open={isClicked(ticker, key)} renderedValue={renderedValue} colKey={key} dataEntry={data[ticker]}/>
+        }
+    }
+
+    function cellClass(key: string) {
+        const maxLength = getMaxTextLength(key);
+        const textAlign = maxLength && maxLength > 10 ? 'text-left' : 'text-center';
+        return `p-2 ${textAlign}`;
+    }
+
     const cssVars = useCssVars([bgColor, fgColor, red, green])
 
-    const colorScales = useMemo(() => {
+    const colorScales = mapColorScales();
+    function mapColorScales() {
         const map = new Map<string, (n: number) => string>();
         for (const key of allColKeys) {
             const rule = colors[key];
@@ -108,25 +107,25 @@ export function DataGrid({ rows, columns, data, metadata, labeler, className }: 
             map.set(key, (n: number) => scale(n).hex());
         }
         return map;
-    }, [allColKeys, cssVars]);
+    }
 
-    const getBaseColor = useCallback((key: string, data: DataValue): string => {
+    function getBaseColor(key: string, data: DataValue): string {
         const number = getAsNumber(key, data);
         const toHex = colorScales.get(key);
         if (number == null || !toHex) return cssVars[bgColor];
         return toHex(number);
-    }, [colorScales, cssVars]);
+    }
 
-    const renderCell = useCallback((key: React.Key, cellProps: CellRendererProps<Row, unknown>) => {
+    function renderCell(key: React.Key, cellProps: CellRendererProps<Row, unknown>) {
         const colKey = cellProps.column.key as string;
         const cellData = cellProps.row[colKey];
         const color = getBaseColor(colKey, cellData);
-        return <Cell key={key} {...cellProps} className={cellProps.className} style={{ backgroundColor: color }}/>;
-    }, [getBaseColor]);
+        return <Cell key={key} {...cellProps} className={cellProps.className} style={{backgroundColor: color}}/>;
+    }
 
     const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
-    const getSortedRows = useCallback((rows: Row[]): Row[] => {
+    function getSortedRows(rows: Row[]): Row[] {
         if (sortColumns.length === 0) return rows;
         const {columnKey, direction} = sortColumns[0]; // TODO multi cols
         return [...rows].sort((a, b) => {
@@ -141,17 +140,14 @@ export function DataGrid({ rows, columns, data, metadata, labeler, className }: 
             if (av > bv) return direction === 'ASC' ? 1 : -1;
             return 0;
         });
-    }, [sortColumns]);
-
-    const sortedRows = useMemo(() => getSortedRows(dgRows), [dgRows, getSortedRows]);
-    const renderers = useMemo(() => ({renderCell}), [renderCell])
+    }
 
     return <>
         <style>{hoveredCellCss}</style>
         <ReactDataGrid className={cn("font-mono", className)}
-                      rows={sortedRows} columns={dgCols}
-                      sortColumns={sortColumns} onSortColumnsChange={setSortColumns}
-                      renderers={renderers} onCellClick={onCellClick}/>
+                       rows={getSortedRows(dgRows)} columns={dgCols}
+                       sortColumns={sortColumns} onSortColumnsChange={setSortColumns}
+                       renderers={{renderCell}} onCellClick={onCellClick}/>
     </>
 }
 

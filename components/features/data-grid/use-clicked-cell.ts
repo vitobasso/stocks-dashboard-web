@@ -1,5 +1,5 @@
 import {Rec} from "@/lib/utils/records";
-import {useCallback, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {CellMouseArgs} from "react-data-grid";
 
 type CellId = {
@@ -14,15 +14,15 @@ type CellId = {
 export function useClickedCell<Row extends Rec<unknown>>(getRowId: (row: Row) => string) {
     const [clickedCell, setClickedCell] = useState<CellId | null>(null)
 
-    const onCellClick = useCallback((args: CellMouseArgs<Row>) => {
+    function onCellClick(args: CellMouseArgs<Row>) {
         const rowId = getRowId(args.row) as string
         const colId = args.column.key as string
         setClickedCell(prev => isSameCell({rowId, colId}, prev) ? null : {rowId, colId});
-    }, [getRowId])
+    }
 
-    const isClicked = useCallback(
-        (rowId: string, colId: string) => isSameCell({rowId, colId}, clickedCell),
-        [clickedCell])
+    function isClicked(rowId: string, colId: string) {
+        return isSameCell({rowId, colId}, clickedCell);
+    }
 
     useEffect(() => {
         if (!clickedCell) return

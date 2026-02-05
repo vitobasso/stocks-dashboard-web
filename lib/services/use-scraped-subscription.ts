@@ -27,12 +27,17 @@ export function createScrapedSubscriptionClient(queryClient: QueryClient): Scrap
         ws.onmessage = (event) => {
             const data: Rec<Data> = JSON.parse(event.data);
             if (!data) return;
-            cachePartialUpdates(data)
+            saveUpdates(data)
         };
-        if (subscriptionBuffer.size) ws.send(JSON.stringify(Object.fromEntries(subscriptionBuffer)))
+        ws.onopen = () => {
+            if (subscriptionBuffer.size) {
+                subscriptionBuffer.forEach((tickers, ac) => add(ac, Array.from(tickers)))
+                subscriptionBuffer.clear()
+            }
+        }
     }
 
-    function cachePartialUpdates(data: Rec<Data>) {
+    function saveUpdates(data: Rec<Data>) {
         foreachDepth2(data, (ac, ticker, entry) => {
             const key = [ac, 'scraped', ticker];
             const prev: Rec<Data> = queryClient.getQueryData(key) ?? {}

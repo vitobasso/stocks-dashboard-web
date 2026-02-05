@@ -1,5 +1,4 @@
 import {Data, DataValue} from "@/lib/data";
-import {useCallback, useMemo} from "react";
 
 const charWidthPx = 8.5;
 const paddingPx = 16;
@@ -9,14 +8,16 @@ type ColumnStats = number;
 type GetDisplay = (key: string, value: DataValue) => string | undefined;
 
 export function useColumnWidth(data: Data, getAsText: GetDisplay) {
-    const textLengthMap = useMemo(() => calcStats(data, getAsText), [data, getAsText]);
+    const textLengthMap = calcStats(data, getAsText);
 
-    const getWidthPx = useCallback((key: string) => {
+    function getWidthPx(key: string) {
         const stats = textLengthMap.get(key);
         return stats ? stats * charWidthPx + paddingPx : defaultWidthPx;
-    }, [textLengthMap]);
+    }
 
-    const getMaxTextLength = useCallback((key: string) => textLengthMap.get(key), [textLengthMap]);
+    function getMaxTextLength(key: string) {
+        return textLengthMap.get(key);
+    }
 
     return { getWidthPx, getMaxTextLength };
 }

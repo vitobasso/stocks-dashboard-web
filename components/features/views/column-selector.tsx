@@ -1,6 +1,6 @@
 "use client";
 import {Input} from "@/components/ui/input";
-import React, {forwardRef, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState} from "react";
+import React, {forwardRef, useDeferredValue, useEffect, useState} from "react";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/lib/metadata/labels";
@@ -16,90 +16,56 @@ type Props = {
     autoFocus?: boolean
 }
 
-export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
+export const ColumnSelector = forwardRef<HTMLInputElement, Props>(
+    ({columns, setColumns, allKeys, labeler, autoFocus}: Props, ref) => {
 
     const [search, setSearch] = useState("")
 
     const deferredSearch = useDeferredValue(search)
     const isSearching = deferredSearch.trim().length > 0
-    const normSearch = useMemo(() => toNorm(deferredSearch), [deferredSearch])
+    const normSearch = toNorm(deferredSearch)
 
-    const selectedKeys: Set<string> = useMemo(() =>
-            props.columns.reduce((s, k) => {
-                s.add(k);
-                return s
-            }, new Set<string>())
-        , [props.columns]);
+    const selectedKeys: Set<string> = columns.reduce((s, k) => {
+        s.add(k);
+        return s
+    }, new Set<string>())
 
-    const {keysByGroup, allGroups} = useMemo(() => {
-        const keysByGroup = groupBy(props.allKeys, getRoot)
-        const allGroups = [...keysByGroup.keys()]
-        return {keysByGroup, allGroups}
-    }, [props.allKeys]);
+    const keysByGroup = groupBy(allKeys, getRoot)
+    const allGroups = [...keysByGroup.keys()]
 
     function keyMatches(key: string): boolean {
-        return toNorm(props.labeler(key)?.short).includes(normSearch) ||
-            toNorm(props.labeler(key)?.long).includes(normSearch)
+        return toNorm(labeler(key)?.short).includes(normSearch) ||
+            toNorm(labeler(key)?.long).includes(normSearch)
     }
 
-    const {labeler} = props;
-    const groupItselfMatches = useCallback((group: string): boolean => {
+    function groupMatchesByName(group: string): boolean {
         const label = labeler(group)
         return toNorm(label?.short).includes(normSearch) ||
             toNorm(label?.long).includes(normSearch)
-    }, [labeler, normSearch]);
-
-    function groupOrChildrenMatch(group: string): boolean {
-        if (!isSearching) return true
-        if (groupItselfMatches(group)) return true
-        // any key under this group matches
-        return props.allKeys.some(k => getRoot(k) === group && keyMatches(k))
     }
+    const groupsMatchingByName = new Set(allGroups.filter(g => groupMatchesByName(g)));
 
-    // group name matches, used to widen search results
-    const groupNamesMatching = useMemo(() =>
-        new Set(allGroups.filter(p => groupItselfMatches(p))
-        ), [allGroups, groupItselfMatches])
-
-    // filtered after search
-    const visibleKeys = isSearching ? props.allKeys.filter(keyMatches) : props.allKeys
-    const visibleGroups = isSearching
-        ? allGroups.filter(p => groupOrChildrenMatch(p))
-        : allGroups
-
-    const groupsMatchingSearch = useMemo(() => {
-        if (!isSearching) return []
-        const result = new Set<string>()
-        // result all matching groups by name
-        for (const p of groupNamesMatching) {
-            result.add(p)
-        }
-        // result ancestors of matching keys
-        for (const k of visibleKeys) {
-            const p = getRoot(k)
-            if (p) result.add(p)
-        }
-        return Array.from(result)
-    }, [visibleKeys, isSearching, groupNamesMatching])
-    const stableGroupsMatchingSearch = groupsMatchingSearch.toSorted().join("|");
+    function groupMatches(group: string): boolean {
+        return !isSearching || groupMatchesByName(group) || allKeys.some(k => getRoot(k) === group && keyMatches(k))
+    }
+    const groupsMatching = !isSearching ? new Set() : new Set(allGroups.filter(g => groupMatches(g)))
+    const stableGroupsMatching = [...groupsMatching].toSorted().join("|");
 
     const [accordionChanges, setAccordionChanges] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         setAccordionChanges({}); // eslint-disable-line react-hooks/set-state-in-effect
-    }, [stableGroupsMatchingSearch]);
+    }, [stableGroupsMatching]);
 
-    const groupsExpanded = useMemo(() => {
-        return allGroups.filter(group => {
-            if (groupsMatchingSearch.length) {
-                if (!groupsMatchingSearch.includes(group)) return false;
-                return accordionChanges[group] || accordionChanges[group] === undefined;
-            }
-            return accordionChanges[group];
-        });
-    }, [allGroups, groupsMatchingSearch, accordionChanges])
+    const groupsExpanded = allGroups.filter(group => {
+        if (groupsMatching.size) {
+            if (!groupsMatching.has(group)) return false;
+            return accordionChanges[group] || accordionChanges[group] === undefined;
+        }
+        return accordionChanges[group];
+    });
 
-    const onAccordionChange = useCallback((openGroups: string[]) => {
+    function onAccordionChange(openGroups: string[]) {
         const added = openGroups.filter(g => !groupsExpanded.includes(g));
         const removed = groupsExpanded.filter(g => !openGroups.includes(g));
         setAccordionChanges(prev => ({
@@ -107,20 +73,24 @@ export const ColumnSelector = forwardRef<HTMLInputElement, Props>((props, ref) =
             ...Object.fromEntries(added.map(g => [g, true])),
             ...Object.fromEntries(removed.map(g => [g, false])),
         }));
-    }, [groupsExpanded])
+    }
+
+    // filtered after search
+    const visibleKeys = isSearching ? allKeys.filter(keyMatches) : allKeys
+    const visibleGroups = isSearching ? allGroups.filter(g => groupMatches(g)) : allGroups
 
     return <div className="w-full">
         <Input className="mb-2"
                placeholder="Buscar..." value={search}
                onChange={e => setSearch(e.target.value)}
-               ref={ref} autoFocus={props.autoFocus}/>
+               ref={ref} autoFocus={autoFocus}/>
         <div className="flex-1 p-1">
             <Accordion type="multiple" value={groupsExpanded} onValueChange={onAccordionChange}>
                 {visibleGroups.map(group => {
                     const byGroup = (key: string) => getRoot(key) === group
                     const allKeysInGroup = keysByGroup.get(group) ?? []
-                    const visibleKeysInGroup = groupNamesMatching.has(group) ? allKeysInGroup : visibleKeys.filter(byGroup)
-                    return ColumnGroup(group, allKeysInGroup, visibleKeysInGroup, selectedKeys, props)
+                    const visibleKeysInGroup = groupsMatchingByName.has(group) ? allKeysInGroup : visibleKeys.filter(byGroup)
+                    return ColumnGroup(group, allKeysInGroup, visibleKeysInGroup, selectedKeys, columns, setColumns, labeler)
                 })}
             </Accordion>
         </div>
@@ -134,18 +104,20 @@ function ColumnGroup(
     keysInGroup: string[],
     visibleKeysInGroup: string[],
     selectedKeys: Set<string>,
-    props: Props
+    columns: string[],
+    setColumns: (columns: string[]) => void,
+    labeler: (key: string) => Label
 ) {
     const selectedCount = keysInGroup.filter(k => selectedKeys.has(k)).length
     const checkedState = selectedCount === 0 ? false : (selectedCount === keysInGroup.length ? true : "indeterminate")
 
     function onToggle(checked: boolean) {
-        props.setColumns(updatedSelection(checked, props.columns, keysInGroup))
+        setColumns(updatedSelection(checked, columns, keysInGroup))
     }
 
-    const groupLabel = props.labeler(group);
-    const keysBySubgroup = groupBy(visibleKeysInGroup, (k) => props.labeler(getPrefix(k)).short)
-    const subgroups = organizeSubgroups(group, keysBySubgroup, props.labeler);
+    const groupLabel = labeler(group);
+    const keysBySubgroup = groupBy(visibleKeysInGroup, (k) => labeler(getPrefix(k)).short)
+    const subgroups = organizeSubgroups(group, keysBySubgroup, labeler);
 
     return <AccordionItem key={group} value={group} className="border-b-0">
         <AccordionTrigger className="pt-0">
@@ -162,20 +134,26 @@ function ColumnGroup(
             <div className="space-y-2 pl-4">
                 {subgroups.map(subgroup => <div key={subgroup} className="">
                     {subgroup !== groupLabel.short && <label className="text-muted-foreground">{subgroup}</label>}
-                    {(keysBySubgroup.get(subgroup) ?? []).map(key => ColumnKey(key, selectedKeys, props))}
+                    {(keysBySubgroup.get(subgroup) ?? []).map(key => ColumnKey(key, selectedKeys, columns, setColumns, labeler))}
                 </div>)}
             </div>
         </AccordionContent>
     </AccordionItem>;
 }
 
-function ColumnKey(key: string, selectedKeys: Set<string>, props: Props) {
+function ColumnKey(
+    key: string,
+    selectedKeys: Set<string>,
+    columns: string[],
+    setColumns: (columns: string[]) => void,
+    labeler: (key: string) => Label
+) {
 
     function onToggle(checked: boolean) {
-        props.setColumns(updatedSelection(checked, props.columns, [key]))
+        setColumns(updatedSelection(checked, columns, [key]))
     }
 
-    const label = props.labeler(key)
+    const label = labeler(key)
     return <label key={getSuffix(key)} className="flex items-center gap-2"
                   onClick={() => onToggle(!selectedKeys.has(key))}>
         <Checkbox checked={selectedKeys.has(key)}/>

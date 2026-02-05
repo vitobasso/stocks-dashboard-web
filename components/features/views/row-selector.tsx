@@ -1,6 +1,6 @@
 import {Input} from "@/components/ui/input";
 import {XIcon} from "lucide-react"
-import {forwardRef, useMemo, useState} from "react";
+import {forwardRef, useState} from "react";
 import {Badge} from "@/components/ui/badge";
 
 type Props = {
@@ -12,26 +12,27 @@ type Props = {
 
 export const RowSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
 
-    const [newTicker, setNewTicker] = useState("");
+    const [inputText, setInputText] = useState("");
     const [highlight, setHighlight] = useState(0);
 
-    const suggestions = useMemo(() => {
-        const q = newTicker.trim().toUpperCase();
-        if (!q) return [] as string[];
+    const suggestions = getSuggestions();
+    function getSuggestions(): string[] {
+        const normText = inputText.trim().toUpperCase();
+        if (!normText) return [];
         const set = new Set(props.rows);
         return props.allTickers
-            .filter(t => t.includes(q) && !set.has(t))
+            .filter(t => t.includes(normText) && !set.has(t))
             .slice(0, 10);
-    }, [newTicker, props.rows, props.allTickers]);
+    }
 
-    function addTicker(newTicker: string) {
-        newTicker = newTicker.trim().toUpperCase();
-        if (!newTicker) return;
-        if (!props.allTickers.includes(newTicker)) return;
-        if (props.rows.includes(newTicker)) return;
-        const updatedTickers = [...props.rows, newTicker];
+    function addTicker(inputText: string) {
+        const normText = inputText.trim().toUpperCase();
+        if (!normText) return;
+        if (!props.allTickers.includes(normText)) return;
+        if (props.rows.includes(normText)) return;
+        const updatedTickers = [...props.rows, normText];
         props.setRows(updatedTickers);
-        setNewTicker("");
+        setInputText("");
         setHighlight(0);
     }
 
@@ -49,22 +50,22 @@ export const RowSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
             if (suggestions.length) setHighlight((h) => (h - 1 + suggestions.length) % suggestions.length);
         } else if (e.key === "Enter") {
             e.preventDefault();
-            if (suggestions.length) addTicker(suggestions[highlight] ?? newTicker);
-            else addTicker(newTicker);
+            if (suggestions.length) addTicker(suggestions[highlight] ?? inputText);
+            else addTicker(inputText);
         } else if (e.key === "Escape") {
-            setNewTicker("");
+            setInputText("");
             setHighlight(0);
         }
     }
 
     return <div className="dialog p-1 space-y-4">
         <div className="flex relative">
-            <Input id="input-ticker" inputMode="text" placeholder="Buscar..." value={newTicker} className="flex-1"
+            <Input id="input-ticker" inputMode="text" placeholder="Buscar..." value={inputText} className="flex-1"
                    autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} aria-autocomplete="list"
-                   onChange={e => { setNewTicker(e.target.value); setHighlight(0); }}
+                   onChange={e => { setInputText(e.target.value); setHighlight(0); }}
                    onKeyDown={onKeyDown}
                    ref={ref} autoFocus={props.autoFocus}/>
-            {newTicker && suggestions.length > 0 && (
+            {inputText && suggestions.length > 0 && (
                 <div className="absolute left-0 right-12 top-full mt-1 z-20 max-h-40 overflow-auto rounded-md border bg-background shadow">
                     {suggestions.map((t, i) => (
                         <button key={t}
