@@ -83,9 +83,9 @@ export function EditableTitle({ title, onTitleChange, onEnter, className = "" }:
                         onKeyDown={handleKeyDown}
                     />
                 ) : null}
-                <span className={isEditing ? 'invisible' : ''} style={{ minWidth: '1px' }}>
+                <label className={isEditing ? 'invisible' : ''} style={{ minWidth: '1px' }}>
                     {inputValue || ' '}
-                </span>
+                </label>
             </div>
             <Button 
                 variant="ghost" 

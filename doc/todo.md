@@ -1,6 +1,3 @@
-### column-selector: fix pointer in subtitle and dialog name
-h4, h2?
-
 ### enable react compiler
 https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler
 re-enable related lint rule

@@ -161,7 +161,7 @@ function ColumnGroup(
         <AccordionContent>
             <div className="space-y-2 pl-4">
                 {subgroups.map(subgroup => <div key={subgroup} className="">
-                    {subgroup !== groupLabel.short && <div className="text-muted-foreground">{subgroup}</div>}
+                    {subgroup !== groupLabel.short && <label className="text-muted-foreground">{subgroup}</label>}
                     {(keysBySubgroup.get(subgroup) ?? []).map(key => ColumnKey(key, selectedKeys, props))}
                 </div>)}
             </div>

@@ -80,7 +80,7 @@ export const RowSelector = forwardRef<HTMLInputElement, Props>((props, ref) => {
         <div className="flex flex-wrap max-h-125 overflow-y-auto gap-1">
             {props.rows.toSorted().map(t =>
                 <Badge key={t} variant="default" className="font-mono text-sm">
-                    {t}
+                    <label>{t}</label>
                     <button className="opacity-70 hover:opacity-100" aria-label={`Remove ${t}`}
                             onClick={() => removeTicker(t)}>
                         <XIcon className="h-3 w-3"/>
