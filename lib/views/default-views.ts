@@ -24,8 +24,8 @@ export const viewsProd: Rec<ViewsAvailable> = {
         colViews: [
             {
                 name: "Qualidade",
-                items: ["b3.listagem.setor", "investidor10.cadastral.ano_de_fundacao",
-                    "investidor10.cadastral.ano_de_estreia_na_bolsa", "b3.listagem.segmento_de_negociacao",
+                items: ["b3.listagem.setor", "investidor10.derived.cadastral.anos_desde_fundacao",
+                    "investidor10.derived.cadastral.anos_desde_estreia_na_bolsa", "b3.listagem.segmento_de_negociacao",
                     "investidor10.financeiro.patrimonio_liquido", "statusinvest.liquidez_media_diaria",
                     "investidor10.financeiro.free_float", "investidor10.financeiro.tag_along",
                     "statusinvest.div_liq_patri", "statusinvest.liq_corrente", "statusinvest.marg_liquida",
@@ -101,7 +101,7 @@ export const viewsDev: Rec<ViewsAvailable> = {
             {
                 name: "test",
                 items: ["yahoo.quote.latest", "b3.position.quantity", "b3.listagem.setor", "statusinvest.preco",
-                    "yahoo.recom.buy", "yahoo.chart.1mo", "yahoo.target.max", "investidor10.cadastral.ano_de_fundacao",
+                    "yahoo.recom.buy", "yahoo.chart.1mo", "yahoo.target.max", "investidor10.derived.cadastral.anos_desde_fundacao",
                     "simplywall.score.future"]
             },
         ],

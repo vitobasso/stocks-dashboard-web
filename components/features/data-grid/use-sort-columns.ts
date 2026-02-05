@@ -4,7 +4,6 @@ import {SortColumn} from "react-data-grid";
 
 type Row = Record<string, string | number>;
 
-
 export function useSortColumns(rows: Row[]) {
 
     const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);

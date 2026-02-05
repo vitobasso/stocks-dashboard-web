@@ -43,6 +43,8 @@ const addedKeyLabels: Rec<Label> = {
     "yahoo.derived.forecast.min_pct": {short: "Min", long: "Projeção Mínima em %"},
     "yahoo.derived.forecast.avg_pct": {short: "Méd", long: "Projeção Média em %"},
     "yahoo.derived.forecast.max_pct": {short: "Máx", long: "Projeção Máxima em %"},
+    "investidor10.derived.cadastral.anos_desde_estreia_na_bolsa": {short: "AnoB", long: "Anos Desde a Estréia na Bolsa"},
+    "investidor10.derived.cadastral.anos_desde_fundacao": {short: "Anos", long: "Anos Desde a Fundação"},
 }
 
 const addedPrefixLabels: Record<string, GroupLabel> = {
@@ -55,6 +57,7 @@ const addedPrefixLabels: Record<string, GroupLabel> = {
     "b3.derived": { title: "Derivados" },
     "yahoo.derived": { title: "Derivados" },
     "statusinvest.derived": { title: "Derivados" },
+    "investidor10.derived": { title: "Derivados" },
     "derived": { title: "Derivados", description: "Valores calculados a partir de mais de uma fonte" },
 }
 

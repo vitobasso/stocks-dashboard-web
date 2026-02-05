@@ -63,6 +63,14 @@ export const derivations: Rec<Derivations> = {
             function: (args) => calcChangePct(Number(args[1]), Number(args[0])),
             arguments: ["yahoo.target.max", "yahoo.quote.latest"],
         },
+        "investidor10.derived.cadastral.anos_desde_estreia_na_bolsa": {
+            function: (args) => new Date().getFullYear() - Number(args[0]),
+            arguments: ["investidor10.cadastral.ano_de_estreia_na_bolsa"],
+        },
+        "investidor10.derived.cadastral.anos_desde_fundacao": {
+            function: (args) => new Date().getFullYear() - Number(args[0]),
+            arguments: ["investidor10.cadastral.ano_de_fundacao"],
+        },
     },
     "reit_br": {
         "b3.derived.position.current_value": common.currentValue,

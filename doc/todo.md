@@ -1,6 +1,3 @@
-### add colors
-patrimonio liquido, listagem, ano
-
 ### click cell on derived values should explain the calc (and give multiple links if needed)
 
 ### [refactor] labeler context ?
